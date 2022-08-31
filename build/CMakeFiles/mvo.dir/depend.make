@@ -6,8 +6,8 @@ CMakeFiles/mvo.dir/main/Init.cpp.o: ../main/Init.h
 
 CMakeFiles/mvo.dir/main/main.cpp.o: ../include/Config.h
 CMakeFiles/mvo.dir/main/main.cpp.o: ../include/Feature.h
-CMakeFiles/mvo.dir/main/main.cpp.o: ../include/KeyFrame.h
 CMakeFiles/mvo.dir/main/main.cpp.o: ../include/PoseEstimation.h
+CMakeFiles/mvo.dir/main/main.cpp.o: ../include/Triangulate.h
 CMakeFiles/mvo.dir/main/main.cpp.o: ../main/Init.h
 CMakeFiles/mvo.dir/main/main.cpp.o: ../main/main.cpp
 

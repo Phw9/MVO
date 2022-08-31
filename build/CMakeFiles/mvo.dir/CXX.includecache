@@ -22,7 +22,13 @@ opencv2/stitching.hpp
 opencv2/video.hpp
 ../include/opencv2/video.hpp
 
-../include/KeyFrame.h
+../include/PoseEstimation.h
+Feature.h
+../include/Feature.h
+opencv2/calib3d.hpp
+../include/opencv2/calib3d.hpp
+
+../include/Triangulate.h
 iostream
 -
 opencv2/calib3d.hpp
@@ -30,13 +36,7 @@ opencv2/calib3d.hpp
 opencv2/core.hpp
 ../include/opencv2/core.hpp
 
-../include/PoseEstimation.h
-Feature.h
-../include/Feature.h
-opencv2/calib3d.hpp
-../include/opencv2/calib3d.hpp
-
-/home/phw9/MVO/main/Init.h
+/home/phw9/Dev/MVO/main/Init.h
 deque
 -
 fstream
@@ -44,11 +44,11 @@ fstream
 string
 -
 opencv2/core.hpp
-/home/phw9/MVO/main/opencv2/core.hpp
+/home/phw9/Dev/MVO/main/opencv2/core.hpp
 opencv2/imgproc.hpp
-/home/phw9/MVO/main/opencv2/imgproc.hpp
+/home/phw9/Dev/MVO/main/opencv2/imgproc.hpp
 eigen3/Eigen/Dense
-/home/phw9/MVO/main/eigen3/Eigen/Dense
+/home/phw9/Dev/MVO/main/eigen3/Eigen/Dense
 pangolin/display/display.h
 -
 pangolin/gl/gl.h
@@ -76,19 +76,19 @@ stdio.h
 stdlib.h
 -
 
-/home/phw9/MVO/main/main.cpp
+/home/phw9/Dev/MVO/main/main.cpp
 Config.h
-/home/phw9/MVO/main/Config.h
+/home/phw9/Dev/MVO/main/Config.h
 Feature.h
-/home/phw9/MVO/main/Feature.h
+/home/phw9/Dev/MVO/main/Feature.h
 Init.h
-/home/phw9/MVO/main/Init.h
+/home/phw9/Dev/MVO/main/Init.h
 PoseEstimation.h
-/home/phw9/MVO/main/PoseEstimation.h
-KeyFrame.h
-/home/phw9/MVO/main/KeyFrame.h
+/home/phw9/Dev/MVO/main/PoseEstimation.h
+Triangulate.h
+/home/phw9/Dev/MVO/main/Triangulate.h
 opencv2/imgcodecs.hpp
-/home/phw9/MVO/main/opencv2/imgcodecs.hpp
+/home/phw9/Dev/MVO/main/opencv2/imgcodecs.hpp
 opencv2/highgui.hpp
-/home/phw9/MVO/main/opencv2/highgui.hpp
+/home/phw9/Dev/MVO/main/opencv2/highgui.hpp
 
