@@ -7,4 +7,4 @@ CMakeFiles/mvo.dir/main.cpp.o
  ../include/Init.h
  ../include/PoseEstimation.h
  ../include/Triangulate.h
- /home/phw9/Dev/MVO/main.cpp
+ /home/phw9/MVO/main.cpp

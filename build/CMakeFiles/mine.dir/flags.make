@@ -6,5 +6,5 @@ CXX_FLAGS = -fPIC
 
 CXX_DEFINES = -DHAVE_EIGEN -DHAVE_GLEW -DPANGO_DEFAULT_WIN_URI=\"x11\" -D_LINUX_ -Dmine_EXPORTS
 
-CXX_INCLUDES = -I/home/phw9/Dev/MVO/include -isystem /usr/include/eigen3 -isystem /usr/local/include/opencv 
+CXX_INCLUDES = -I/home/phw9/MVO/include -isystem /usr/include/eigen3 -isystem /usr/local/include/opencv 
 
