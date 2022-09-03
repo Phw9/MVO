@@ -80,19 +80,19 @@ opencv2/calib3d.hpp
 opencv2/core.hpp
 ../include/opencv2/core.hpp
 
-/home/phw9/Dev/MVO/main.cpp
+/home/phw9/MVO/main.cpp
 Config.h
-/home/phw9/Dev/MVO/Config.h
+/home/phw9/MVO/Config.h
 Feature.h
-/home/phw9/Dev/MVO/Feature.h
+/home/phw9/MVO/Feature.h
 Init.h
-/home/phw9/Dev/MVO/Init.h
+/home/phw9/MVO/Init.h
 PoseEstimation.h
-/home/phw9/Dev/MVO/PoseEstimation.h
+/home/phw9/MVO/PoseEstimation.h
 Triangulate.h
-/home/phw9/Dev/MVO/Triangulate.h
+/home/phw9/MVO/Triangulate.h
 opencv2/imgcodecs.hpp
-/home/phw9/Dev/MVO/opencv2/imgcodecs.hpp
+/home/phw9/MVO/opencv2/imgcodecs.hpp
 opencv2/highgui.hpp
-/home/phw9/Dev/MVO/opencv2/highgui.hpp
+/home/phw9/MVO/opencv2/highgui.hpp
 
