@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/mvo.dir/main.cpp.o"
-  "mvo"
   "mvo.pdb"
+  "mvo"
 )
 
 # Per-language clean rules from dependency scanning.
