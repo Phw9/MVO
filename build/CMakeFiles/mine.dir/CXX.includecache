@@ -20,12 +20,6 @@ opencv2/stitching.hpp
 opencv2/video.hpp
 ../include/opencv2/video.hpp
 
-../include/PoseEstimation.h
-Feature.h
-../include/Feature.h
-opencv2/calib3d.hpp
-../include/opencv2/calib3d.hpp
-
 ../include/Triangulate.h
 iostream
 -
@@ -34,13 +28,9 @@ opencv2/calib3d.hpp
 opencv2/core.hpp
 ../include/opencv2/core.hpp
 
-/home/phw9/Dev/MVO/src/PoseEstimation.cpp
+/home/phw9/Dev/MVO/src/Feature.cpp
 iostream
 -
 Feature.h
 /home/phw9/Dev/MVO/src/Feature.h
-PoseEstimation.h
-/home/phw9/Dev/MVO/src/PoseEstimation.h
-opencv2/core.hpp
-/home/phw9/Dev/MVO/src/opencv2/core.hpp
 

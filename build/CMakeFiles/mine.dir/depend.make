@@ -12,6 +12,7 @@ CMakeFiles/mine.dir/src/Init.cpp.o: ../src/Init.cpp
 CMakeFiles/mine.dir/src/KeyFrame.cpp.o: ../include/KeyFrame.h
 CMakeFiles/mine.dir/src/KeyFrame.cpp.o: ../src/KeyFrame.cpp
 
+CMakeFiles/mine.dir/src/PoseEstimation.cpp.o: ../include/Config.h
 CMakeFiles/mine.dir/src/PoseEstimation.cpp.o: ../include/Feature.h
 CMakeFiles/mine.dir/src/PoseEstimation.cpp.o: ../include/PoseEstimation.h
 CMakeFiles/mine.dir/src/PoseEstimation.cpp.o: ../include/Triangulate.h

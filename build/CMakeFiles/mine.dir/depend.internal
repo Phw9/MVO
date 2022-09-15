@@ -13,6 +13,7 @@ CMakeFiles/mine.dir/src/KeyFrame.cpp.o
  ../include/KeyFrame.h
  /home/phw9/Dev/MVO/src/KeyFrame.cpp
 CMakeFiles/mine.dir/src/PoseEstimation.cpp.o
+ ../include/Config.h
  ../include/Feature.h
  ../include/PoseEstimation.h
  ../include/Triangulate.h
