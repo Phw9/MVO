@@ -6,7 +6,6 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/phw/Dev/MVO/src/Feature.cpp" "/home/phw/Dev/MVO/build/CMakeFiles/mine.dir/src/Feature.cpp.o"
   "/home/phw/Dev/MVO/src/Init.cpp" "/home/phw/Dev/MVO/build/CMakeFiles/mine.dir/src/Init.cpp.o"
-  "/home/phw/Dev/MVO/src/KeyFrame.cpp" "/home/phw/Dev/MVO/build/CMakeFiles/mine.dir/src/KeyFrame.cpp.o"
   "/home/phw/Dev/MVO/src/PoseEstimation.cpp" "/home/phw/Dev/MVO/build/CMakeFiles/mine.dir/src/PoseEstimation.cpp.o"
   "/home/phw/Dev/MVO/src/Triangulate.cpp" "/home/phw/Dev/MVO/build/CMakeFiles/mine.dir/src/Triangulate.cpp.o"
   )

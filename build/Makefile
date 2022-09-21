@@ -217,33 +217,6 @@ src/Init.cpp.s:
 	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/Init.cpp.s
 .PHONY : src/Init.cpp.s
 
-src/KeyFrame.o: src/KeyFrame.cpp.o
-
-.PHONY : src/KeyFrame.o
-
-# target to build an object file
-src/KeyFrame.cpp.o:
-	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/KeyFrame.cpp.o
-.PHONY : src/KeyFrame.cpp.o
-
-src/KeyFrame.i: src/KeyFrame.cpp.i
-
-.PHONY : src/KeyFrame.i
-
-# target to preprocess a source file
-src/KeyFrame.cpp.i:
-	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/KeyFrame.cpp.i
-.PHONY : src/KeyFrame.cpp.i
-
-src/KeyFrame.s: src/KeyFrame.cpp.s
-
-.PHONY : src/KeyFrame.s
-
-# target to generate assembly for a file
-src/KeyFrame.cpp.s:
-	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/KeyFrame.cpp.s
-.PHONY : src/KeyFrame.cpp.s
-
 src/PoseEstimation.o: src/PoseEstimation.cpp.o
 
 .PHONY : src/PoseEstimation.o
@@ -317,9 +290,6 @@ help:
 	@echo "... src/Init.o"
 	@echo "... src/Init.i"
 	@echo "... src/Init.s"
-	@echo "... src/KeyFrame.o"
-	@echo "... src/KeyFrame.i"
-	@echo "... src/KeyFrame.s"
 	@echo "... src/PoseEstimation.o"
 	@echo "... src/PoseEstimation.i"
 	@echo "... src/PoseEstimation.s"

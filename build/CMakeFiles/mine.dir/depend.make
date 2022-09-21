@@ -485,9 +485,6 @@ CMakeFiles/mine.dir/src/Init.cpp.o: /usr/local/include/pangolin/windowing/handle
 CMakeFiles/mine.dir/src/Init.cpp.o: /usr/local/include/pangolin/windowing/window.h
 CMakeFiles/mine.dir/src/Init.cpp.o: /usr/local/include/sigslot/signal.hpp
 
-CMakeFiles/mine.dir/src/KeyFrame.cpp.o: ../include/KeyFrame.h
-CMakeFiles/mine.dir/src/KeyFrame.cpp.o: ../src/KeyFrame.cpp
-
 CMakeFiles/mine.dir/src/PoseEstimation.cpp.o: ../include/Config.h
 CMakeFiles/mine.dir/src/PoseEstimation.cpp.o: ../include/Feature.h
 CMakeFiles/mine.dir/src/PoseEstimation.cpp.o: ../include/PoseEstimation.h

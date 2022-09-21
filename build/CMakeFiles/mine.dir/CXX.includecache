@@ -74,8 +74,6 @@ stdio.h
 stdlib.h
 -
 
-../include/KeyFrame.h
-
 ../include/PoseEstimation.h
 Feature.h
 ../include/Feature.h
@@ -99,10 +97,6 @@ Feature.h
 /home/phw/Dev/MVO/src/Init.cpp
 Init.h
 /home/phw/Dev/MVO/src/Init.h
-
-/home/phw/Dev/MVO/src/KeyFrame.cpp
-KeyFrame.h
-/home/phw/Dev/MVO/src/KeyFrame.h
 
 /home/phw/Dev/MVO/src/PoseEstimation.cpp
 iostream
