@@ -125,7 +125,9 @@ CMakeFiles/mine.dir/src/Feature.cpp.o
  /usr/local/include/opencv2/videostab/stabilizer.hpp
  /usr/local/include/opencv2/videostab/wobble_suppression.hpp
 CMakeFiles/mine.dir/src/Init.cpp.o
+ ../include/Feature.h
  ../include/Init.h
+ ../include/PoseEstimation.h
  ../include/Triangulate.h
  /home/phw/Dev/MVO/src/Init.cpp
  /usr/include/eigen3/Eigen/Cholesky

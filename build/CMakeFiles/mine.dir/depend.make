@@ -124,7 +124,9 @@ CMakeFiles/mine.dir/src/Feature.cpp.o: /usr/local/include/opencv2/videostab/ring
 CMakeFiles/mine.dir/src/Feature.cpp.o: /usr/local/include/opencv2/videostab/stabilizer.hpp
 CMakeFiles/mine.dir/src/Feature.cpp.o: /usr/local/include/opencv2/videostab/wobble_suppression.hpp
 
+CMakeFiles/mine.dir/src/Init.cpp.o: ../include/Feature.h
 CMakeFiles/mine.dir/src/Init.cpp.o: ../include/Init.h
+CMakeFiles/mine.dir/src/Init.cpp.o: ../include/PoseEstimation.h
 CMakeFiles/mine.dir/src/Init.cpp.o: ../include/Triangulate.h
 CMakeFiles/mine.dir/src/Init.cpp.o: ../src/Init.cpp
 CMakeFiles/mine.dir/src/Init.cpp.o: /usr/include/eigen3/Eigen/Cholesky

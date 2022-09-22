@@ -45,6 +45,10 @@ eigen3/Eigen/Dense
 ../include/eigen3/Eigen/Dense
 Triangulate.h
 ../include/Triangulate.h
+PoseEstimation.h
+../include/PoseEstimation.h
+Feature.h
+../include/Feature.h
 pangolin/display/display.h
 -
 pangolin/gl/gl.h
