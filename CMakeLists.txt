@@ -26,6 +26,10 @@ find_package(Pangolin REQUIRED)
       message(FATAL_ERROR "Pangolin not found.")
    endif()
 
+find_package(Ceres REQUIRED)
+   if(NOT Ceres_FOUND)
+      message(FATAL_ERROR "Ceres-solver not found.")
+   endif()
 
 MESSAGE("OPENCV VERSION:")
 MESSAGE(${OpenCV_VERSION})
@@ -40,8 +44,10 @@ include_directories(
    ${OpenCV_INCLUDE_DIRS}
    ${OPENGL_INCLUDE_DIRS}
    ${Pangolin_INCLUDE_DIRS}
+   ${CERES_INCLUDE_DIRS}
    ${PROJECT_SOURCE_DIR}/include
    )
+
 
 add_library(mine SHARED
    ${PROJECT_SOURCE_DIR}/src/Feature.cpp
@@ -55,6 +61,9 @@ target_link_libraries(mine
    ${OpenCV_LIBS}
    ${OPENGL_LIBRARIES}
    ${Pangolin_LIBRARIES}
+   ${CERES_INCLUDE_DIRS}
+   ${PROJECT_SOURCE_DIR}/thirdparty/DBoW2/lib/libDBoW2.so
+   ${PROJECT_SOURCE_DIR}/thirdparty/g2o/lib/libg2o.so
 )
 
 
@@ -68,6 +77,9 @@ target_link_libraries(mvo
    ${OpenCV_LIBS}
    ${OPENGL_LIBRARIES}
    ${Pangolin_LIBRARIES}
+   ${CERES_INCLUDE_DIRS}
+   ${PROJECT_SOURCE_DIR}/thirdparty/DBoW2/lib/libDBoW2.so
+   ${PROJECT_SOURCE_DIR}/thirdparty/g2o/lib/libg2o.so
    mine
 )
 
