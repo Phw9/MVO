@@ -1,4 +1,4 @@
-# Install script for directory: /home/phw9/MVO
+# Install script for directory: /home/phw93/Dev/MVO
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/phw9/MVO/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/phw93/Dev/MVO/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

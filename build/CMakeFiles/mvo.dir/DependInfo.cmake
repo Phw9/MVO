@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/phw9/MVO/main.cpp" "/home/phw9/MVO/build/CMakeFiles/mvo.dir/main.cpp.o"
+  "/home/phw93/Dev/MVO/main.cpp" "/home/phw93/Dev/MVO/build/CMakeFiles/mvo.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -12,7 +12,7 @@ set(CMAKE_CXX_COMPILER_ID "GNU")
 set(CMAKE_TARGET_DEFINITIONS_CXX
   "HAVE_EIGEN"
   "HAVE_GLEW"
-  "PANGO_DEFAULT_WIN_URI=\"x11\""
+  "PANGO_DEFAULT_WIN_URI=\"wayland\""
   "_LINUX_"
   )
 
@@ -20,12 +20,12 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "../include"
   "/usr/include/eigen3"
-  "/usr/local/include/opencv"
+  "/usr/local/include/opencv4"
   )
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
-  "/home/phw9/MVO/build/CMakeFiles/mine.dir/DependInfo.cmake"
+  "/home/phw93/Dev/MVO/build/CMakeFiles/mine.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

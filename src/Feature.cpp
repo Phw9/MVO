@@ -7,6 +7,7 @@ mvo::Feature::Feature()
     mfeatures.clear();
     mstatus.clear();
     merr.clear();
+    mdesc.clear();
 }
 
 
@@ -36,6 +37,21 @@ bool mvo::Feature::GoodFeaturesToTrack(const cv::Mat& src)
         std::cerr << "tracker size small than 100" << std::endl;
         return false;
     }
+    cv::Ptr<cv::xfeatures2d::BriefDescriptorExtractor> brief = cv::xfeatures2d::BriefDescriptorExtractor::create();
+
+    cv::Mat desc1;
+    std::vector<cv::KeyPoint> kp;
+    VecToKeyPoint(mfeatures, kp);
+    std::cout << "before mfeatures: " << mfeatures.size() << std::endl;
+    std::cout << "before kp size: " << kp.size() << std::endl;
+    brief->compute(src, kp, desc1);
+    mfeatures.clear();
+    KeyPointToVec(kp,mfeatures);
+    MatToVec(desc1, mdesc);
+    std::cout << "desc mat size: " << desc1.size() << std::endl;
+    std::cout << "after mfeatures: " << mfeatures.size() << std::endl;
+    std::cout << "after kp size: " << kp.size() << std::endl;
+    std::cout << "mdesc: " << mdesc.size() << std::endl;
     return true;
 }
 
@@ -65,6 +81,8 @@ bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mv
             }
             mfeatures.erase(mfeatures.begin() + (i - indexCorrection));           // time complexity
             next.mfeatures.erase(next.mfeatures.begin() + (i - indexCorrection));
+            mdesc.erase(mdesc.begin() + (i - indexCorrection));           // time complexity
+            next.mdesc.erase(next.mdesc.begin() + (i - indexCorrection));
             indexCorrection++;
         }
     }
@@ -72,6 +90,11 @@ bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mv
     if(next.mfeatures.empty())
     {
         std::cerr << "failed calcOpticalFlowPyrLK" << std::endl;
+        return false;
+    }
+    if(next.mdesc.empty())
+    {
+        std::cerr << "failed calcOpticalFlowPyrLK descriptor" << std::endl;
         return false;
     }
     return true;
@@ -85,108 +108,56 @@ void ManageTrackPoints(const mvo::Feature& present, mvo::Feature& before)
         if(present.mstatus.at(i) == 0)
         {
             before.mfeatures.erase(before.mfeatures.begin() + (i-indexCorrection));
+            before.mdesc.erase(before.mdesc.begin() + (i-indexCorrection));
             indexCorrection++;
         }
     }
 }
  
-bool ManageMapPoints(const std::vector<uchar>& mstatus, std::vector<cv::Point3f>& map)
+bool KeyPointToVec(const std::vector<cv::KeyPoint>& kp, std::vector<cv::Point2f>& features2d)
 {
-    int indexCorrection = 0;
-    
-    if(map.size() == mstatus.size())
+    cv::Point2f temp;
+    for(int i=0; i<kp.size(); i++)
     {
-        for(int i = 0; i < mstatus.size(); i++)
-        {
-            if(mstatus.at(i) == 0)
-            {
-                map.erase(map.begin() + (i - indexCorrection));
-                indexCorrection++;
-            }
-        }
-        // for(int i = 0; i < map.size(); i++)
-        // {
-        //     std::cout << map.at(i).x << " " << map.at(i).y << " " << map.at(i).z << std::endl;
-        // }
-        return true;
+        temp.x = kp.at(i).pt.x;
+        temp.y = kp.at(i).pt.y;
+        features2d.emplace_back(std::move(temp));
     }
-    return false;
-}
-bool ManageMinusZ(mvo::Triangulate& map, cv::Mat& R, std::vector<int>& id)
-{
-    double tempd = 0;
-    for(int i = 0; i < map.mworldMapPointsV.size(); i++)
-    {
-        tempd = (R.at<double>(2,0)*map.mworldMapPointsV.at(i).x) +
-                (R.at<double>(2,1)*map.mworldMapPointsV.at(i).y) +
-                (R.at<double>(2,2)*map.mworldMapPointsV.at(i).z);
-        if(tempd < 0)
-        {
-            id.emplace_back(i);
-            map.mworldMapPointsV.erase(map.mworldMapPointsV.begin()+i);
-        }
-    }
-    if(map.mworldMapPointsV.size() == 0) return false;
+
+    if(features2d.size() != kp.size()) return false;
 
     return true;
 }
 
-bool ManageMinusLocal(std::vector<mvo::Feature>& localTrackPoints, const std::vector<int>& id)
+bool VecToKeyPoint(const std::vector<cv::Point2f>& features2d, std::vector<cv::KeyPoint>& kp)
 {
-    for(int i = 0; i<localTrackPoints.size(); i++)
+    cv::KeyPoint temp;
+    for(int i=0; i<features2d.size(); i++)
     {
-        for(int j = 0; j<id.size(); j++)
-        {
-            localTrackPoints.at(i).mfeatures.erase(localTrackPoints.at(i).mfeatures.begin()+id.at(j));
-        }
+        temp.pt.x = features2d.at(i).x;
+        temp.pt.y = features2d.at(i).y;
+        kp.emplace_back(std::move(temp));
     }
-    
-    if(localTrackPoints.at(0).mfeatures.size() == localTrackPoints.at(localTrackPoints.size()-1).mfeatures.size()) return true;
-    
-    return false;
+
+    if(features2d.size() != kp.size()) return false;
+
+    return true;
 }
 
-void ManageInlier(std::vector<mvo::Feature>& features2d, std::vector<cv::Point3f>& mapPoints3d, const cv::Mat& inlier)
+bool MatToVec(const cv::Mat m, std::vector<std::vector<DTYPE>>& v)
 {
-    int interval;
-    std::vector<int> idv;
-    int ilast = inlier.at<int>(inlier.rows-1,0);
-    int flast = features2d.at(0).mfeatures.size() - 1;
-    idv.reserve(3000);
-    idv.emplace_back(inlier.at<int>(0,0)-1);
-    for(int i = 0; i < inlier.rows; i++)
+    std::vector<DTYPE> temp;
+    for(int j=0; j<m.rows ; j++)
     {
-        idv.emplace_back(inlier.at<int>(i,0));
+        for(int i=0; i<m.cols; i++)
+        {
+            temp.emplace_back(m.at<uchar>(j, i));
+        }
+        v.emplace_back(std::move(temp));
+        temp.clear();
     }
 
-    for(int i=0; i<idv.size()-1; i++)
-    {
-        interval = idv.at(i+1) - idv.at(i)-1;
-        for(int j = i; j<interval+i; j++)
-        {
-            for(int k = 0; k < features2d.size(); k++)
-            {
-                features2d.at(k).mfeatures.erase(features2d.at(k).mfeatures.begin()+j);
-            }
-            mapPoints3d.erase(mapPoints3d.begin()+j);  
-        }
+    if(m.rows != v.size()) return false;
 
-        if(i == idv.size()-2 && flast-ilast != 0)
-        {
-            for(int l = 0; l < features2d.size(); l++)
-            {
-                for(int h = 0; h < flast-ilast; h++)
-                {
-                    features2d.at(l).mfeatures.pop_back();
-                    features2d.at(l).mfeatures.pop_back();
-                }
-            }
-            for(int h = 0; h < flast-ilast; h++)
-            {
-                mapPoints3d.pop_back();
-                mapPoints3d.pop_back();
-            }
-            break;
-        }
-    }
+    return true;
 }

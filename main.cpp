@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 
 				// Triangulate Landmark
 				if(!mapPointsA.CalcWorldPoints(intrinsicKd*m1, intrinsicKd*m2,
-							localTrackPointsA[0].mfeatures, localTrackPointsA[lTPA].mfeatures))
+							localTrackPointsA[0], localTrackPointsA[lTPA]))
 				{
 					std::cerr << "fail scaling" << std::endl;
 				}
@@ -198,7 +198,7 @@ int main(int argc, char** argv)
 				// triangulate
 				mapPointsB.mworldMapPointsV.clear();
 				mapPointsB.CalcWorldPoints(intrinsicKd*globalRTMat.at(gP-lTPB-1), intrinsicKd*globalRTMat.at(gP-1), 
-										localTrackPointsB.at(0).mfeatures, localTrackPointsB.at(lTPB).mfeatures);
+										localTrackPointsB.at(0), localTrackPointsB.at(lTPB));
 				if(!mapPointsB.ScalingPoints())
 				{
 					std::cerr << "failed scaling" << std::endl;
@@ -240,7 +240,7 @@ int main(int argc, char** argv)
 				// triangulate
 				mapPointsA.mworldMapPointsV.clear();
 				mapPointsA.CalcWorldPoints(intrinsicKd*globalRTMat.at(gP-lTPA-1), intrinsicKd*globalRTMat.at(gP-1), 
-										localTrackPointsA.at(0).mfeatures, localTrackPointsA.at(lTPA).mfeatures);
+										localTrackPointsA.at(0), localTrackPointsA.at(lTPA));
 				if(!mapPointsA.ScalingPoints())
 				{
 					std::cerr << "failed scaling" << std::endl;
@@ -421,4 +421,3 @@ int main(int argc, char** argv)
 
     return 0;
 }
-

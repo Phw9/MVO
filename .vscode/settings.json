@@ -62,6 +62,9 @@
         "cfenv": "cpp",
         "typeindex": "cpp",
         "variant": "cpp",
-        "dense": "cpp"
+        "dense": "cpp",
+        "unordered_set": "cpp",
+        "regex": "cpp",
+        "shared_mutex": "cpp"
     }
 }
