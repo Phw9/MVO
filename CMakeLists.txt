@@ -21,6 +21,11 @@ find_package(GLUT REQUIRED)
       message(FATAL_ERROR "GLUT not found.")
    endif()
 
+find_package(Eigen3 REQUIRED)
+   if(NOT Eigen3_FOUND)
+      message(FATAL_ERROR "Eigen3 not found.")
+   endif()
+   
 find_package(Pangolin REQUIRED)
    if(NOT Pangolin_FOUND)
       message(FATAL_ERROR "Pangolin not found.")
@@ -49,10 +54,19 @@ include_directories(
    )
 
 add_library(mine SHARED
+   ${PROJECT_SOURCE_DIR}/src/BundleAdjustment.cpp
    ${PROJECT_SOURCE_DIR}/src/Feature.cpp
    ${PROJECT_SOURCE_DIR}/src/PoseEstimation.cpp
    ${PROJECT_SOURCE_DIR}/src/Triangulate.cpp
    ${PROJECT_SOURCE_DIR}/src/Init.cpp
+)
+target_include_directories(mine PUBLIC
+   ${EIGEN3_INCLUDE_DIRS}
+   ${GLUT_INCLUDE_DIRS}
+   ${OpenCV_INCLUDE_DIRS}
+   ${OPENGL_INCLUDE_DIRS}
+   ${Pangolin_INCLUDE_DIRS}
+   ${CERES_INCLUDE_DIRS}
 )
 
 target_link_libraries(mine
@@ -61,7 +75,7 @@ target_link_libraries(mine
    ${OpenCV_LIBS}
    ${OPENGL_LIBRARIES}
    ${Pangolin_LIBRARIES}
-   ${CERES_INCLUDE_DIRS}
+   ${CERES_LIBRARIES}
    ${PROJECT_SOURCE_DIR}/thirdparty/DBoW2/lib/libDBoW2.so
    ${PROJECT_SOURCE_DIR}/thirdparty/g2o/lib/libg2o.so
 )
@@ -76,7 +90,7 @@ target_link_libraries(mvo
    ${OpenCV_LIBS}
    ${OPENGL_LIBRARIES}
    ${Pangolin_LIBRARIES}
-   ${CERES_INCLUDE_DIRS}
+   ${CERES_LIBRARIES}
    ${PROJECT_SOURCE_DIR}/thirdparty/DBoW2/lib/libDBoW2.so
    ${PROJECT_SOURCE_DIR}/thirdparty/g2o/lib/libg2o.so
    mine

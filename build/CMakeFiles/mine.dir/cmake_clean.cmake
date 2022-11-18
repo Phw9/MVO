@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/mine.dir/src/BundleAdjustment.cpp.o"
   "CMakeFiles/mine.dir/src/Feature.cpp.o"
   "CMakeFiles/mine.dir/src/Init.cpp.o"
   "CMakeFiles/mine.dir/src/PoseEstimation.cpp.o"

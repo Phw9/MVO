@@ -163,6 +163,33 @@ main.cpp.s:
 	$(MAKE) -f CMakeFiles/mvo.dir/build.make CMakeFiles/mvo.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+src/BundleAdjustment.o: src/BundleAdjustment.cpp.o
+
+.PHONY : src/BundleAdjustment.o
+
+# target to build an object file
+src/BundleAdjustment.cpp.o:
+	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/BundleAdjustment.cpp.o
+.PHONY : src/BundleAdjustment.cpp.o
+
+src/BundleAdjustment.i: src/BundleAdjustment.cpp.i
+
+.PHONY : src/BundleAdjustment.i
+
+# target to preprocess a source file
+src/BundleAdjustment.cpp.i:
+	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/BundleAdjustment.cpp.i
+.PHONY : src/BundleAdjustment.cpp.i
+
+src/BundleAdjustment.s: src/BundleAdjustment.cpp.s
+
+.PHONY : src/BundleAdjustment.s
+
+# target to generate assembly for a file
+src/BundleAdjustment.cpp.s:
+	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/BundleAdjustment.cpp.s
+.PHONY : src/BundleAdjustment.cpp.s
+
 src/Feature.o: src/Feature.cpp.o
 
 .PHONY : src/Feature.o
@@ -284,6 +311,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... src/BundleAdjustment.o"
+	@echo "... src/BundleAdjustment.i"
+	@echo "... src/BundleAdjustment.s"
 	@echo "... src/Feature.o"
 	@echo "... src/Feature.i"
 	@echo "... src/Feature.s"

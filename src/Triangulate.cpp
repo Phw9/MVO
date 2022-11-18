@@ -35,6 +35,12 @@ bool mvo::Triangulate::CalcWorldPoints(const cv::Mat& pose1,
     std::cout << "3d point nums: " << mworldMapPoints.size() << std::endl;
     std::cout << "mworldMapPoints rows: " << mworldMapPoints.rows << std::endl;
     std::cout << "mworldMapPoints cols: " << mworldMapPoints.cols << std::endl;
+    mvdesc.clear();
+    mworldMapPointsV.clear();
+    std::cout << "pts1.mvdesc.size(): " << pts1.mvdesc.size() << std::endl;
+    mvdesc = pts1.mvdesc;
+    std::cout << "mvdesc in Triangulate: " << mvdesc.size() << std::endl;
+    std::cout << "mvdesc in pts1: " << pts1.mvdesc.size() << std::endl;
     if(mworldMapPoints.empty())
     {
         std::cerr << "failed triagulatePoints" << std::endl;

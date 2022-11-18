@@ -7,7 +7,7 @@ mvo::Feature::Feature()
     mfeatures.clear();
     mstatus.clear();
     merr.clear();
-    mdesc.clear();
+    mvdesc.clear();
 }
 
 
@@ -47,16 +47,18 @@ bool mvo::Feature::GoodFeaturesToTrack(const cv::Mat& src)
     brief->compute(src, kp, desc1);
     mfeatures.clear();
     KeyPointToVec(kp,mfeatures);
-    MatToVec(desc1, mdesc);
+    mvdesc.clear();
+    MatToVec(desc1, mvdesc);
     std::cout << "desc mat size: " << desc1.size() << std::endl;
     std::cout << "after mfeatures: " << mfeatures.size() << std::endl;
     std::cout << "after kp size: " << kp.size() << std::endl;
-    std::cout << "mdesc: " << mdesc.size() << std::endl;
+    std::cout << "mvdesc: " << mvdesc.size() << std::endl;
     return true;
 }
 
 bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mvo::Feature& next)
 {
+    next.mfeatures.clear(); next.mstatus.clear(); next.merr.clear();
     cv::Size winSize = cv::Size(21,21);
     cv::TermCriteria termcrit = cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 30, 0.11);
     
@@ -81,8 +83,8 @@ bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mv
             }
             mfeatures.erase(mfeatures.begin() + (i - indexCorrection));           // time complexity
             next.mfeatures.erase(next.mfeatures.begin() + (i - indexCorrection));
-            mdesc.erase(mdesc.begin() + (i - indexCorrection));           // time complexity
-            next.mdesc.erase(next.mdesc.begin() + (i - indexCorrection));
+            mvdesc.erase(mvdesc.begin() + (i - indexCorrection));           // time complexity
+            next.mvdesc.erase(next.mvdesc.begin() + (i - indexCorrection));
             indexCorrection++;
         }
     }
@@ -92,7 +94,7 @@ bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mv
         std::cerr << "failed calcOpticalFlowPyrLK" << std::endl;
         return false;
     }
-    if(next.mdesc.empty())
+    if(next.mvdesc.empty())
     {
         std::cerr << "failed calcOpticalFlowPyrLK descriptor" << std::endl;
         return false;
@@ -108,7 +110,7 @@ void ManageTrackPoints(const mvo::Feature& present, mvo::Feature& before)
         if(present.mstatus.at(i) == 0)
         {
             before.mfeatures.erase(before.mfeatures.begin() + (i-indexCorrection));
-            before.mdesc.erase(before.mdesc.begin() + (i-indexCorrection));
+            before.mvdesc.erase(before.mvdesc.begin() + (i-indexCorrection));
             indexCorrection++;
         }
     }

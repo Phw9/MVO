@@ -7,6 +7,7 @@
 #include "opencv2/highgui.hpp"
 
 
+
 int main(int argc, char** argv)
 {
     std::ofstream rawData ("./image.txt", rawData.out | rawData.trunc);
@@ -42,6 +43,7 @@ int main(int argc, char** argv)
 
 	mvo::StrctureFromMotion getEssential;
 	mvo::PoseEstimation getPose;
+	mvo::Initializer checkScore;
 
 	std::vector<int> mapStats;
 	mvo::Triangulate mapPointsA, mapPointsB;
@@ -67,6 +69,25 @@ int main(int argc, char** argv)
 
 	while(true)
 	{
+		// Automatically Initilizer Calculate RH = SH/(SH+SF)
+		// while(true)
+		// {
+		// 	img = cv::imread(readImageName.at(imageCurNum), 
+		// 						cv::ImreadModes::IMREAD_UNCHANGED);
+		// 	if (img.empty())
+		// 	{
+		// 		std::cerr << "frame upload failed" << std::endl;
+		// 	}
+		// 	if(realFrame == 0)	// feature extract
+		// 	{
+		// 		if(!trackerA.GoodFeaturesToTrack(img))
+		// 		{	
+		// 			std::cerr << "new tracker A" << std::endl;
+		// 		}
+		// 		localTrackPointsA.emplace_back(std::move(trackerA));
+		// 	}
+		// }
+
 		while(realFrame < ESSENTIALFRAME)
 		{
 			img = cv::imread(readImageName.at(imageCurNum), 
@@ -131,11 +152,19 @@ int main(int argc, char** argv)
 			}
 			else	// tracking
 			{
-				trackerA.mstatus.clear(), trackerA.mfeatures.clear(), trackerA.merr.clear();
 				localTrackPointsA[lTPA].OpticalFlowPyrLK(cv::imread(readImageName.at(imageCurNum-1), 
 														cv::ImreadModes::IMREAD_UNCHANGED), img, trackerA);
 				localTrackPointsA.emplace_back(std::move(trackerA));
 				lTPA++;
+				// float RH, SH, SF;
+				// SF = checkScore.CheckFundamental(localTrackPointsA[lTPA-1].mfeatures, localTrackPointsA[lTPA].mfeatures, 50.0f);
+				// SH = checkScore.CheckHomography(localTrackPointsA[lTPA-1].mfeatures, localTrackPointsA[lTPA].mfeatures, 150.0f);
+				// RH = SH/(SH+SF);
+				// std::cout << "score: " <<  RH << std::endl;
+				// if(RH>0.45)
+				// {
+				// 	std::cout << "true" << std::endl;
+				// }
 				getEssential.CreateEssentialMatrix(localTrackPointsA[lTPA-1].mfeatures, localTrackPointsA[lTPA].mfeatures, intrinsicKf);
 				getEssential.GetEssentialRt(getEssential.mEssential, intrinsicKf,
 											localTrackPointsA[lTPA-1].mfeatures, 
@@ -196,7 +225,6 @@ int main(int argc, char** argv)
 			{
 				std::cout << "ㅇㅇㅇNewTrack Aㅇㅇㅇ" << std::endl;
 				// triangulate
-				mapPointsB.mworldMapPointsV.clear();
 				mapPointsB.CalcWorldPoints(intrinsicKd*globalRTMat.at(gP-lTPB-1), intrinsicKd*globalRTMat.at(gP-1), 
 										localTrackPointsB.at(0), localTrackPointsB.at(lTPB));
 				if(!mapPointsB.ScalingPoints())
@@ -238,7 +266,6 @@ int main(int argc, char** argv)
 			{
 				std::cout << "ㅇㅇㅇNewTrack Bㅇㅇㅇ" << std::endl;
 				// triangulate
-				mapPointsA.mworldMapPointsV.clear();
 				mapPointsA.CalcWorldPoints(intrinsicKd*globalRTMat.at(gP-lTPA-1), intrinsicKd*globalRTMat.at(gP-1), 
 										localTrackPointsA.at(0), localTrackPointsA.at(lTPA));
 				if(!mapPointsA.ScalingPoints())
@@ -281,7 +308,6 @@ int main(int argc, char** argv)
 		}
 
 		// tracking
-		trackerA.mstatus.clear(), trackerA.mfeatures.clear(), trackerA.merr.clear();
 		localTrackPointsA[lTPA].OpticalFlowPyrLK(cv::imread(readImageName.at(imageCurNum-1), 
 													cv::ImreadModes::IMREAD_UNCHANGED), img, trackerA);
 		localTrackPointsA.emplace_back(std::move(trackerA));
@@ -315,7 +341,7 @@ int main(int argc, char** argv)
 			// std::cout << "after inlier mappoints size: " << mapPointsA.mworldMapPointsV.size() << std::endl;	
 			getPose.GetRMatTPose(); getPose.CombineRt();
 			globalRTMat.emplace_back(std::move(getPose.mCombineRt)); globalRMat.emplace_back(std::move(getPose.mRotation));
-			globalRVec.emplace_back(std::move(getPose.mrvec)); globalTVec.emplace_back(std::move(getPose.mtvec));
+			globalRVec.emplace_back(std::move(getPose.mrvec)); globalTVec.emplace_back(std::move(getPose.mtranslation));
 			gP++;
 			std::cout << std::endl;
 			
@@ -332,7 +358,6 @@ int main(int argc, char** argv)
 		std::cout << "lTPA: " << lTPA << std::endl;
 		std::cout << "lTPA feature size : " << localTrackPointsA[lTPA].mfeatures.size() << std::endl << std::endl;
 		
-		trackerB.mstatus.clear(), trackerB.mfeatures.clear(), trackerB.merr.clear();
 		localTrackPointsB[lTPB].OpticalFlowPyrLK(cv::imread(readImageName.at(imageCurNum-1), 
 													cv::ImreadModes::IMREAD_UNCHANGED), img, trackerB);
 		localTrackPointsB.emplace_back(std::move(trackerB));
@@ -366,7 +391,7 @@ int main(int argc, char** argv)
 			// std::cout << "after inlier mappoints size: " << mapPointsB.mworldMapPointsV.size() << std::endl;		
 			getPose.GetRMatTPose(); getPose.CombineRt();
 			globalRTMat.emplace_back(std::move(getPose.mCombineRt)); globalRMat.emplace_back(std::move(getPose.mRotation));
-			globalRVec.emplace_back(std::move(getPose.mrvec)); globalTVec.emplace_back(std::move(getPose.mtvec));
+			globalRVec.emplace_back(std::move(getPose.mrvec)); globalTVec.emplace_back(std::move(getPose.mtranslation));
 			gP++;
 
 			angularVelocity = mvo::RotationAngle(globalRMat.at(gP-2), globalRMat.at(gP-1));
@@ -401,7 +426,7 @@ int main(int argc, char** argv)
 		std::cout << std::endl;
 		std::cout << "mtvec: " << globalTVec.at(gP-1) << "  " << globalTVec.size() << std::endl;
 		std::cout << "tvecOfGT: " << tvecOfGT.at(imageCurNum) << "  gKF: " << gKF << " Img/KF: " << globalTVec.size()/gKF << std::endl; 
-		std::cout << "-------------------------" << std::endl;
+		std::cout << "==============================================" << std::endl;
 		imageCurNum++;
 		realFrame++;
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

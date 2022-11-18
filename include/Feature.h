@@ -11,9 +11,9 @@
 
 #define DTYPE uchar
 #define ERRORSIZE 25
-#define MAXCORNER 1000
+#define MAXCORNER 500
 #define QUALITYLEVEL 0.001
-#define MINDISTANCE 3
+#define MINDISTANCE 8
 
 
 namespace mvo
@@ -30,7 +30,7 @@ namespace mvo
         std::vector<uchar> mstatus;
         std::vector<float> merr;
         std::vector<cv::Point2f> mfeatures;
-        std::vector<std::vector<DTYPE>> mdesc;
+        std::vector<std::vector<DTYPE>> mvdesc;
     };
 }//namespace mvo
 

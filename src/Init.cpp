@@ -3,63 +3,69 @@
 
 #define numofimage 4540
 
+mvo::Initializer::Initializer(){};
+mvo::Initializer::Initializer(std::vector<cv::KeyPoint> refKeys1, std::vector<cv::KeyPoint> refKeys2):
+                                mvKeys1{refKeys1}, mvKeys2{refKeys2}{};
 
+float mvo::Initializer::CheckHomography(const std::vector<cv::Point2f>& refKeys1, const std::vector<cv::Point2f>& refKeys2, float sigma)
+{
+    if(refKeys1.size() != refKeys2.size())
+    {
+        std::cerr << "failed CheckHomography" << std::endl;
+        return -1;
+    }
+    const int N = refKeys1.size();
 
-float mvo::Initializer::CheckHomography(const cv::Mat &H21, const cv::Mat &H12, std::vector<bool> &vbMatchesInliers, float sigma)
-{   
-    const int N = mvMatches12.size();
+    mHomography = cv::findHomography(refKeys1, refKeys2);
+    const float h11 = mHomography.at<float>(0,0);
+    const float h12 = mHomography.at<float>(0,1);
+    const float h13 = mHomography.at<float>(0,2);
+    const float h21 = mHomography.at<float>(1,0);
+    const float h22 = mHomography.at<float>(1,1);
+    const float h23 = mHomography.at<float>(1,2);
+    const float h31 = mHomography.at<float>(2,0);
+    const float h32 = mHomography.at<float>(2,1);
+    const float h33 = mHomography.at<float>(2,2);
+    cv::findHomography(refKeys2, refKeys1, mInvHomography);
+    const float h11inv = mInvHomography.at<float>(0,0);
+    const float h12inv = mInvHomography.at<float>(0,1);
+    const float h13inv = mInvHomography.at<float>(0,2);
+    const float h21inv = mInvHomography.at<float>(1,0);
+    const float h22inv = mInvHomography.at<float>(1,1);
+    const float h23inv = mInvHomography.at<float>(1,2);
+    const float h31inv = mInvHomography.at<float>(2,0);
+    const float h32inv = mInvHomography.at<float>(2,1);
+    const float h33inv = mInvHomography.at<float>(2,2);
 
-    const float h11 = H21.at<float>(0,0);
-    const float h12 = H21.at<float>(0,1);
-    const float h13 = H21.at<float>(0,2);
-    const float h21 = H21.at<float>(1,0);
-    const float h22 = H21.at<float>(1,1);
-    const float h23 = H21.at<float>(1,2);
-    const float h31 = H21.at<float>(2,0);
-    const float h32 = H21.at<float>(2,1);
-    const float h33 = H21.at<float>(2,2);
+    
+    float score = 0.0f;
+    const float th = 5.991f;
 
-    const float h11inv = H12.at<float>(0,0);
-    const float h12inv = H12.at<float>(0,1);
-    const float h13inv = H12.at<float>(0,2);
-    const float h21inv = H12.at<float>(1,0);
-    const float h22inv = H12.at<float>(1,1);
-    const float h23inv = H12.at<float>(1,2);
-    const float h31inv = H12.at<float>(2,0);
-    const float h32inv = H12.at<float>(2,1);
-    const float h33inv = H12.at<float>(2,2);
-
-    vbMatchesInliers.resize(N);
-
-    float score = 0;
-
-    const float th = 5.991;
-
-    const float invSigmaSquare = 1.0/(sigma*sigma);
-
+    const float invSigmaSquare = (1.0f)/(sigma*sigma);
+    std::cout << "invSigmaSquare: " << invSigmaSquare << std::endl;
     for(int i=0; i<N; i++)
     {
         bool bIn = true;
 
-        const cv::KeyPoint &kp1 = mvKeys1[mvMatches12[i].queryIdx]; // .first
-        const cv::KeyPoint &kp2 = mvKeys2[mvMatches12[i].trainIdx]; // .second
+        const cv::Point2f &kp1 = refKeys1.at(i); // .first
+        const cv::Point2f &kp2 = refKeys2.at(i); // .second
 
-        const float u1 = kp1.pt.x;
-        const float v1 = kp1.pt.y;
-        const float u2 = kp2.pt.x;
-        const float v2 = kp2.pt.y;
+        const float u1 = kp1.x;
+        const float v1 = kp1.y;
+        const float u2 = kp2.x;
+        const float v2 = kp2.y;
 
         // Reprojection error in first image
         // x2in1 = H12*x2
 
-        const float w2in1inv = 1.0/(h31inv*u2+h32inv*v2+h33inv);
+        const float w2in1inv = (1.0f)/(h31inv*u2+h32inv*v2+h33inv);
         const float u2in1 = (h11inv*u2+h12inv*v2+h13inv)*w2in1inv;
         const float v2in1 = (h21inv*u2+h22inv*v2+h23inv)*w2in1inv;
 
         const float squareDist1 = (u1-u2in1)*(u1-u2in1)+(v1-v2in1)*(v1-v2in1);
-
         const float chiSquare1 = squareDist1*invSigmaSquare;
-
+        std::cout << "SquareDist1: " << squareDist1;
+        std::cout << "   chiSquare1: " << chiSquare1 << std::endl;
         if(chiSquare1>th)
             bIn = false;
         else
@@ -68,64 +74,64 @@ float mvo::Initializer::CheckHomography(const cv::Mat &H21, const cv::Mat &H12, 
         // Reprojection error in second image
         // x1in2 = H21*x1
 
-        const float w1in2inv = 1.0/(h31*u1+h32*v1+h33);
+        const float w1in2inv = (1.0f)/(h31*u1+h32*v1+h33);
         const float u1in2 = (h11*u1+h12*v1+h13)*w1in2inv;
         const float v1in2 = (h21*u1+h22*v1+h23)*w1in2inv;
 
         const float squareDist2 = (u2-u1in2)*(u2-u1in2)+(v2-v1in2)*(v2-v1in2);
-
         const float chiSquare2 = squareDist2*invSigmaSquare;
-
+        std::cout << "SquareDist2: " << squareDist2;
+        std::cout << "   chiSquare2: " << chiSquare2 << std::endl;
         if(chiSquare2>th)
             bIn = false;
         else
             score += th - chiSquare2;
-
-        if(bIn)
-            vbMatchesInliers[i]=true;
-        else
-            vbMatchesInliers[i]=false;
     }
-
+    std::cout << "score H: " << score << std::endl;
     return score;
 }
 
 
-
-float mvo::Initializer::CheckFundamental(const cv::Mat &F21, std::vector<bool> &vbMatchesInliers, float sigma)
+// input Matrix, pts1, pts2
+float mvo::Initializer::CheckFundamental(const std::vector<cv::Point2f>& refKeys1, const std::vector<cv::Point2f>& refKeys2, float sigma)
 {
-    const int N = mvMatches12.size();
+    if(refKeys1.size() != refKeys2.size())
+    {
+        std::cerr << "failed CheckFundamental" << std::endl;
+        return -1;
+    }
 
-    const float f11 = F21.at<float>(0,0);
-    const float f12 = F21.at<float>(0,1);
-    const float f13 = F21.at<float>(0,2);
-    const float f21 = F21.at<float>(1,0);
-    const float f22 = F21.at<float>(1,1);
-    const float f23 = F21.at<float>(1,2);
-    const float f31 = F21.at<float>(2,0);
-    const float f32 = F21.at<float>(2,1);
-    const float f33 = F21.at<float>(2,2);
+    const int N = refKeys1.size();
+    mFundamental = cv::findFundamentalMat(refKeys1, refKeys2);
 
-    vbMatchesInliers.resize(N);
+    const float f11 = mFundamental.at<float>(0,0);
+    const float f12 = mFundamental.at<float>(0,1);
+    const float f13 = mFundamental.at<float>(0,2);
+    const float f21 = mFundamental.at<float>(1,0);
+    const float f22 = mFundamental.at<float>(1,1);
+    const float f23 = mFundamental.at<float>(1,2);
+    const float f31 = mFundamental.at<float>(2,0);
+    const float f32 = mFundamental.at<float>(2,1);
+    const float f33 = mFundamental.at<float>(2,2);
 
-    float score = 0;
+    float score = 0.0f;
 
-    const float th = 3.841;
-    const float thScore = 5.991;
+    const float th = 3.841f;
+    const float thScore = 5.991f;
 
-    const float invSigmaSquare = 1.0/(sigma*sigma);
-
+    const float invSigmaSquare = (1.0f)/(sigma*sigma);
+    std::cout << "invSigmaSquare: " << invSigmaSquare << std::endl;
     for(int i=0; i<N; i++)
     {
         bool bIn = true;
 
-        const cv::KeyPoint &kp1 = mvKeys1[mvMatches12[i].queryIdx]; //.first
-        const cv::KeyPoint &kp2 = mvKeys2[mvMatches12[i].trainIdx]; //.second
+        const cv::Point2f &kp1 = refKeys1.at(i); //.first
+        const cv::Point2f &kp2 = refKeys2.at(i); //.second
 
-        const float u1 = kp1.pt.x;
-        const float v1 = kp1.pt.y;
-        const float u2 = kp2.pt.x;
-        const float v2 = kp2.pt.y;
+        const float u1 = kp1.x;
+        const float v1 = kp1.y;
+        const float u2 = kp2.x;
+        const float v2 = kp2.y;
 
         // Reprojection error in second image
         // l2=F21x1=(a2,b2,c2)
@@ -137,8 +143,10 @@ float mvo::Initializer::CheckFundamental(const cv::Mat &F21, std::vector<bool> &
         const float num2 = a2*u2+b2*v2+c2;
 
         const float squareDist1 = num2*num2/(a2*a2+b2*b2);
-
         const float chiSquare1 = squareDist1*invSigmaSquare;
+
+        std::cout << "SquareDist1: " << squareDist1;
+        std::cout << "   chiSquare1: " << chiSquare1 << std::endl;
 
         if(chiSquare1>th)
             bIn = false;
@@ -155,34 +163,19 @@ float mvo::Initializer::CheckFundamental(const cv::Mat &F21, std::vector<bool> &
         const float num1 = a1*u1+b1*v1+c1;
 
         const float squareDist2 = num1*num1/(a1*a1+b1*b1);
-
         const float chiSquare2 = squareDist2*invSigmaSquare;
 
+        std::cout << "SquareDist2: " << squareDist2;
+        std::cout << "   chiSquare2: " << chiSquare2 << std::endl;
         if(chiSquare2>th)
             bIn = false;
         else
             score += thScore - chiSquare2;
-
-        if(bIn)
-            vbMatchesInliers[i]=true;
-        else
-            vbMatchesInliers[i]=false;
     }
-
+    std::cout << "F: " << mFundamental << std::endl;
+    std::cout << "score F: " << score << std::endl;
     return score;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -10,6 +10,7 @@ set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # Preprocessor definitions for this target.
 set(CMAKE_TARGET_DEFINITIONS_CXX
+  "GFLAGS_IS_A_DLL=0"
   "HAVE_EIGEN"
   "HAVE_GLEW"
   "PANGO_DEFAULT_WIN_URI=\"wayland\""

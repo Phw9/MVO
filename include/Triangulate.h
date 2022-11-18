@@ -20,7 +20,9 @@ namespace mvo
     public:
         cv::Mat mworldMapPoints;
         std::vector<cv::Point3f> mworldMapPointsV;
-        std::vector<std::vector<int8_t>> mdesc;
+        std::vector<std::vector<uchar>> mvdesc;
+        cv::Vec3d mrvec;
+        cv::Vec3d mtvec;
     };
 }
 
