@@ -190,6 +190,33 @@ src/BundleAdjustment.cpp.s:
 	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/BundleAdjustment.cpp.s
 .PHONY : src/BundleAdjustment.cpp.s
 
+src/Converter.o: src/Converter.cpp.o
+
+.PHONY : src/Converter.o
+
+# target to build an object file
+src/Converter.cpp.o:
+	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/Converter.cpp.o
+.PHONY : src/Converter.cpp.o
+
+src/Converter.i: src/Converter.cpp.i
+
+.PHONY : src/Converter.i
+
+# target to preprocess a source file
+src/Converter.cpp.i:
+	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/Converter.cpp.i
+.PHONY : src/Converter.cpp.i
+
+src/Converter.s: src/Converter.cpp.s
+
+.PHONY : src/Converter.s
+
+# target to generate assembly for a file
+src/Converter.cpp.s:
+	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/Converter.cpp.s
+.PHONY : src/Converter.cpp.s
+
 src/Feature.o: src/Feature.cpp.o
 
 .PHONY : src/Feature.o
@@ -314,6 +341,9 @@ help:
 	@echo "... src/BundleAdjustment.o"
 	@echo "... src/BundleAdjustment.i"
 	@echo "... src/BundleAdjustment.s"
+	@echo "... src/Converter.o"
+	@echo "... src/Converter.i"
+	@echo "... src/Converter.s"
 	@echo "... src/Feature.o"
 	@echo "... src/Feature.i"
 	@echo "... src/Feature.s"

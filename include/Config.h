@@ -19,6 +19,8 @@
 #define INLIERRATIO 0.48
 #define MINLOCAL 2
 
+int initialNum = 2; // 1 = auto, 2 = default
+
 float cameraXf = 6.018873000000e+02; double cameraXd = 6.018873000000e+02;
 float cameraYf = 1.831104000000e+02; double cameraYd = 1.831104000000e+02;
 float focalLengthf = 7.070912000000e+02; double focalLengthd = 7.070912000000e+02;

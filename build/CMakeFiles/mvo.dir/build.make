@@ -85,8 +85,6 @@ mvo: /usr/lib/x86_64-linux-gnu/libXi.so
 mvo: /usr/lib/x86_64-linux-gnu/libGL.so
 mvo: /usr/lib/x86_64-linux-gnu/libGLU.so
 mvo: /usr/local/lib/libceres.a
-mvo: ../thirdparty/DBoW2/lib/libDBoW2.so
-mvo: ../thirdparty/g2o/lib/libg2o.so
 mvo: libmine.so
 mvo: /usr/lib/x86_64-linux-gnu/libglut.so
 mvo: /usr/lib/x86_64-linux-gnu/libXmu.so

@@ -70,9 +70,22 @@ CMakeFiles/mine.dir/src/BundleAdjustment.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mine.dir/src/BundleAdjustment.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/phw93/Dev/MVO/src/BundleAdjustment.cpp -o CMakeFiles/mine.dir/src/BundleAdjustment.cpp.s
 
+CMakeFiles/mine.dir/src/Converter.cpp.o: CMakeFiles/mine.dir/flags.make
+CMakeFiles/mine.dir/src/Converter.cpp.o: ../src/Converter.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/phw93/Dev/MVO/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mine.dir/src/Converter.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mine.dir/src/Converter.cpp.o -c /home/phw93/Dev/MVO/src/Converter.cpp
+
+CMakeFiles/mine.dir/src/Converter.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mine.dir/src/Converter.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/phw93/Dev/MVO/src/Converter.cpp > CMakeFiles/mine.dir/src/Converter.cpp.i
+
+CMakeFiles/mine.dir/src/Converter.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mine.dir/src/Converter.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/phw93/Dev/MVO/src/Converter.cpp -o CMakeFiles/mine.dir/src/Converter.cpp.s
+
 CMakeFiles/mine.dir/src/Feature.cpp.o: CMakeFiles/mine.dir/flags.make
 CMakeFiles/mine.dir/src/Feature.cpp.o: ../src/Feature.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/phw93/Dev/MVO/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mine.dir/src/Feature.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/phw93/Dev/MVO/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/mine.dir/src/Feature.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mine.dir/src/Feature.cpp.o -c /home/phw93/Dev/MVO/src/Feature.cpp
 
 CMakeFiles/mine.dir/src/Feature.cpp.i: cmake_force
@@ -83,9 +96,22 @@ CMakeFiles/mine.dir/src/Feature.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mine.dir/src/Feature.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/phw93/Dev/MVO/src/Feature.cpp -o CMakeFiles/mine.dir/src/Feature.cpp.s
 
+CMakeFiles/mine.dir/src/Init.cpp.o: CMakeFiles/mine.dir/flags.make
+CMakeFiles/mine.dir/src/Init.cpp.o: ../src/Init.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/phw93/Dev/MVO/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/mine.dir/src/Init.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mine.dir/src/Init.cpp.o -c /home/phw93/Dev/MVO/src/Init.cpp
+
+CMakeFiles/mine.dir/src/Init.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mine.dir/src/Init.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/phw93/Dev/MVO/src/Init.cpp > CMakeFiles/mine.dir/src/Init.cpp.i
+
+CMakeFiles/mine.dir/src/Init.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mine.dir/src/Init.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/phw93/Dev/MVO/src/Init.cpp -o CMakeFiles/mine.dir/src/Init.cpp.s
+
 CMakeFiles/mine.dir/src/PoseEstimation.cpp.o: CMakeFiles/mine.dir/flags.make
 CMakeFiles/mine.dir/src/PoseEstimation.cpp.o: ../src/PoseEstimation.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/phw93/Dev/MVO/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/mine.dir/src/PoseEstimation.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/phw93/Dev/MVO/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/mine.dir/src/PoseEstimation.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mine.dir/src/PoseEstimation.cpp.o -c /home/phw93/Dev/MVO/src/PoseEstimation.cpp
 
 CMakeFiles/mine.dir/src/PoseEstimation.cpp.i: cmake_force
@@ -98,7 +124,7 @@ CMakeFiles/mine.dir/src/PoseEstimation.cpp.s: cmake_force
 
 CMakeFiles/mine.dir/src/Triangulate.cpp.o: CMakeFiles/mine.dir/flags.make
 CMakeFiles/mine.dir/src/Triangulate.cpp.o: ../src/Triangulate.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/phw93/Dev/MVO/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/mine.dir/src/Triangulate.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/phw93/Dev/MVO/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/mine.dir/src/Triangulate.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mine.dir/src/Triangulate.cpp.o -c /home/phw93/Dev/MVO/src/Triangulate.cpp
 
 CMakeFiles/mine.dir/src/Triangulate.cpp.i: cmake_force
@@ -109,35 +135,24 @@ CMakeFiles/mine.dir/src/Triangulate.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mine.dir/src/Triangulate.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/phw93/Dev/MVO/src/Triangulate.cpp -o CMakeFiles/mine.dir/src/Triangulate.cpp.s
 
-CMakeFiles/mine.dir/src/Init.cpp.o: CMakeFiles/mine.dir/flags.make
-CMakeFiles/mine.dir/src/Init.cpp.o: ../src/Init.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/phw93/Dev/MVO/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/mine.dir/src/Init.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mine.dir/src/Init.cpp.o -c /home/phw93/Dev/MVO/src/Init.cpp
-
-CMakeFiles/mine.dir/src/Init.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mine.dir/src/Init.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/phw93/Dev/MVO/src/Init.cpp > CMakeFiles/mine.dir/src/Init.cpp.i
-
-CMakeFiles/mine.dir/src/Init.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mine.dir/src/Init.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/phw93/Dev/MVO/src/Init.cpp -o CMakeFiles/mine.dir/src/Init.cpp.s
-
 # Object files for target mine
 mine_OBJECTS = \
 "CMakeFiles/mine.dir/src/BundleAdjustment.cpp.o" \
+"CMakeFiles/mine.dir/src/Converter.cpp.o" \
 "CMakeFiles/mine.dir/src/Feature.cpp.o" \
+"CMakeFiles/mine.dir/src/Init.cpp.o" \
 "CMakeFiles/mine.dir/src/PoseEstimation.cpp.o" \
-"CMakeFiles/mine.dir/src/Triangulate.cpp.o" \
-"CMakeFiles/mine.dir/src/Init.cpp.o"
+"CMakeFiles/mine.dir/src/Triangulate.cpp.o"
 
 # External object files for target mine
 mine_EXTERNAL_OBJECTS =
 
 libmine.so: CMakeFiles/mine.dir/src/BundleAdjustment.cpp.o
+libmine.so: CMakeFiles/mine.dir/src/Converter.cpp.o
 libmine.so: CMakeFiles/mine.dir/src/Feature.cpp.o
+libmine.so: CMakeFiles/mine.dir/src/Init.cpp.o
 libmine.so: CMakeFiles/mine.dir/src/PoseEstimation.cpp.o
 libmine.so: CMakeFiles/mine.dir/src/Triangulate.cpp.o
-libmine.so: CMakeFiles/mine.dir/src/Init.cpp.o
 libmine.so: CMakeFiles/mine.dir/build.make
 libmine.so: /usr/lib/x86_64-linux-gnu/libglut.so
 libmine.so: /usr/lib/x86_64-linux-gnu/libXmu.so
@@ -250,7 +265,7 @@ libmine.so: /usr/lib/x86_64-linux-gnu/libsuitesparseconfig.so
 libmine.so: /usr/lib/x86_64-linux-gnu/librt.so
 libmine.so: /usr/lib/x86_64-linux-gnu/libcxsparse.so
 libmine.so: CMakeFiles/mine.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/phw93/Dev/MVO/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX shared library libmine.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/phw93/Dev/MVO/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX shared library libmine.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/mine.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

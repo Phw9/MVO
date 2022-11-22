@@ -25,6 +25,7 @@ int main(int argc, char** argv)
 	cv::Mat img;
 	int imageCurNum = 0;
 	int realFrame = 0;
+	float RH = 100; float SH, SF;
 
 	MakeTextFile(rawData, IMAGENUM);
 	FileRead(readImageName, read);
@@ -66,28 +67,89 @@ int main(int argc, char** argv)
     pangolin::View &d_cam = pangolin::CreateDisplay()
                                 .SetBounds(0.0, 1.0, pangolin::Attach::Pix(175), 1.0, -pangolinViewer.window_ratio)
                                 .SetHandler(new pangolin::Handler3D(s_cam));
-
+	
 	while(true)
 	{
-		// Automatically Initilizer Calculate RH = SH/(SH+SF)
-		// while(true)
-		// {
-		// 	img = cv::imread(readImageName.at(imageCurNum), 
-		// 						cv::ImreadModes::IMREAD_UNCHANGED);
-		// 	if (img.empty())
-		// 	{
-		// 		std::cerr << "frame upload failed" << std::endl;
-		// 	}
-		// 	if(realFrame == 0)	// feature extract
-		// 	{
-		// 		if(!trackerA.GoodFeaturesToTrack(img))
-		// 		{	
-		// 			std::cerr << "new tracker A" << std::endl;
-		// 		}
-		// 		localTrackPointsA.emplace_back(std::move(trackerA));
-		// 	}
-		// }
+		if(initialNum == 1)
+		{
+			// Automatically Initilizer Calculate RH = SH/(SH+SF)
+			if(realFrame == 0)	// feature extract
+			{
+				img = cv::imread(readImageName.at(imageCurNum), 
+									cv::ImreadModes::IMREAD_UNCHANGED);
+				if (img.empty())
+				{
+					std::cerr << "frame upload failed" << std::endl;
+				}				
+				if(!trackerA.GoodFeaturesToTrack(img))
+				{	
+					std::cerr << "new tracker A" << std::endl;
+				}
+				localTrackPointsA.emplace_back(std::move(trackerA));
+				tvecOfGT.emplace_back(readtvecOfGT.at(imageCurNum));
+				imageCurNum++;
+				realFrame++;
+			}
+			while(RH > 0.45||RH < 0|| isnan(RH) != 0)
+			{
+				img = cv::imread(readImageName.at(imageCurNum), 
+									cv::ImreadModes::IMREAD_UNCHANGED);
+				if (img.empty())
+				{
+					std::cerr << "frame upload failed" << std::endl;
+				}
+				localTrackPointsA[lTPA].OpticalFlowPyrLK(cv::imread(readImageName.at(imageCurNum-1), 
+															cv::ImreadModes::IMREAD_UNCHANGED), img, trackerA);
+				localTrackPointsA.emplace_back(std::move(trackerA));
+				lTPA++;
 
+				std::cout << "lTPA: " << lTPA << std::endl;
+
+				for(int i = 0; i < lTPA-1; i++)
+				{
+					ManageTrackPoints(localTrackPointsA.at(lTPA), localTrackPointsA.at(i));
+					std::cout << "size" << i <<": " << localTrackPointsA.at(i).mfeatures.size() << " ";
+				}
+				cv::cvtColor(img, img, cv::ColorConversionCodes::COLOR_GRAY2BGR);
+				img = pangolinViewer.DrawFeatures(img, localTrackPointsA.at(lTPA-1).mfeatures, 
+													localTrackPointsA.at(lTPA).mfeatures);
+				std::cout << std::endl;
+				tvecOfGT.emplace_back(readtvecOfGT.at(imageCurNum));
+				std::cout << "tvecOfGT: " << tvecOfGT.at(imageCurNum) << std::endl;
+				
+
+				SF = checkScore.CheckFundamental(localTrackPointsA.at(0).mfeatures, localTrackPointsA.at(lTPA).mfeatures, 10.0f);
+				SH = checkScore.CheckHomography(localTrackPointsA.at(0).mfeatures, localTrackPointsA.at(lTPA).mfeatures, 150.0f);
+				RH = SH/(SH+SF);
+				std::cout << "score: " <<  RH << std::endl;
+				if(RH>0.45)
+				{
+					getEssential.CreateEssentialMatrix(localTrackPointsA.at(0).mfeatures, localTrackPointsA[lTPA].mfeatures, intrinsicKf);
+					getEssential.GetEssentialRt(getEssential.mEssential, intrinsicKf,
+											localTrackPointsA[lTPA-1].mfeatures, 
+											localTrackPointsA[lTPA].mfeatures);
+					getEssential.GetRTvec(); getEssential.CombineRt();
+					std::cout << "RH>0.45" << std::endl;
+					globalRTMat.emplace_back(std::move(getEssential.mCombineRt));
+					globalRVec.emplace_back(std::move(getEssential.mrvec));
+					globalRMat.emplace_back(std::move(getEssential.mRotation));
+					globalTVec.emplace_back(std::move(getEssential.mtvec));
+					initialNum = 0;
+					gP++;
+				}
+				realFrame++;
+				imageCurNum++;
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				d_cam.Activate(s_cam);
+				pangolinViewer.DrawPoint(globalTVec, tvecOfGT, globalLandMark, mapPointsA.mworldMapPointsV);
+				pangolin::FinishFrame();
+				
+				cv::imshow("img", img);
+				if(cv::waitKey(0) == 27) break; // ESC key
+			}
+	}
+	if(initialNum == 2)
+	{
 		while(realFrame < ESSENTIALFRAME)
 		{
 			img = cv::imread(readImageName.at(imageCurNum), 
@@ -156,15 +218,7 @@ int main(int argc, char** argv)
 														cv::ImreadModes::IMREAD_UNCHANGED), img, trackerA);
 				localTrackPointsA.emplace_back(std::move(trackerA));
 				lTPA++;
-				// float RH, SH, SF;
-				// SF = checkScore.CheckFundamental(localTrackPointsA[lTPA-1].mfeatures, localTrackPointsA[lTPA].mfeatures, 50.0f);
-				// SH = checkScore.CheckHomography(localTrackPointsA[lTPA-1].mfeatures, localTrackPointsA[lTPA].mfeatures, 150.0f);
-				// RH = SH/(SH+SF);
-				// std::cout << "score: " <<  RH << std::endl;
-				// if(RH>0.45)
-				// {
-				// 	std::cout << "true" << std::endl;
-				// }
+
 				getEssential.CreateEssentialMatrix(localTrackPointsA[lTPA-1].mfeatures, localTrackPointsA[lTPA].mfeatures, intrinsicKf);
 				getEssential.GetEssentialRt(getEssential.mEssential, intrinsicKf,
 											localTrackPointsA[lTPA-1].mfeatures, 
@@ -200,6 +254,7 @@ int main(int argc, char** argv)
 			cv::imshow("img", img);
 			if(cv::waitKey(0) == 27) break; // ESC key
 		} // 2view SFM, Track(A,B) make, generate LandMark = current localFeature size
+	}
 
 		// Start
 

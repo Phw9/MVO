@@ -66,6 +66,7 @@
         "unordered_set": "cpp",
         "regex": "cpp",
         "shared_mutex": "cpp",
-        "qr": "cpp"
+        "qr": "cpp",
+        "geometry": "cpp"
     }
 }

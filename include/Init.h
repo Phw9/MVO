@@ -25,6 +25,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 void FileRead(std::deque<std::string>& v, std::ifstream &fin);
 void MakeTextFile(std::ofstream& fout, const int& imageNum);
@@ -34,6 +35,7 @@ void GTPoseRead(std::vector<cv::Vec3f>& v, std::ifstream& fin);
 
 namespace Viewer
 {
+
     class MyVisualize
 	{
         private:

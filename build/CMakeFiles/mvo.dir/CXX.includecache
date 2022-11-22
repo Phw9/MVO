@@ -75,6 +75,8 @@ stdio.h
 -
 stdlib.h
 -
+math.h
+-
 
 ../include/PoseEstimation.h
 Feature.h

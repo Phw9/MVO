@@ -42,7 +42,7 @@ float mvo::Initializer::CheckHomography(const std::vector<cv::Point2f>& refKeys1
     const float th = 5.991f;
 
     const float invSigmaSquare = (1.0f)/(sigma*sigma);
-    std::cout << "invSigmaSquare: " << invSigmaSquare << std::endl;
+    
     for(int i=0; i<N; i++)
     {
         bool bIn = true;
@@ -64,8 +64,8 @@ float mvo::Initializer::CheckHomography(const std::vector<cv::Point2f>& refKeys1
 
         const float squareDist1 = (u1-u2in1)*(u1-u2in1)+(v1-v2in1)*(v1-v2in1);
         const float chiSquare1 = squareDist1*invSigmaSquare;
-        std::cout << "SquareDist1: " << squareDist1;
-        std::cout << "   chiSquare1: " << chiSquare1 << std::endl;
+        // std::cout << "SquareDist1: " << squareDist1;
+        // std::cout << "   chiSquare1: " << chiSquare1 << std::endl;
         if(chiSquare1>th)
             bIn = false;
         else
@@ -80,8 +80,8 @@ float mvo::Initializer::CheckHomography(const std::vector<cv::Point2f>& refKeys1
 
         const float squareDist2 = (u2-u1in2)*(u2-u1in2)+(v2-v1in2)*(v2-v1in2);
         const float chiSquare2 = squareDist2*invSigmaSquare;
-        std::cout << "SquareDist2: " << squareDist2;
-        std::cout << "   chiSquare2: " << chiSquare2 << std::endl;
+        // std::cout << "SquareDist2: " << squareDist2;
+        // std::cout << "   chiSquare2: " << chiSquare2 << std::endl;
         if(chiSquare2>th)
             bIn = false;
         else
@@ -120,7 +120,7 @@ float mvo::Initializer::CheckFundamental(const std::vector<cv::Point2f>& refKeys
     const float thScore = 5.991f;
 
     const float invSigmaSquare = (1.0f)/(sigma*sigma);
-    std::cout << "invSigmaSquare: " << invSigmaSquare << std::endl;
+
     for(int i=0; i<N; i++)
     {
         bool bIn = true;
@@ -145,8 +145,8 @@ float mvo::Initializer::CheckFundamental(const std::vector<cv::Point2f>& refKeys
         const float squareDist1 = num2*num2/(a2*a2+b2*b2);
         const float chiSquare1 = squareDist1*invSigmaSquare;
 
-        std::cout << "SquareDist1: " << squareDist1;
-        std::cout << "   chiSquare1: " << chiSquare1 << std::endl;
+        // std::cout << "SquareDist1: " << squareDist1;
+        // std::cout << "   chiSquare1: " << chiSquare1 << std::endl;
 
         if(chiSquare1>th)
             bIn = false;
@@ -165,14 +165,14 @@ float mvo::Initializer::CheckFundamental(const std::vector<cv::Point2f>& refKeys
         const float squareDist2 = num1*num1/(a1*a1+b1*b1);
         const float chiSquare2 = squareDist2*invSigmaSquare;
 
-        std::cout << "SquareDist2: " << squareDist2;
-        std::cout << "   chiSquare2: " << chiSquare2 << std::endl;
+        // std::cout << "SquareDist2: " << squareDist2;
+        // std::cout << "   chiSquare2: " << chiSquare2 << std::endl;
+
         if(chiSquare2>th)
             bIn = false;
         else
             score += thScore - chiSquare2;
     }
-    std::cout << "F: " << mFundamental << std::endl;
     std::cout << "score F: " << score << std::endl;
     return score;
 }
