@@ -79,12 +79,6 @@ mvo_EXTERNAL_OBJECTS =
 
 mvo: CMakeFiles/mvo.dir/main.cpp.o
 mvo: CMakeFiles/mvo.dir/build.make
-mvo: /usr/lib/x86_64-linux-gnu/libglut.so
-mvo: /usr/lib/x86_64-linux-gnu/libXmu.so
-mvo: /usr/lib/x86_64-linux-gnu/libXi.so
-mvo: /usr/lib/x86_64-linux-gnu/libGL.so
-mvo: /usr/lib/x86_64-linux-gnu/libGLU.so
-mvo: /usr/local/lib/libceres.a
 mvo: libmine.so
 mvo: /usr/lib/x86_64-linux-gnu/libglut.so
 mvo: /usr/lib/x86_64-linux-gnu/libXmu.so

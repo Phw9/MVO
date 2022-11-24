@@ -226,8 +226,16 @@ CMakeFiles/mine.dir/src/Feature.cpp.o: ../src/Feature.cpp
 
 CMakeFiles/mine.dir/src/Init.cpp.o: ../include/Feature.h
 CMakeFiles/mine.dir/src/Init.cpp.o: ../include/Init.h
+CMakeFiles/mine.dir/src/Init.cpp.o: ../include/MapData.h
+CMakeFiles/mine.dir/src/Init.cpp.o: ../include/PoseEstimation.h
 CMakeFiles/mine.dir/src/Init.cpp.o: ../include/Triangulate.h
 CMakeFiles/mine.dir/src/Init.cpp.o: ../src/Init.cpp
+
+CMakeFiles/mine.dir/src/MapData.cpp.o: ../include/Feature.h
+CMakeFiles/mine.dir/src/MapData.cpp.o: ../include/MapData.h
+CMakeFiles/mine.dir/src/MapData.cpp.o: ../include/PoseEstimation.h
+CMakeFiles/mine.dir/src/MapData.cpp.o: ../include/Triangulate.h
+CMakeFiles/mine.dir/src/MapData.cpp.o: ../src/MapData.cpp
 
 CMakeFiles/mine.dir/src/PoseEstimation.cpp.o: ../include/Config.h
 CMakeFiles/mine.dir/src/PoseEstimation.cpp.o: ../include/Feature.h

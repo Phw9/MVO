@@ -3,6 +3,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/mine.dir/src/Converter.cpp.o"
   "CMakeFiles/mine.dir/src/Feature.cpp.o"
   "CMakeFiles/mine.dir/src/Init.cpp.o"
+  "CMakeFiles/mine.dir/src/MapData.cpp.o"
   "CMakeFiles/mine.dir/src/PoseEstimation.cpp.o"
   "CMakeFiles/mine.dir/src/Triangulate.cpp.o"
   "libmine.pdb"

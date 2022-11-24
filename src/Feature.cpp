@@ -42,17 +42,17 @@ bool mvo::Feature::GoodFeaturesToTrack(const cv::Mat& src)
     cv::Mat desc1;
     std::vector<cv::KeyPoint> kp;
     VecToKeyPoint(mfeatures, kp);
-    std::cout << "before mfeatures: " << mfeatures.size() << std::endl;
-    std::cout << "before kp size: " << kp.size() << std::endl;
+    // std::cout << "before mfeatures: " << mfeatures.size() << std::endl;
+    // std::cout << "before kp size: " << kp.size() << std::endl;
     brief->compute(src, kp, desc1);
     mfeatures.clear();
     KeyPointToVec(kp,mfeatures);
     mvdesc.clear();
     MatToVec(desc1, mvdesc);
-    std::cout << "desc mat size: " << desc1.size() << std::endl;
-    std::cout << "after mfeatures: " << mfeatures.size() << std::endl;
-    std::cout << "after kp size: " << kp.size() << std::endl;
-    std::cout << "mvdesc: " << mvdesc.size() << std::endl;
+    // std::cout << "desc mat size: " << desc1.size() << std::endl;
+    // std::cout << "after mfeatures: " << mfeatures.size() << std::endl;
+    // std::cout << "after kp size: " << kp.size() << std::endl;
+    // std::cout << "mvdesc: " << mvdesc.size() << std::endl;
     return true;
 }
 
@@ -65,6 +65,7 @@ bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mv
     cv::calcOpticalFlowPyrLK(src1, src2, mfeatures, next.mfeatures, next.mstatus, next.merr,
                              winSize, 3, termcrit, 0, 0.0001);
 
+    next.mvdesc = mvdesc;
     int indexCorrection = 0;
     for(int i = 0; i < next.mstatus.size(); i++)
     {
@@ -82,8 +83,8 @@ bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mv
                 next.mstatus.at(i) = 0;
             }
             mfeatures.erase(mfeatures.begin() + (i - indexCorrection));           // time complexity
-            next.mfeatures.erase(next.mfeatures.begin() + (i - indexCorrection));
             mvdesc.erase(mvdesc.begin() + (i - indexCorrection));           // time complexity
+            next.mfeatures.erase(next.mfeatures.begin() + (i - indexCorrection));
             next.mvdesc.erase(next.mvdesc.begin() + (i - indexCorrection));
             indexCorrection++;
         }
@@ -99,6 +100,11 @@ bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mv
         std::cerr << "failed calcOpticalFlowPyrLK descriptor" << std::endl;
         return false;
     }
+    // for(int i=0; i<mfeatures.size(); i++)
+    // {
+    //     std::cout << mfeatures.at(i) << ", " << next.mfeatures.at(i) << std::endl;
+    // }
+
     return true;
 }
 

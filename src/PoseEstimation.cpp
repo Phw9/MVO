@@ -16,6 +16,33 @@ bool mvo::StrctureFromMotion::CreateEssentialMatrix(const std::vector<cv::Point2
         std::cerr << "Can't find essential matrix" << std::endl;
         return false;
     }
+
+    cv::recoverPose(mEssential, pts1, pts2, K, mRotation, mTranslation);
+    if (mRotation.empty() || mTranslation.empty())
+    {
+        std::cerr << "Can't get Essential Rt" << std::endl;
+        return false;
+    }
+
+    cv::Mat temp = cv::Mat();
+    temp = mRotation.t();
+    temp.push_back(mTranslation.t());
+    mCombineRt = temp.t();
+    if (!(mCombineRt.rows == 3 && mCombineRt.cols == 4))
+    {
+        std::cerr << "failed Combine Rotation Translation Matrix" << std::endl;
+        return false;
+    }
+
+    cv::Rodrigues(mRotation, mrvec);
+    for (int j = 0; j < mTranslation.rows; j++)
+    {
+		for (int i = 0; i < mTranslation.cols; i++)
+        {
+			mtvec[j] = mTranslation.at<double>(j, i);
+		}
+	}
+    // std::cout << "mCombineRT: " << mCombineRt << std::endl;
     return true;
 }
 
@@ -62,15 +89,37 @@ mvo::PoseEstimation::PoseEstimation():
 void mvo::PoseEstimation::solvePnP(const std::vector<cv::Point3f>& objectPoints,
                                     const std::vector<cv::Point2f>& imagePoints,
                                     const cv::Mat& cameraIntrinsic)
-{   
-    
+{
+    // for(auto& n:objectPoints)
+    // {
+    //     std::cout << n;
+    // }
     if(!cv::solvePnPRansac(objectPoints, imagePoints, cameraIntrinsic, cv::Mat(), mrvec, mtvec, false, 100, 3.0F, 0.99, minlier, cv::SOLVEPNP_ITERATIVE))
     {
-        std::cerr <<"Can't solve PnP" << std::endl;
-        
+        std::cerr <<"Can't solve PnP" << std::endl;    
     }
     // std::cout << minlier << std::endl;
     std::cout << "inlier.rows: " << minlier.rows << std::endl;
+    
+    cv::Rodrigues(mrvec, mRotation);
+    cv::Mat temp = -mRotation.inv();
+    temp = temp*mtvec;
+    for (int j = 0; j < mtvec.rows; j++)
+    {
+		for (int i = 0; i < mtvec.cols; i++)
+        {
+			mtranslation[j] = temp.at<double>(j, i);
+		}
+	}
+
+    cv::Mat tempm = cv::Mat();
+    tempm = mRotation.t();
+    tempm.push_back(mtvec.t());
+    mCombineRt = tempm.t();
+    if (!(mCombineRt.rows == 3 && mCombineRt.cols == 4))
+    {
+        std::cerr << "failed Combine Rotation Translation Matrix" << std::endl;
+    }
 }
 
 void mvo::PoseEstimation::GetRMatTPose()

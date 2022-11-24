@@ -1,12 +1,12 @@
-#include <eigen3/Eigen/src/Core/Matrix.h>
-#include <eigen3/Eigen/src/LU/FullPivLU.h>
+#pragma once
+
+#include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 #include <eigen3/Eigen/Dense>
 #include "opencv2/core.hpp"
 #include "ceres/ceres.h"
 #include "ceres/loss_function.h"
 #include "Triangulate.h"
-
 
 /*
     SnavelyReprojectionError :: CostFunctor
@@ -19,119 +19,121 @@
         3d point : 3 parameters
         residuals : reprojection error
 */
+static float cameraXf = 6.018873000000e+02; static double cameraXd = 6.018873000000e+02;
+static float cameraYf = 1.831104000000e+02; static double cameraYd = 1.831104000000e+02;
+static float focalLengthf = 7.070912000000e+02; static double focalLengthd = 7.070912000000e+02;
+
+namespace mvo
+{
+    struct SnavelyReprojectionError
+    {
+        SnavelyReprojectionError(double observed_x, double observed_y, Eigen::Vector4d point_3d_homo_eig, double focal, double ppx, double ppy)
+            : observed_x(observed_x), observed_y(observed_y), point_3d_homo_eig(point_3d_homo_eig), focal(focal), ppx(ppx), ppy(ppy) {}
+
+        template <typename T>
+        bool operator()(const T *const rvec_eig,
+                        const T *const tvec_eig,
+                        T *residuals) const
+        {
+            // camera[0,1,2] are the angle-axis rotation.
+
+            const T theta = sqrt(rvec_eig[0] * rvec_eig[0] + rvec_eig[1] * rvec_eig[1] + rvec_eig[2] * rvec_eig[2]);
+
+            const T tvec_eig_0 = tvec_eig[0];
+            const T tvec_eig_1 = tvec_eig[1];
+            const T tvec_eig_2 = tvec_eig[2];
+
+            const T w1 = rvec_eig[0] / theta;
+            const T w2 = rvec_eig[1] / theta;
+            const T w3 = rvec_eig[2] / theta;
+
+            const T cos = ceres::cos(theta);
+            const T sin = ceres::sin(theta);
 
 
 
+            Eigen::Matrix<T, 3, 4> Relative_homo_R;
+            Relative_homo_R << cos + w1 * w1 * (static_cast<T>(1) - cos), w1 * w2 * (static_cast<T>(1) - cos) - w3 * sin, w1 * w3 * (static_cast<T>(1) - cos) + w2 * sin, tvec_eig_0,
+                w1 * w2 * (static_cast<T>(1) - cos) + w3 * sin, cos + w2 * w2 * (static_cast<T>(1) - cos), w2 * w3 * (static_cast<T>(1) - cos) - w1 * sin, tvec_eig_1,
+                w1 * w3 * (static_cast<T>(1) - cos) - w2 * sin, w2 * w3 * (static_cast<T>(1) - cos) + w1 * sin, cos + w3 * w3 * (static_cast<T>(1) - cos), tvec_eig_2;
 
-//     struct SnavelyReprojectionError
-//     {
-//         SnavelyReprojectionError(double observed_x, double observed_y, Eigen::Vector4d point_3d_homo_eig, double focal, double ppx, double ppy)
-//             : observed_x(observed_x), observed_y(observed_y), point_3d_homo_eig(point_3d_homo_eig), focal(focal), ppx(ppx), ppy(ppy) {}
+            Eigen::Matrix<T, 3, 1> three_to_p_eig;
 
-//         template <typename T>
-//         bool operator()(const T *const rvec_eig,
-//                         const T *const tvec_eig,
-//                         T *residuals) const
-//         {
-//             // camera[0,1,2] are the angle-axis rotation.
+            Eigen::Matrix<double, 3, 3> Kd;
+            Kd << focal, 0, ppx,
+                0, focal, ppy,
+                0, 0, 1;
 
-//             const T theta = sqrt(rvec_eig[0] * rvec_eig[0] + rvec_eig[1] * rvec_eig[1] + rvec_eig[2] * rvec_eig[2]);
+            three_to_p_eig = Kd.cast<T>() * Relative_homo_R * point_3d_homo_eig.cast<T>();
 
-//             const T tvec_eig_0 = tvec_eig[0];
-//             const T tvec_eig_1 = tvec_eig[1];
-//             const T tvec_eig_2 = tvec_eig[2];
+            T predicted_x = (three_to_p_eig[0] / three_to_p_eig[2]);
+            T predicted_y = (three_to_p_eig[1] / three_to_p_eig[2]);
 
-//             const T w1 = rvec_eig[0] / theta;
-//             const T w2 = rvec_eig[1] / theta;
-//             const T w3 = rvec_eig[2] / theta;
+            // The error is the difference between the predicted and observed position.
+            residuals[0] = predicted_x - T(observed_x);
+            residuals[1] = predicted_y - T(observed_y);
 
-//             const T cos = ceres::cos(theta);
-//             const T sin = ceres::sin(theta);
+            return true;
+        }
 
+            double observed_x;
+            double observed_y;
+            const Eigen::Vector4d point_3d_homo_eig;
+            double focal;
+            double ppx;
+            double ppy;
+    };
 
+    void motion_only_BA(cv::Mat& rvec, cv::Mat& tvec, std::vector<cv::Point2d> &points2d, 
+                        std::vector<cv::Point3d> &points3d, const double focal, cv::Point2d pp){
 
-//             Eigen::Matrix<T, 3, 4> Relative_homo_R;
-//             Relative_homo_R << cos + w1 * w1 * (static_cast<T>(1) - cos), w1 * w2 * (static_cast<T>(1) - cos) - w3 * sin, w1 * w3 * (static_cast<T>(1) - cos) + w2 * sin, tvec_eig_0,
-//                 w1 * w2 * (static_cast<T>(1) - cos) + w3 * sin, cos + w2 * w2 * (static_cast<T>(1) - cos), w2 * w3 * (static_cast<T>(1) - cos) - w1 * sin, tvec_eig_1,
-//                 w1 * w3 * (static_cast<T>(1) - cos) - w2 * sin, w2 * w3 * (static_cast<T>(1) - cos) + w1 * sin, cos + w3 * w3 * (static_cast<T>(1) - cos), tvec_eig_2;
+        Eigen::Vector3d rvec_eig;
+        Eigen::Vector3d tvec_eig;
 
-//             Eigen::Matrix<T, 3, 1> three_to_p_eig;
+        rvec_eig[0]=rvec.at<double>(0); rvec_eig[1]=rvec.at<double>(1); rvec_eig[2]=rvec.at<double>(2);
+        tvec_eig[0]=tvec.at<double>(0); tvec_eig[1]=tvec.at<double>(1); tvec_eig[2]=tvec.at<double>(2);
 
-//             Eigen::Matrix<double, 3, 3> Kd;
-//             Kd << focal, 0, ppx,
-//                 0, focal, ppy,
-//                 0, 0, 1;
+        Eigen::MatrixXd points2d_eig(2, points2d.size());
+        for(int i=0;i<points2d.size();i++){
+            points2d_eig(0,i)=points2d[i].x;
+            points2d_eig(1,i)=points2d[i].y;
+        }
+        Eigen::MatrixXd points3d_eig(4,points3d.size());
 
-//             three_to_p_eig = Kd.cast<T>() * Relative_homo_R * point_3d_homo_eig.cast<T>();
+        for(int i=0;i<points3d.size();i++){
+            points3d_eig(0,i)=points3d[i].x;
+            points3d_eig(1,i)=points3d[i].y;
+            points3d_eig(2,i)=points3d[i].z;
+            points3d_eig(3,i)=1;
+        }
 
-//             T predicted_x = (three_to_p_eig[0] / three_to_p_eig[2]);
-//             T predicted_y = (three_to_p_eig[1] / three_to_p_eig[2]);
+        ceres::Problem problem;
 
-//             // The error is the difference between the predicted and observed position.
-//             residuals[0] = predicted_x - T(observed_x);
-//             residuals[1] = predicted_y - T(observed_y);
+        for(int i=0;i<points3d.size();i++){
+            ceres::CostFunction* cost_function=
+                new ceres::AutoDiffCostFunction<SnavelyReprojectionError, 2, 3, 3>
+                (new SnavelyReprojectionError(points2d_eig(0,i), points2d_eig(1,i), points3d_eig.col(i), focal, pp.x, pp.y));
+            ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
 
-//             return true;
-//         }
+            problem.AddResidualBlock(cost_function, loss, rvec_eig.data(), tvec_eig.data());
 
-//             double observed_x;
-//             double observed_y;
-//             const Eigen::Vector4d point_3d_homo_eig;
-//             double focal;
-//             double ppx;
-//             double ppy;
-//     };
+        }
 
-//     void motion_only_BA(cv::Mat& rvec, cv::Mat& tvec, std::vector<cv::Point2d> &points2d, 
-//                         std::vector<cv::Point3d> &points3d, const double focal, cv::Point2d pp){
+        ceres::Solver::Options options;
+        options.linear_solver_type = ceres::DENSE_SCHUR;
+        options.minimizer_progress_to_stdout = false;
+        options.num_threads = 4;
+        options.max_num_iterations=100;
+        ceres::Solver::Summary summary;
+        ceres::Solve(options, &problem, &summary);
+        std::cout<<summary.BriefReport()<< std::endl;
 
-//         Eigen::Vector3d rvec_eig;
-//         Eigen::Vector3d tvec_eig;
-
-//         rvec_eig[0]=rvec.at<double>(0); rvec_eig[1]=rvec.at<double>(1); rvec_eig[2]=rvec.at<double>(2);
-//         tvec_eig[0]=tvec.at<double>(0); tvec_eig[1]=tvec.at<double>(1); tvec_eig[2]=tvec.at<double>(2);
-
-//         Eigen::MatrixXd points2d_eig(2, points2d.size());
-//         for(int i=0;i<points2d.size();i++){
-//             points2d_eig(0,i)=points2d[i].x;
-//             points2d_eig(1,i)=points2d[i].y;
-//         }
-//         Eigen::MatrixXd points3d_eig(4,points3d.size());
-
-//         for(int i=0;i<points3d.size();i++){
-//             points3d_eig(0,i)=points3d[i].x;
-//             points3d_eig(1,i)=points3d[i].y;
-//             points3d_eig(2,i)=points3d[i].z;
-//             points3d_eig(3,i)=1;
-//         }
-
-//         ceres::Problem problem;
-
-//         for(int i=0;i<points3d.size();i++){
-//             ceres::CostFunction* cost_function=
-//                 new ceres::AutoDiffCostFunction<SnavelyReprojectionError, 2, 3, 3>
-//                 (new SnavelyReprojectionError(points2d_eig(0,i), points2d_eig(1,i), points3d_eig.col(i), focal, pp.x, pp.y));
-//             ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-
-//             problem.AddResidualBlock(cost_function, loss, rvec_eig.data(), tvec_eig.data());
-
-//         }
-
-//         ceres::Solver::Options options;
-//         options.linear_solver_type = ceres::DENSE_SCHUR;
-//         options.minimizer_progress_to_stdout = false;
-//         options.num_threads = 4;
-//         options.max_num_iterations=100;
-//         ceres::Solver::Summary summary;
-//         ceres::Solve(options, &problem, &summary);
-//         std::cout<<summary.BriefReport()<< std::endl;
-
-//         for(int i=0;i<3;i++){
-//             rvec.at<double>(i)=double(rvec_eig[i]);
-//             tvec.at<double>(i)=double(tvec_eig[i]);
-//         }
-//     }
-
+        for(int i=0;i<3;i++){
+            rvec.at<double>(i)=double(rvec_eig[i]);
+            tvec.at<double>(i)=double(tvec_eig[i]);
+        }
+    }
+} // namespace mvo
 
 
 //     //======================Local BA Start======================
@@ -331,7 +333,7 @@
 //         std::vector<cv::Vec3d> rvec_vec=land_mark.mrvec;
 //         std::vector<cv::Vec3d> tvec_vec=land_mark.mtvec();
 
-//         std::vector<pair<int,vector<cv::Point2d>>> each_frame_features=land_mark.getEach_frame_feature();
+//         std::vector<std::pair<int,std::vector<cv::Point2d>>> each_frame_features=land_mark.getEach_frame_feature();
 //         std::vector<pair<int,vector<cv::Point2d>>> each_frame_inliers_features=land_mark.getEach_frame_inliers_features();
 //         // vector<pair<int,vector<int>>> unordered_list_of_keypoints=land_mark.getUnordered_list_of_keypoints();
 //         vector<pair<int,vector<int>>> unordered_list_of_keypoints=land_mark.getUnordered_inliers_list_of_keypoints();

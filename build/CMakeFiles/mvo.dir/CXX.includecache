@@ -47,6 +47,8 @@ eigen3/Eigen/Dense
 ../include/eigen3/Eigen/Dense
 Triangulate.h
 ../include/Triangulate.h
+MapData.h
+../include/MapData.h
 pangolin/display/display.h
 -
 pangolin/gl/gl.h
@@ -78,6 +80,12 @@ stdlib.h
 math.h
 -
 
+../include/MapData.h
+Triangulate.h
+../include/Triangulate.h
+PoseEstimation.h
+../include/PoseEstimation.h
+
 ../include/PoseEstimation.h
 Feature.h
 ../include/Feature.h
@@ -89,8 +97,6 @@ iostream
 -
 opencv2/calib3d.hpp
 ../include/opencv2/calib3d.hpp
-opencv2/core.hpp
-../include/opencv2/core.hpp
 Feature.h
 ../include/Feature.h
 
@@ -105,6 +111,8 @@ PoseEstimation.h
 /home/phw93/Dev/MVO/PoseEstimation.h
 Triangulate.h
 /home/phw93/Dev/MVO/Triangulate.h
+MapData.h
+/home/phw93/Dev/MVO/MapData.h
 opencv2/imgcodecs.hpp
 /home/phw93/Dev/MVO/opencv2/imgcodecs.hpp
 opencv2/highgui.hpp

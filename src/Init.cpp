@@ -26,6 +26,7 @@ float mvo::Initializer::CheckHomography(const std::vector<cv::Point2f>& refKeys1
     const float h31 = mHomography.at<float>(2,0);
     const float h32 = mHomography.at<float>(2,1);
     const float h33 = mHomography.at<float>(2,2);
+
     cv::findHomography(refKeys2, refKeys1, mInvHomography);
     const float h11inv = mInvHomography.at<float>(0,0);
     const float h12inv = mInvHomography.at<float>(0,1);
@@ -145,9 +146,6 @@ float mvo::Initializer::CheckFundamental(const std::vector<cv::Point2f>& refKeys
         const float squareDist1 = num2*num2/(a2*a2+b2*b2);
         const float chiSquare1 = squareDist1*invSigmaSquare;
 
-        // std::cout << "SquareDist1: " << squareDist1;
-        // std::cout << "   chiSquare1: " << chiSquare1 << std::endl;
-
         if(chiSquare1>th)
             bIn = false;
         else
@@ -165,15 +163,12 @@ float mvo::Initializer::CheckFundamental(const std::vector<cv::Point2f>& refKeys
         const float squareDist2 = num1*num1/(a1*a1+b1*b1);
         const float chiSquare2 = squareDist2*invSigmaSquare;
 
-        // std::cout << "SquareDist2: " << squareDist2;
-        // std::cout << "   chiSquare2: " << chiSquare2 << std::endl;
-
         if(chiSquare2>th)
             bIn = false;
         else
             score += thScore - chiSquare2;
     }
-    std::cout << "score F: " << score << std::endl;
+    // std::cout << "score F: " << score << std::endl;
     return score;
 }
 
@@ -282,6 +277,68 @@ void Viewer::MyVisualize::active_cam()
 }
 
 // pts1: GT Pose, pts2: Pose, pts3: 3D Points, pts4: FOV of 3D Points
+void Viewer::MyVisualize::DrawPoint(const std::vector<mvo::MapData>& v,
+                                    const std::vector<cv::Vec3f>& gtPose)
+{
+    glClearColor(1.0f,1.0f,1.0f,1.0f);
+    if(v.size() == 0)
+	{
+        return;
+    }
+    else
+	{
+        //빨간색(첫번째) : 구한포즈, 파란색(두번째) : 지티포즈, 검은색(세번째): 모든 맵포인트 , 자홍색(네번째) : 현재 키프레임의 맵포인트
+        glPointSize(3);
+        glBegin(GL_POINTS);
+        glColor3f(1.0,0.0,0.0); //
+
+        for(int i=0;i<v.size();i++)
+	    {
+            glVertex3d(v.at(i).mglobalTranslation[0], 0, v.at(i).mglobalTranslation[2]);
+            // std::cout << "tvec" << i << ": " << tvec.at(i)[0] << ", " << tvec.at(i)[1] << ", " << tvec.at(i)[2] << std::endl;
+        }
+        glEnd();
+
+        glPointSize(3);
+        glBegin(GL_POINTS);
+        glColor3f(0.0,0.0,1.0);
+
+        for(int i=0;i<gtPose.size();i++)
+	    {
+            glVertex3f(gtPose.at(i)[0], 0, gtPose.at(i)[2]);
+            // std::cout << "gtPose" << i << ": " << gtPose.at(i)[0] << ", " << gtPose.at(i)[1] << ", " << gtPose.at(i)[2] << std::endl;
+        }
+        glEnd();
+
+        glPointSize(1);
+        glBegin(GL_POINTS);
+        glColor3f(0.0,0.0,0.0);
+
+        for(int i = 0; i < v.size(); i++)
+	    {
+           for(int j = 0; j < v.at(i).mpoint3D.size(); j++)
+           {
+            glVertex3f(v.at(i).mpoint3D.at(j).x,
+                        0,
+                        v.at(i).mpoint3D.at(j).z);
+            // std::cout << "allOfPoints" << i << ": " << allOfPoints.at(i).mworldMapPointsV.at(j).x << ", " << allOfPoints.at(i).mworldMapPointsV.at(j).y << ", " <<allOfPoints.at(i).mworldMapPointsV.at(j).z << std::endl;
+           }
+        }
+        glEnd();      
+
+        glPointSize(2);
+        glBegin(GL_POINTS);
+        glColor3f(1.0,0.0,1.0);
+
+        for(int i = 0; i < v.at(v.size()-1).mpoint3D.size(); i++)
+	    {
+            glVertex3f(v.at(v.size()-1).mpoint3D.at(i).x, 0, v.at(v.size()-1).mpoint3D.at(i).z);
+            // std::cout << "fovPoints" << i << ": " << fovPoints.at(i).x << ", " << fovPoints.at(i).y << ", " << fovPoints.at(i).z << std::endl;
+        }
+        glEnd();            
+    }
+
+}
 void Viewer::MyVisualize::DrawPoint(const std::vector<cv::Vec3d>& tvec, 
                 const std::vector<cv::Vec3f>& gtPose,
                 const std::vector<mvo::Triangulate>& allOfPoints,

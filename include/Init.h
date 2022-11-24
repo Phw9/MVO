@@ -9,6 +9,7 @@
 #include "opencv2/imgproc.hpp"
 #include "eigen3/Eigen/Dense"
 #include "Triangulate.h"
+#include "MapData.h"
 
 #include <pangolin/display/display.h>
 #include <pangolin/gl/gl.h>
@@ -55,6 +56,7 @@ namespace Viewer
                             const std::vector<cv::Vec3f>& gtPose,
                             const std::vector<mvo::Triangulate>& allOfPoints, 
                             const std::vector<cv::Point3f>& fovPoints);
+            void DrawPoint(const std::vector<mvo::MapData>& v, const std::vector<cv::Vec3f>& gtPose);
             // circle is before, rectangle is after
             cv::Mat DrawFeatures(cv::Mat& src, std::vector<cv::Point2f>& beforePoints, std::vector<cv::Point2f>& afterPoints);
     };

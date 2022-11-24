@@ -4,6 +4,7 @@
 CMakeFiles/mvo.dir/main.cpp.o: ../include/Config.h
 CMakeFiles/mvo.dir/main.cpp.o: ../include/Feature.h
 CMakeFiles/mvo.dir/main.cpp.o: ../include/Init.h
+CMakeFiles/mvo.dir/main.cpp.o: ../include/MapData.h
 CMakeFiles/mvo.dir/main.cpp.o: ../include/PoseEstimation.h
 CMakeFiles/mvo.dir/main.cpp.o: ../include/Triangulate.h
 CMakeFiles/mvo.dir/main.cpp.o: ../main.cpp

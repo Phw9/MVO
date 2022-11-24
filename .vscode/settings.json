@@ -67,6 +67,7 @@
         "regex": "cpp",
         "shared_mutex": "cpp",
         "qr": "cpp",
-        "geometry": "cpp"
+        "geometry": "cpp",
+        "core": "cpp"
     }
 }

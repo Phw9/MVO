@@ -9,9 +9,10 @@
 #include "opencv2/video.hpp"
 #include "opencv2/core.hpp"
 
+
 #define DTYPE uchar
 #define ERRORSIZE 25
-#define MAXCORNER 500
+#define MAXCORNER 600
 #define QUALITYLEVEL 0.001
 #define MINDISTANCE 8
 

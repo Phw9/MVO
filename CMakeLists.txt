@@ -54,7 +54,6 @@ message("PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
 # set(LIBRARY_OUTPUT_DIRECTORY "./lib")
 
 include_directories(
-   /usr/include
    ${EIGEN3_INCLUDE_DIRS}
    ${GLUT_INCLUDE_DIRS}
    ${OpenCV_INCLUDE_DIRS}
@@ -72,19 +71,9 @@ add_library(mine SHARED
    ${PROJECT_SOURCE_DIR}/src/Init.cpp
    ${PROJECT_SOURCE_DIR}/src/PoseEstimation.cpp
    ${PROJECT_SOURCE_DIR}/src/Triangulate.cpp
+   ${PROJECT_SOURCE_DIR}/src/MapData.cpp
 )
-
-target_include_directories(mine PUBLIC
-   /usr/include
-   ${EIGEN3_INCLUDE_DIRS}  
-   ${GLUT_INCLUDE_DIRS}
-   ${OpenCV_INCLUDE_DIRS}
-   ${OPENGL_INCLUDE_DIRS}
-   ${Pangolin_INCLUDE_DIRS}
-   ${CERES_INCLUDE_DIRS}
-   ${PROJECT_SOURCE_DIR}
-   ${PROJECT_SOURCE_DIR}/include
-)
+target_compile_options(mine PUBLIC -g -Wall -std=c++17)
 
 target_link_libraries(mine
    ${EIGEN3_LIBRARIES}
@@ -102,15 +91,9 @@ add_executable(mvo
 )
 
 target_link_libraries(mvo
-   ${EIGEN3_LIBRARIES}
-   ${GLUT_LIBRARY}
-   ${OpenCV_LIBS}
-   ${OPENGL_LIBRARIES}
-   ${Pangolin_LIBRARIES}
-   ${CERES_LIBRARIES}
    mine
 )
 
-target_COMPILE_OPTIONS(mvo PUBLIC -g -Wall)
+target_COMPILE_OPTIONS(mvo PUBLIC -g -Wall -std=c++17)
 
 

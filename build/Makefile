@@ -271,6 +271,33 @@ src/Init.cpp.s:
 	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/Init.cpp.s
 .PHONY : src/Init.cpp.s
 
+src/MapData.o: src/MapData.cpp.o
+
+.PHONY : src/MapData.o
+
+# target to build an object file
+src/MapData.cpp.o:
+	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/MapData.cpp.o
+.PHONY : src/MapData.cpp.o
+
+src/MapData.i: src/MapData.cpp.i
+
+.PHONY : src/MapData.i
+
+# target to preprocess a source file
+src/MapData.cpp.i:
+	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/MapData.cpp.i
+.PHONY : src/MapData.cpp.i
+
+src/MapData.s: src/MapData.cpp.s
+
+.PHONY : src/MapData.s
+
+# target to generate assembly for a file
+src/MapData.cpp.s:
+	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/MapData.cpp.s
+.PHONY : src/MapData.cpp.s
+
 src/PoseEstimation.o: src/PoseEstimation.cpp.o
 
 .PHONY : src/PoseEstimation.o
@@ -350,6 +377,9 @@ help:
 	@echo "... src/Init.o"
 	@echo "... src/Init.i"
 	@echo "... src/Init.s"
+	@echo "... src/MapData.o"
+	@echo "... src/MapData.i"
+	@echo "... src/MapData.s"
 	@echo "... src/PoseEstimation.o"
 	@echo "... src/PoseEstimation.i"
 	@echo "... src/PoseEstimation.s"

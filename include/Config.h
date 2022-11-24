@@ -9,17 +9,17 @@
 #define WINDOWHEIGHT 768
 #define VIEWPOINTF 20.0
 #define VIEWPOINTX 0.0
-#define VIEWPOINTY -50.0
+#define VIEWPOINTY -40.0
 #define VIEWPOINTZ -0.1
 
 #define NUMOFPOINTS 200
 
 #define ANGULARVELOCITY 0.055
 #define NUMOFINLIER 150
-#define INLIERRATIO 0.48
-#define MINLOCAL 2
+#define INLIERRATIO 0.65
+#define MINLOCAL 3
 
-int initialNum = 2; // 1 = auto, 2 = default
+int initialNum = 1; // 1 = auto, 2 = default
 
 float cameraXf = 6.018873000000e+02; double cameraXd = 6.018873000000e+02;
 float cameraYf = 1.831104000000e+02; double cameraYd = 1.831104000000e+02;
@@ -32,3 +32,6 @@ double data[] = {focalLengthd, 0, cameraXd,
                 0, 0, 1};
 static cv::Mat intrinsicKf(cv::Size(3, 3), CV_32FC1, fdata);
 static cv::Mat intrinsicKd(cv::Size(3, 3), CV_64FC1, data);
+
+static cv::Mat m1 = cv::Mat::eye(cv::Size(4,3), CV_64F);
+static cv::Mat m2 = cv::Mat::eye(cv::Size(4,3), CV_64F);

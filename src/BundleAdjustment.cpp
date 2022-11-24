@@ -1,4 +1,2 @@
 #include "BundleAdjustment.h"
 
-
-

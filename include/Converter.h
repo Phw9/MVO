@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include "opencv2/core.hpp"
 #include <Eigen/Dense>
