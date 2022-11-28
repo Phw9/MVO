@@ -7,8 +7,6 @@
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui.hpp"
 
-
-
 int main(int argc, char** argv)
 {
     std::ofstream rawData ("./image.txt", rawData.out | rawData.trunc);
@@ -50,18 +48,13 @@ int main(int argc, char** argv)
 	std::vector<int> mapStats;
 	mvo::Triangulate mapPointsA, mapPointsB;
 	std::vector<cv::Point3f> localMapPointsA, localMapPointsB;
-	std::vector<mvo::Triangulate> globalLandMark;
-	int gLM = 0;
-	int gKF = 0;
 
 	float inlierRatio = 1000.0f;
-	double angularVelocity = 0;
-	std::vector<cv::Mat> globalRTMat; std::vector<cv::Mat> globalRMat;
-	std::vector<cv::Vec3d> globalRVec; std::vector<cv::Vec3d> globalTVec;
+	double angularVelocity = 0.0f;
+
 	mvo::MapData setMapData;
 	std::vector<mvo::MapData> globalMapData;
 	globalMapData.reserve(1000);
-	int gP = 0;
 	int gD = 0;
 	
 	Viewer::MyVisualize pangolinViewer=Viewer::MyVisualize(WINDOWWIDTH, WINDOWHEIGHT);
@@ -124,12 +117,10 @@ int main(int argc, char** argv)
 				
 				if(RH>0.45 || SH<500.0f)
 				{
-					getEssential.CreateEssentialMatrix(localTrackPointsA.at(0).mfeatures, localTrackPointsA[lTPA].mfeatures, intrinsicKf);
 					std::cout << "RH>0.45" << std::endl;
-					globalRTMat.emplace_back(getEssential.mCombineRt); globalRMat.emplace_back(getEssential.mRotation);
-					globalRVec.emplace_back(getEssential.mrvec); globalTVec.emplace_back(getEssential.mTranslation);
-					gP++;
+					getEssential.CreateEssentialMatrix(localTrackPointsA.at(0).mfeatures, localTrackPointsA[lTPA].mfeatures, intrinsicKf);
 					setMapData.GetSFMPose(getEssential);
+
 					if(!mapPointsA.CalcWorldPoints(m1, setMapData.mglobalRTMat,
 							localTrackPointsA[0], localTrackPointsA[lTPA]))
 					{
@@ -172,28 +163,23 @@ int main(int argc, char** argv)
 				imageCurNum++;
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				d_cam.Activate(s_cam);
-				// pangolinViewer.DrawPoint(globalTVec, tvecOfGT, globalLandMark, mapPointsA.mworldMapPointsV);
 				pangolinViewer.DrawPoint(globalMapData, tvecOfGT);
 				pangolin::FinishFrame();
 				
 				cv::imshow("img", img);
 				if(cv::waitKey(0) == 27) break; // ESC key
 			}
-			std::cout << "=============  2-view end & start!!  =============" << std::endl;
+			std::cout << "======================  2-view end & start!!  ======================" << std::endl;
 		}
 		// Start
 		img = cv::imread(readImageName.at(imageCurNum), 
 						cv::ImreadModes::IMREAD_UNCHANGED);
 		
-		// if(keyframe gen){ generate Pose, MapPoints, new Track}
-
-		// if num of Feature is less than NUMOFPOINTS, GFTT
-		// while(localTrackPointsA[lTPA].mfeatures.size() < NUMOFPOINTS || localTrackPointsB[lTPB].mfeatures.size() < NUMOFPOINTS)
 		while((localTrackPointsA.size()> MINLOCAL && localTrackPointsB.size()> MINLOCAL) && 
 				(localTrackPointsA[lTPA].mfeatures.size() < NUMOFPOINTS || 
 				localTrackPointsB[lTPB].mfeatures.size() < NUMOFPOINTS || 
 				angularVelocity > ANGULARVELOCITY ||
-				(getPose.minlier.rows < NUMOFINLIER && gP>ESSENTIALFRAME) ||
+				(getPose.minlier.rows < NUMOFINLIER) ||
 				inlierRatio < INLIERRATIO))
 		{
 			imageCurNum--;
@@ -215,14 +201,11 @@ int main(int argc, char** argv)
 				{
 					std::cerr << "failed Minus local B" << std::endl;
 				}
-				globalLandMark.emplace_back(mapPointsB);
-				gLM++;
- 
+
 				setMapData.GetPnPPose(getPose);
 				setMapData.Get2DPoints(localTrackPointsB.at(lTPB));
 				setMapData.Get3DPoints(mapPointsB);
-				globalMapData.emplace_back(std::move(setMapData));
-				// mvo::PushData(globalMapData, setMapData);
+				globalMapData.emplace_back(std::move(setMapData));	// mvo::PushData(globalMapData, setMapData);
 				gD++;
 
 				localTrackPointsA.clear();
@@ -239,7 +222,6 @@ int main(int argc, char** argv)
 				imageCurNum++;
 				img = cv::imread(readImageName.at(imageCurNum), 
 							cv::ImreadModes::IMREAD_UNCHANGED);
-				gKF++;
 				break;
 			}
 
@@ -259,14 +241,11 @@ int main(int argc, char** argv)
 				{
 					std::cerr << "failed Minus local A" << std::endl;
 				}
-				globalLandMark.emplace_back(mapPointsA);
-				gLM++;
 
 				setMapData.GetPnPPose(getPose);
 				setMapData.Get2DPoints(localTrackPointsA.at(lTPA));
 				setMapData.Get3DPoints(mapPointsA);
-				globalMapData.emplace_back(std::move(setMapData));
-				// mvo::PushData(globalMapData, setMapData);
+				globalMapData.emplace_back(std::move(setMapData));	// mvo::PushData(globalMapData, setMapData);
 				gD++;
 
 				localTrackPointsB.clear();
@@ -283,7 +262,6 @@ int main(int argc, char** argv)
 				imageCurNum++;
 				img = cv::imread(readImageName.at(imageCurNum), 
 							cv::ImreadModes::IMREAD_UNCHANGED);
-				gKF++;
 				break;
 			}
 			// imageCurNum++;
@@ -301,7 +279,6 @@ int main(int argc, char** argv)
 		{
 			ManageTrackPoints(localTrackPointsA.at(lTPA), localTrackPointsA.at(i));
 		}
-		// std::cout << "localTrackPointsA size: " << localTrackPointsA.size() << std::endl;
 
 		if(!mapPointsA.ManageMapPoints(localTrackPointsA.at(lTPA).mstatus))
 		{
@@ -315,43 +292,34 @@ int main(int argc, char** argv)
 			getPose.solvePnP(mapPointsA.mworldMapPointsV, localTrackPointsA.at(lTPA).mfeatures, intrinsicKd);
 			inlierRatio = (float)getPose.minlier.rows/(float)localTrackPointsA.at(lTPA).mfeatures.size();
 			std::cout << "inlierRatio: " << inlierRatio << std::endl;
-	
 			
-			globalRTMat.emplace_back(getPose.mCombineRt); globalRMat.emplace_back(getPose.mRotation);
-			globalRVec.emplace_back(getPose.mrvec); globalTVec.emplace_back(getPose.mtranslation);
-			gP++;
-			
-			angularVelocity = mvo::RotationAngle(globalRMat.at(gP-2), globalRMat.at(gP-1));
+			if(gD>2)
+			{
+				angularVelocity = mvo::RotationAngle(globalMapData.at(gD-2).mglobalRMat, globalMapData.at(gD-1).mglobalRMat);
+			}
 
 			std::cout << std::endl;
 			std::cout << "mapPoints.size A: " << mapPointsA.mworldMapPointsV.size() << std::endl;
 			std::cout << "before, present local points size A: " << localTrackPointsA[lTPA-1].mfeatures.size() <<
 			", "<< localTrackPointsA[lTPA].mfeatures.size() << std::endl;
-			std::cout << "mrvec: " << globalRVec.at(gP-1) << "  angularV: " << angularVelocity << std::endl;
-			std::cout << "mtvec: " << globalTVec.at(gP-1) << std::endl;
 		}
 		std::cout << std::endl;
+
 		// tacking B
 		localTrackPointsB[lTPB].OpticalFlowPyrLK(cv::imread(readImageName.at(imageCurNum-1), 
 													cv::ImreadModes::IMREAD_UNCHANGED), img, trackerB);
 		localTrackPointsB.emplace_back(std::move(trackerB));
 		lTPB++;
+
 		for(int i = 0; i < lTPB-1; i++)
 		{
 			ManageTrackPoints(localTrackPointsB.at(lTPB), localTrackPointsB.at(i));
 		}
-		// std::cout << "lTPA: " << lTPA << std::endl;
-		// std::cout << "lTPA feature size : " << localTrackPointsA[lTPA].mfeatures.size() << std::endl << std::endl;
-		// std::cout << "statssize: " << localTrackPointsB.at(lTPB).mstatus.size() << std::endl;
-		// std::cout << "before mapPointsB.mworldMapPointsV: " << mapPointsB.mworldMapPointsV.size() << std::endl;
-		// std::cout << "before trackPoints: " << localTrackPointsB.at(lTPB).mfeatures.size() << std::endl;
 
 		if(!mapPointsB.ManageMapPoints(localTrackPointsB.at(lTPB).mstatus))
 		{
 			std::cerr << "failed manage MapPointsB" << std::endl;
 		}
-		// std::cout << "after mapPointsB.mworldMapPointsV: " << mapPointsB.mworldMapPointsV.size() << std::endl;
-		// std::cout << "after trackPoints: " << localTrackPointsB.at(lTPB).mfeatures.size() << std::endl;
 
 		if(mapPointsB.mworldMapPointsV.size() == localTrackPointsB.at(lTPB).mfeatures.size())
 		{
@@ -360,19 +328,15 @@ int main(int argc, char** argv)
 			inlierRatio = (float)getPose.minlier.rows/(float)localTrackPointsB.at(lTPB).mfeatures.size();
 			std::cout << "inlierRatio: " << inlierRatio << std::endl;
 	
-
-			globalRTMat.emplace_back(getPose.mCombineRt); globalRMat.emplace_back(getPose.mRotation);
-			globalRVec.emplace_back(getPose.mrvec); globalTVec.emplace_back(getPose.mtranslation);
-			gP++;
-
-			angularVelocity = mvo::RotationAngle(globalRMat.at(gP-2), globalRMat.at(gP-1));
+			if(gD>2)
+			{
+				angularVelocity = mvo::RotationAngle(globalMapData.at(gD-2).mglobalRMat, globalMapData.at(gD-1).mglobalRMat);
+			}
 
 			std::cout << std::endl;
 			std::cout << "mapPoints.size B: " << mapPointsB.mworldMapPointsV.size() << std::endl;
 			std::cout << "before, present local points size B: " << localTrackPointsB[lTPB-1].mfeatures.size() <<
 			", "<< localTrackPointsB[lTPB].mfeatures.size() << std::endl;
-			std::cout << "mrvec: " << globalRVec.at(gP-1) << "  angularV: " << angularVelocity << std::endl;
-			std::cout << "mtvec: " << globalTVec.at(gP-1) << std::endl;
 		}
 
 		std::cout << std::endl;
@@ -395,27 +359,19 @@ int main(int argc, char** argv)
 		}
 		tvecOfGT.emplace_back(readtvecOfGT.at(imageCurNum));
 		std::cout << std::endl;
-		std::cout << "KeyFrame(glboalMapData)size: " << globalMapData.size() << ", real:" << realFrame << ", image: " << imageCurNum <<std::endl;
+		std::cout << "KeyFrame(glboalMapData)size: " << globalMapData.size() << ", image: " << imageCurNum <<std::endl;
 		std::cout << "mpoint2D size: " << globalMapData.at(gD).mpoint2D.size() << std::endl;
 		std::cout << "mpoint3D size: " << globalMapData.at(gD).mpoint3D.size() << std::endl;
 		std::cout << "mvdesc size: " << globalMapData.at(gD).mvdesc.size() << std::endl;
 		
-		std::cout << "mtvec: " << globalTVec.at(gP-1) << " tvec size: " << globalTVec.size() << std::endl;
-		std::cout << "gDtvec: " << globalMapData.at(gD).mglobaltvec << std::endl;
-		std::cout << "tvecOfGT: " << tvecOfGT.at(imageCurNum) << "  gKF: " << gKF << " Img/KF: " << globalTVec.size()/(gD+1) << std::endl; 
-		std::cout << "==============================================" << std::endl;
+		std::cout << "mrvec: " << globalMapData.at(gD).mglobalrvec<< "  angularV: " << angularVelocity << std::endl;
+		std::cout << "mTranslation: " << globalMapData.at(gD).mglobalTranslation << std::endl;
+		std::cout << "tvecOfGT: " << tvecOfGT.at(imageCurNum) << "  KeyFrame: " << gD << " Img/KF: " << imageCurNum/(gD+1) << std::endl; 
+		std::cout << "=============================================================================" << std::endl;
 		imageCurNum++;
 		realFrame++;
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		d_cam.Activate(s_cam);
-		// if(mapPointsA.mworldMapPointsV.size() > mapPointsB.mworldMapPointsV.size())
-		// {
-		// 	pangolinViewer.DrawPoint(globalTVec, tvecOfGT, globalLandMark, mapPointsA.mworldMapPointsV);
-		// }
-		// else
-		// {
-		// 	pangolinViewer.DrawPoint(globalTVec, tvecOfGT, globalLandMark, mapPointsB.mworldMapPointsV);
-		// }
 		pangolinViewer.DrawPoint(globalMapData, tvecOfGT);
     	pangolin::FinishFrame();
 		cv::imshow("img", img);

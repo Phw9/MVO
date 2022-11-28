@@ -28,7 +28,7 @@ namespace mvo
     struct SnavelyReprojectionError
     {
         SnavelyReprojectionError(double observed_x, double observed_y, Eigen::Vector4d point_3d_homo_eig, double focal, double ppx, double ppy)
-            : observed_x(observed_x), observed_y(observed_y), point_3d_homo_eig(point_3d_homo_eig), focal(focal), ppx(ppx), ppy(ppy) {}
+            : observed_x(observed_x), observed_y(observed_y), point_3d_homo_eig(point_3d_homo_eig), focal(focalLengthd), ppx(cameraXd), ppy(cameraYd) {}
 
         template <typename T>
         bool operator()(const T *const rvec_eig,

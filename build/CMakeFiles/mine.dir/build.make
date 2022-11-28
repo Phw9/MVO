@@ -259,7 +259,6 @@ libmine.so: /usr/lib/x86_64-linux-gnu/libcamd.so
 libmine.so: /usr/lib/x86_64-linux-gnu/libcolamd.so
 libmine.so: /usr/lib/x86_64-linux-gnu/libamd.so
 libmine.so: /usr/lib/x86_64-linux-gnu/liblapack.so
-libmine.so: /usr/lib/x86_64-linux-gnu/libblas.so
 libmine.so: /usr/lib/x86_64-linux-gnu/libf77blas.so
 libmine.so: /usr/lib/x86_64-linux-gnu/libatlas.so
 libmine.so: /usr/lib/x86_64-linux-gnu/libsuitesparseconfig.so
@@ -273,7 +272,6 @@ libmine.so: /usr/lib/x86_64-linux-gnu/libcamd.so
 libmine.so: /usr/lib/x86_64-linux-gnu/libcolamd.so
 libmine.so: /usr/lib/x86_64-linux-gnu/libamd.so
 libmine.so: /usr/lib/x86_64-linux-gnu/liblapack.so
-libmine.so: /usr/lib/x86_64-linux-gnu/libblas.so
 libmine.so: /usr/lib/x86_64-linux-gnu/libf77blas.so
 libmine.so: /usr/lib/x86_64-linux-gnu/libatlas.so
 libmine.so: /usr/lib/x86_64-linux-gnu/libsuitesparseconfig.so

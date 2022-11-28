@@ -167,7 +167,6 @@ mvo: /usr/lib/x86_64-linux-gnu/libcamd.so
 mvo: /usr/lib/x86_64-linux-gnu/libcolamd.so
 mvo: /usr/lib/x86_64-linux-gnu/libamd.so
 mvo: /usr/lib/x86_64-linux-gnu/liblapack.so
-mvo: /usr/lib/x86_64-linux-gnu/libblas.so
 mvo: /usr/lib/x86_64-linux-gnu/libf77blas.so
 mvo: /usr/lib/x86_64-linux-gnu/libatlas.so
 mvo: /usr/lib/x86_64-linux-gnu/libsuitesparseconfig.so
@@ -181,7 +180,6 @@ mvo: /usr/lib/x86_64-linux-gnu/libcamd.so
 mvo: /usr/lib/x86_64-linux-gnu/libcolamd.so
 mvo: /usr/lib/x86_64-linux-gnu/libamd.so
 mvo: /usr/lib/x86_64-linux-gnu/liblapack.so
-mvo: /usr/lib/x86_64-linux-gnu/libblas.so
 mvo: /usr/lib/x86_64-linux-gnu/libf77blas.so
 mvo: /usr/lib/x86_64-linux-gnu/libatlas.so
 mvo: /usr/lib/x86_64-linux-gnu/libsuitesparseconfig.so
