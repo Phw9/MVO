@@ -20,15 +20,17 @@
 #define MINLOCAL 3
 
 int initialNum = 1; // 1 = auto, 2 = default
+float inlierRatio = 1000.0f;
+double angularVelocity = 0.0f;
 
-float cameraXf = 6.018873000000e+02; double cameraXd = 6.018873000000e+02;
-float cameraYf = 1.831104000000e+02; double cameraYd = 1.831104000000e+02;
+float camXf = 6.018873000000e+02; double camXd = 6.018873000000e+02;
+float cameraYf = 1.831104000000e+02; double camYd = 1.831104000000e+02;
 float focalLengthf = 7.070912000000e+02; double focalLengthd = 7.070912000000e+02;
-float fdata[] = {focalLengthf, 0, cameraXf,
+float fdata[] = {focalLengthf, 0, camXf,
                 0, focalLengthf, cameraYf,
                 0, 0, 1};
-double data[] = {focalLengthd, 0, cameraXd,
-                0, focalLengthd, cameraYd,
+double data[] = {focalLengthd, 0, camXd,
+                0, focalLengthd, camYd,
                 0, 0, 1};
 static cv::Mat intrinsicKf(cv::Size(3, 3), CV_32FC1, fdata);
 static cv::Mat intrinsicKd(cv::Size(3, 3), CV_64FC1, data);

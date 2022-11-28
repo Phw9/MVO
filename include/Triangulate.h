@@ -10,6 +10,7 @@ namespace mvo
     {
     public:
         Triangulate();
+        
         bool CalcWorldPoints(const cv::Mat& pose1,
                             const cv::Mat& pose2,
                             const mvo::Feature& pts1,
@@ -18,7 +19,7 @@ namespace mvo
         bool ManageMapPoints(std::vector<mvo::Feature>& feature);
         bool ScalingPoints();
         void MatToPoints3f();
-    public:
+
         cv::Mat mworldMapPoints;
         std::vector<cv::Point3f> mworldMapPointsV;
         std::vector<std::vector<uchar>> mvdesc;

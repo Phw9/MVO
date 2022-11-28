@@ -88,7 +88,6 @@ float mvo::Initializer::CheckHomography(const std::vector<cv::Point2f>& refKeys1
         else
             score += th - chiSquare2;
     }
-    std::cout << "score H: " << score << std::endl;
     return score;
 }
 
@@ -168,7 +167,6 @@ float mvo::Initializer::CheckFundamental(const std::vector<cv::Point2f>& refKeys
         else
             score += thScore - chiSquare2;
     }
-    // std::cout << "score F: " << score << std::endl;
     return score;
 }
 
@@ -267,7 +265,7 @@ void Viewer::MyVisualize::initialize()
 void Viewer::MyVisualize::active_cam()
 {
     pangolin::OpenGlRenderState s_cam(
-    pangolin::ProjectionMatrix(window_width, window_height, 20, 20, 512, 389, 0.1, 1000),
+    pangolin::ProjectionMatrix(window_width, window_height, 20, 20, 512, 389, 0.1, 100),
     pangolin::ModelViewLookAt(0, -100, -0.1, 0, 0, 0, 0.0, -1.0, 0.0));
 
     pangolin::View &d_cam = pangolin::CreateDisplay()
