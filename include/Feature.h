@@ -12,7 +12,7 @@
 
 #define DTYPE uchar
 #define ERRORSIZE 25
-#define MAXCORNER 600
+#define MAXCORNER 1000
 #define QUALITYLEVEL 0.001
 #define MINDISTANCE 8
 

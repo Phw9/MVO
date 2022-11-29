@@ -27,7 +27,6 @@ int main(int argc, char** argv)
 	FileRead(readImageName, read);
 	GTPoseRead(readtvecOfGT, readGTtvec);
 	
-
 	mvo::Feature detector;
 	mvo::Feature trackerA, trackerB;
 	std::vector<mvo::Feature> localTrackPointsA;
@@ -104,13 +103,15 @@ int main(int argc, char** argv)
 					// std::cout << "descsize" << i <<": " << localTrackPointsA.at(i).mvdesc.size() << std::endl;
 				}
 
-				SF = checkScore.CheckFundamental(localTrackPointsA.at(0).mfeatures, localTrackPointsA.at(lTPA).mfeatures, 300.0f);
+				SF = checkScore.CheckFundamental(localTrackPointsA.at(0).mfeatures, localTrackPointsA.at(lTPA).mfeatures, 200.0f);
 				SH = checkScore.CheckHomography(localTrackPointsA.at(0).mfeatures, localTrackPointsA.at(lTPA).mfeatures, 200.0f);
 				RH = SH/(SH+SF);
 				std::cout << "SF: "<< SF << " SH:  " << SH << std::endl;
 				std::cout << "score: " << RH << std::endl;
 				// RH>0.45
-				if(SH < 900 && isnan(SF) == true)
+				// SH>1800 && isnan(SF) == true
+				// lTPA == large:1 small:5
+				if(lTPA==5)
 				{
 					std::cout << "RH>0.45" << std::endl;
 					getEssential.CreateEssentialMatrix(localTrackPointsA.at(0).mfeatures, localTrackPointsA[lTPA].mfeatures, intrinsicKf);
@@ -288,9 +289,13 @@ int main(int argc, char** argv)
 			inlierRatio = (float)getPose.minlier.rows/(float)localTrackPointsA.at(lTPA).mfeatures.size();
 			std::cout << "inlierRatio: " << inlierRatio << std::endl;
 			
-			mvo::BundleAdjustment* ba = new mvo::BundleAdjustment(localTrackPointsA.at(lTPA), getPose, mapPointsA);
-			if(!ba->MotionOnlyBA()) std::cerr << "motion error" << std::endl;
-			else delete ba;
+			if(BUNDLE == 1)
+			{
+				// std::unique_ptr<mvo::BundleAdjustment> ba = std::make_unique<mvo::BundleAdjustment>(localTrackPointsA.at(lTPA), getPose, mapPointsA));
+				mvo::BundleAdjustment* ba = new mvo::BundleAdjustment(localTrackPointsA.at(lTPA), getPose, mapPointsA);
+				if(!ba->MotionOnlyBA()) std::cerr << "motion error" << std::endl;
+				else delete ba;				
+			}
 
 			if(gD>2)
 			{
@@ -326,16 +331,17 @@ int main(int argc, char** argv)
 			getPose.solvePnP(mapPointsB.mworldMapPointsV, localTrackPointsB.at(lTPB).mfeatures, intrinsicKf);
 			inlierRatio = (float)getPose.minlier.rows/(float)localTrackPointsB.at(lTPB).mfeatures.size();
 			std::cout << "inlierRatio: " << inlierRatio << std::endl;
-	
-			mvo::BundleAdjustment* ba = new mvo::BundleAdjustment(localTrackPointsB.at(lTPB), getPose, mapPointsB);
-			if(!ba->MotionOnlyBA()) std::cerr << "motion error" << std::endl;
-			else delete ba;
 
+			if(BUNDLE == 1)
+			{
+				mvo::BundleAdjustment* ba = new mvo::BundleAdjustment(localTrackPointsB.at(lTPB), getPose, mapPointsB);
+				if(!ba->MotionOnlyBA()) std::cerr << "motion error" << std::endl;
+				else delete ba;				
+			}
 			if(gD>2)
 			{
 				angularVelocity = mvo::RotationAngle(globalMapData.at(gD-2).mglobalRMat, globalMapData.at(gD-1).mglobalRMat);
 			}
-
 			std::cout << std::endl;
 			std::cout << "mapPoints.size B: " << mapPointsB.mworldMapPointsV.size() << std::endl;
 			std::cout << "before, present local points size B: " << localTrackPointsB[lTPB-1].mfeatures.size() <<
@@ -378,8 +384,10 @@ int main(int argc, char** argv)
 		pangolinViewer.DrawPoint(globalMapData, tvecOfGT);
     	pangolin::FinishFrame();
 		cv::imshow("img", img);
-		if(cv::waitKey(5) == 27) break; // ESC key
-	}
+		char ch = cv::waitKey(10);
+		if(ch == 27) break; // ESC key
+		if(ch == 32) if(cv::waitKey(0) == 27) break;;
+	}	
 
     return 0;
 }

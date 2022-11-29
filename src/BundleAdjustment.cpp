@@ -49,6 +49,7 @@ mvo::BundleAdjustment::BundleAdjustment(mvo::Feature& ft, mvo::PoseEstimation& r
                     : ft{ft}, rt{rt}, tri{tri}{}
 
 mvo::BundleAdjustment::BundleAdjustment(mvo::MapData& data): data{data}{}
+    
 
 bool mvo::BundleAdjustment::MotionOnlyBA()
 {

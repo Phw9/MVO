@@ -36,6 +36,24 @@ namespace mvo
         double ppy;
     };
 
+    struct SnavelyReprojectionErrorLocal
+    {
+        SnavelyReprojectionErrorLocal(double observed_x, double observed_y, Eigen::Vector4d worldHomoGen4d, 
+                                 double focal, double ppx, double ppy);
+        ~SnavelyReprojectionErrorLocal() = default;
+
+        template <typename T> bool operator()(const T *const rvec_eig,
+                                              const T *const tvec_eig,
+                                              T *residuals) const;
+
+        double observed_x;
+        double observed_y;
+        const Eigen::Vector4d worldHomoGen4d;
+        double focal;
+        double ppx;
+        double ppy;        
+    };
+
     class BundleAdjustment
     {
     public:

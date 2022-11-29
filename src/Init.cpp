@@ -141,6 +141,7 @@ float mvo::Initializer::CheckFundamental(const std::vector<cv::Point2f>& refKeys
         const float c2 = f31*u1+f32*v1+f33;
 
         const float num2 = a2*u2+b2*v2+c2;
+        // std::cout << "a2: " << a2 << " b2: " << b2 << std::endl;
 
         const float squareDist1 = num2*num2/(a2*a2+b2*b2);
         const float chiSquare1 = squareDist1*invSigmaSquare;
@@ -157,6 +158,7 @@ float mvo::Initializer::CheckFundamental(const std::vector<cv::Point2f>& refKeys
         const float b1 = f12*u2+f22*v2+f32;
         const float c1 = f13*u2+f23*v2+f33;
 
+        // std::cout << "a1: " << a1 << " b1: " << b1 << std::endl;
         const float num1 = a1*u1+b1*v1+c1;
 
         const float squareDist2 = num1*num1/(a1*a1+b1*b1);
