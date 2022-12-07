@@ -1,10 +1,6 @@
 #pragma once
 
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Geometry>
-#include <eigen3/Eigen/Dense>
 #include "opencv2/core.hpp"
-#include "ceres/ceres.h"
 #include "ceres/loss_function.h"
 #include "Triangulate.h"
 #include "MapData.h"
@@ -38,17 +34,17 @@ namespace mvo
 
     struct SnavelyReprojectionErrorLocal
     {
-        SnavelyReprojectionErrorLocal(double observed_x, double observed_y, Eigen::Vector4d worldHomoGen4d, 
-                                 double focal, double ppx, double ppy);
+        SnavelyReprojectionErrorLocal(double observed_x, double observed_y,
+                                      double focal, double ppx, double ppy);
         ~SnavelyReprojectionErrorLocal() = default;
 
         template <typename T> bool operator()(const T *const rvec_eig,
                                               const T *const tvec_eig,
+                                              const T *const point_3d_homo_eig,
                                               T *residuals) const;
 
         double observed_x;
         double observed_y;
-        const Eigen::Vector4d worldHomoGen4d;
         double focal;
         double ppx;
         double ppy;        
@@ -57,14 +53,14 @@ namespace mvo
     class BundleAdjustment
     {
     public:
-    BundleAdjustment();
+    BundleAdjustment()=default;
     BundleAdjustment(mvo::Feature& ft, mvo::PoseEstimation& rt,
                      mvo::Triangulate& tri);
     BundleAdjustment(mvo::MapData& data);
     ~BundleAdjustment() = default;
 
     bool MotionOnlyBA();
-    bool LocalBA();
+    bool LocalBA(int gD, std::vector<mvo::MapData>& map, mvo::Covisibilgraph& cov);
     bool FullBA();
 
     mvo::Feature ft;
@@ -72,6 +68,4 @@ namespace mvo
     mvo::Triangulate tri;
     mvo::MapData data;
     };
-
-    bool MotionBA();
 }

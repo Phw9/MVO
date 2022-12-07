@@ -836,3 +836,5 @@ struct SnavelyReprojectionError_Local_pose_fixed
         land_mark.clear_loop_rt();
     }
 
+
+}

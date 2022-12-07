@@ -35,10 +35,8 @@ bool mvo::Triangulate::CalcWorldPoints(const cv::Mat& pose1,
     // std::cout << "3d point nums: " << mworldMapPoints.size() << std::endl;
     // std::cout << "mworldMapPoints rows: " << mworldMapPoints.rows << std::endl;
     // std::cout << "mworldMapPoints cols: " << mworldMapPoints.cols << std::endl;
-    mvdesc.clear();
     mworldMapPointsV.clear();
     // std::cout << "pts1.mvdesc.size(): " << pts1.mvdesc.size() << std::endl;
-    mvdesc = pts1.mvdesc;
     // std::cout << "mvdesc in Triangulate: " << mvdesc.size() << std::endl;
     // std::cout << "mvdesc in pts1: " << pts1.mvdesc.size() << std::endl;
     if(mworldMapPoints.empty())
@@ -95,6 +93,21 @@ bool mvo::Triangulate::ManageMapPoints(std::vector<mvo::Feature>& feature)
                 indexCorrection++;
             }
         }
+        for(int i = 0; i < feature.at(N).mdelete.size(); i++)
+        {
+            if(feature.at(N).mdelete.at(i) == 0)
+            {
+                mworldMapPointsV.erase(mworldMapPointsV.begin() + (i - indexCorrection));
+                mvdesc.erase(mvdesc.begin() + (i - indexCorrection));
+                for(int j =0; j <= N; j++)
+                {
+                    feature.at(j).mvdesc.erase(feature.at(j).mvdesc.begin() + (i - indexCorrection));
+                }
+                indexCorrection++;
+            }
+        }
+
+
         return true;
     }
     return false;
@@ -110,7 +123,7 @@ bool mvo::Triangulate::ManageMapPoints(const std::vector<uchar>& mstatus)
             if(mstatus.at(i) == 0)
             {
                 mworldMapPointsV.erase(mworldMapPointsV.begin() + (i - indexCorrection));
-                mvdesc.erase(mvdesc.begin() + (i - indexCorrection));
+                // mvdesc.erase(mvdesc.begin() + (i - indexCorrection));
                 indexCorrection++;
             }
         }
@@ -210,7 +223,6 @@ bool ManageMinusZ(mvo::Triangulate& map, cv::Mat& R, std::vector<int>& id)
         {
             id.emplace_back(i);
             map.mworldMapPointsV.erase(map.mworldMapPointsV.begin()+i);
-            map.mvdesc.erase(map.mvdesc.begin()+i);
         }
     }
     if(map.mworldMapPointsV.size() == 0) return false;

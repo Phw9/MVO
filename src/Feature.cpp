@@ -39,16 +39,15 @@ bool mvo::Feature::GoodFeaturesToTrack(const cv::Mat& src)
     }
     cv::Ptr<cv::xfeatures2d::BriefDescriptorExtractor> brief = cv::xfeatures2d::BriefDescriptorExtractor::create();
 
-    cv::Mat desc1;
     std::vector<cv::KeyPoint> kp;
     VecToKeyPoint(mfeatures, kp);
     // std::cout << "before mfeatures: " << mfeatures.size() << std::endl;
     // std::cout << "before kp size: " << kp.size() << std::endl;
-    brief->compute(src, kp, desc1);
+    brief->compute(src, kp, mdesc);
     mfeatures.clear();
-    KeyPointToVec(kp,mfeatures);
+    KeyPointToVec(kp, mfeatures);
     mvdesc.clear();
-    MatToVec(desc1, mvdesc);
+    MatToVec(mdesc, mvdesc);
     // std::cout << "desc mat size: " << desc1.size() << std::endl;
     // std::cout << "after mfeatures: " << mfeatures.size() << std::endl;
     // std::cout << "after kp size: " << kp.size() << std::endl;
@@ -58,14 +57,14 @@ bool mvo::Feature::GoodFeaturesToTrack(const cv::Mat& src)
 
 bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mvo::Feature& next)
 {
-    next.mfeatures.clear(); next.mstatus.clear(); next.merr.clear();
+    next.mfeatures.clear(); next.mstatus.clear(); next.merr.clear(); next.mvdesc.clear();
     cv::Size winSize = cv::Size(21,21);
     cv::TermCriteria termcrit = cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 30, 0.11);
-    
     cv::calcOpticalFlowPyrLK(src1, src2, mfeatures, next.mfeatures, next.mstatus, next.merr,
                              winSize, 3, termcrit, 0, 0.0001);
 
-    next.mvdesc = mvdesc;
+
+
     int indexCorrection = 0;
     for(int i = 0; i < next.mstatus.size(); i++)
     {
@@ -85,11 +84,19 @@ bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mv
             mfeatures.erase(mfeatures.begin() + (i - indexCorrection));           // time complexity
             mvdesc.erase(mvdesc.begin() + (i - indexCorrection));           // time complexity
             next.mfeatures.erase(next.mfeatures.begin() + (i - indexCorrection));
-            next.mvdesc.erase(next.mvdesc.begin() + (i - indexCorrection));
             indexCorrection++;
         }
     }
-    
+    cv::Ptr<cv::xfeatures2d::BriefDescriptorExtractor> brief = cv::xfeatures2d::BriefDescriptorExtractor::create();
+    std::vector<cv::KeyPoint> kp2;
+    std::vector<uchar> idx;
+    VecToKeyPoint(next.mfeatures, kp2);
+    brief->compute(src2, kp2, next.mdesc);
+    next.mdelete = FindDeletePoints(kp2, next.mfeatures);
+    DeletePoints(next.mdelete, mvdesc, mfeatures);
+    next.mfeatures.clear(); next.mvdesc.clear();
+    KeyPointToVec(kp2, next.mfeatures);
+    MatToVec(next.mdesc, next.mvdesc);
     if(next.mfeatures.empty())
     {
         std::cerr << "failed calcOpticalFlowPyrLK" << std::endl;
@@ -100,10 +107,6 @@ bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mv
         std::cerr << "failed calcOpticalFlowPyrLK descriptor" << std::endl;
         return false;
     }
-    // for(int i=0; i<mfeatures.size(); i++)
-    // {
-    //     std::cout << mfeatures.at(i) << ", " << next.mfeatures.at(i) << std::endl;
-    // }
 
     return true;
 }
@@ -114,6 +117,16 @@ void ManageTrackPoints(const mvo::Feature& present, mvo::Feature& before)
     for(int i = 0; i < present.mstatus.size(); i++)
     {
         if(present.mstatus.at(i) == 0)
+        {
+            before.mfeatures.erase(before.mfeatures.begin() + (i-indexCorrection));
+            before.mvdesc.erase(before.mvdesc.begin() + (i-indexCorrection));
+            indexCorrection++;
+        }
+    }
+    indexCorrection = 0;
+    for(int i = 0; i < present.mdelete.size(); i++)
+    {
+        if(present.mdelete.at(i) == 0)
         {
             before.mfeatures.erase(before.mfeatures.begin() + (i-indexCorrection));
             before.mvdesc.erase(before.mvdesc.begin() + (i-indexCorrection));
@@ -168,4 +181,57 @@ bool MatToVec(const cv::Mat m, std::vector<std::vector<DTYPE>>& v)
     if(m.rows != v.size()) return false;
 
     return true;
+}
+
+std::vector<uchar> FindDeletePoints(std::vector<cv::KeyPoint>& kp, std::vector<cv::Point2f>& mfeatures)
+{
+    // kp < mfeatures
+    std::vector<uchar> index;
+    int k = 0;
+    for(int i=0; i<mfeatures.size(); i++)
+    {
+        for(int j=0; j<kp.size(); j++)
+        {
+            if(mfeatures.at(i).x == kp.at(j).pt.x && mfeatures.at(i).y == kp.at(j).pt.y)
+            {
+                index.emplace_back(1);
+                k = 1;
+                break;
+            }
+        }
+        if(k == 0)
+        {
+            index.emplace_back(0);
+        }
+        k = 0;
+    }
+    int t = 0;
+    int f = 0;
+    for(int i=0; i<index.size(); i++)
+    {
+        if(index.at(i) == 0) f++;
+        else t++;
+    }
+    return index;
+}
+
+void DeletePoints(std::vector<uchar>& idx, std::vector<std::vector<uchar>>& mvdesc, std::vector<cv::Point2f>& mfeatures)
+{
+    if(idx.size() != mfeatures.size())
+    {
+        std::cerr <<"different number of DeletePoints" << std::endl;
+        return;
+    }
+
+    int indexCorrection = 0;
+
+    for(int i = 0; i < idx.size(); i++)
+    {
+        if(idx.at(i) == 0)
+        {
+            mfeatures.erase(mfeatures.begin() + (i-indexCorrection));
+            mvdesc.erase(mvdesc.begin() + (i-indexCorrection));
+            indexCorrection++;
+        }
+    }
 }

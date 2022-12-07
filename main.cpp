@@ -47,9 +47,10 @@ int main(int argc, char** argv)
 
 	mvo::MapData setMapData;
 	std::vector<mvo::MapData> globalMapData;
-	globalMapData.reserve(1000);
+	globalMapData.reserve(10000);
 	int gD = 0;
-	
+	int gIdx = -1;
+	mvo::Covisibilgraph covGraph(globalMapData, focald, camXd, camYd);
 	Viewer::MyVisualize pangolinViewer=Viewer::MyVisualize(WINDOWWIDTH, WINDOWHEIGHT);
     pangolinViewer.initialize();
     pangolin::OpenGlRenderState s_cam(
@@ -110,8 +111,7 @@ int main(int argc, char** argv)
 				std::cout << "score: " << RH << std::endl;
 				// RH>0.45
 				// SH>1800 && isnan(SF) == true
-				// lTPA == large:1 small:5
-				if(lTPA==5)
+				if(lTPA==3)
 				{
 					std::cout << "RH>0.45" << std::endl;
 					getEssential.CreateEssentialMatrix(localTrackPointsA.at(0).mfeatures, localTrackPointsA[lTPA].mfeatures, intrinsicKf);
@@ -126,11 +126,12 @@ int main(int argc, char** argv)
 					{
 						std::cerr << "failed ManageMinusZ A" << std::endl;
 					}
+
 					if(!ManageMinusLocal(localTrackPointsA, mapStats))
 					{
 						std::cerr << "failed Minus local" << std::endl;
 					}
-
+					
 					setMapData.Get2DPoints(localTrackPointsA.at(lTPA));
 					setMapData.Get3DPoints(mapPointsA);
 					globalMapData.emplace_back(std::move(setMapData));
@@ -140,7 +141,6 @@ int main(int argc, char** argv)
 					std::cout << "localTrackPoints 0: " << localTrackPointsA.at(0).mfeatures.size() << std::endl;
 					std::cout << "localtrackPoints l: " << localTrackPointsA.at(lTPA).mfeatures.size() << std::endl;
 
-					
 					if(!trackerB.GoodFeaturesToTrack(img))
 					{	
 						std::cout << "new tracker B" << std::endl;
@@ -153,7 +153,7 @@ int main(int argc, char** argv)
 				img = pangolinViewer.DrawFeatures(img, localTrackPointsA.at(lTPA-1).mfeatures, 
 													localTrackPointsA.at(lTPA).mfeatures);
 				tvecOfGT.emplace_back(readtvecOfGT.at(imageCurNum));
-				std::cout << "KeyFrame(glboalMapData)size: " << globalMapData.size() << ", real:" << realFrame << ", image: " << imageCurNum <<std::endl;
+				std::cout << "KeyFrame(glbalMapData)size: " << globalMapData.size() << ", real:" << realFrame << ", image: " << imageCurNum <<std::endl;
 				std::cout << "tvecOfGT: " << tvecOfGT.at(imageCurNum) << std::endl;
 				realFrame++;
 				imageCurNum++;
@@ -181,10 +181,13 @@ int main(int argc, char** argv)
 			imageCurNum--;
 			img = cv::imread(readImageName.at(imageCurNum), 
 						cv::ImreadModes::IMREAD_UNCHANGED);
+
 			if(localTrackPointsA[lTPA].mfeatures.size() < NUMOFPOINTS || mapPointsA.mworldMapPointsV.size() == localTrackPointsA.at(lTPA).mfeatures.size())
 			{
 				// triangulate
 				std::cout << "ㅇㅇㅇNewTrack Aㅇㅇㅇ" << std::endl;
+
+				// descriptor of mapPointsA & mapPointsB matcher
 
 				mapPointsB.CalcWorldPoints(globalMapData.at(gD).mglobalRTMat, getPose.mCombineRt, 
 										localTrackPointsB.at(0), localTrackPointsB.at(lTPB));
@@ -202,7 +205,21 @@ int main(int argc, char** argv)
 				setMapData.Get2DPoints(localTrackPointsB.at(lTPB));
 				setMapData.Get3DPoints(mapPointsB);
 				globalMapData.emplace_back(std::move(setMapData));	// mvo::PushData(globalMapData, setMapData);
-				gD++;
+				gD++; gIdx++;
+
+				covGraph.MakeEdgeDesc(gD, localTrackPointsA.at(lTPA), mapPointsA);
+
+				if(BUNDLE==1)
+				{
+					if(gD>3)
+					{
+						std::cout << "localBA start" << std::endl;
+						mvo::BundleAdjustment* localBA = new mvo::BundleAdjustment();
+						if(!localBA->LocalBA(gD, globalMapData, covGraph))
+							std::cerr << "local error" << std::endl;
+						else delete localBA;
+					}	
+				}
 
 				localTrackPointsA.clear();
 				if(!trackerA.GoodFeaturesToTrack(img))
@@ -242,7 +259,21 @@ int main(int argc, char** argv)
 				setMapData.Get2DPoints(localTrackPointsA.at(lTPA));
 				setMapData.Get3DPoints(mapPointsA);
 				globalMapData.emplace_back(std::move(setMapData));	// mvo::PushData(globalMapData, setMapData);
-				gD++;
+				gD++; gIdx++;
+				
+				covGraph.MakeEdgeDesc(gD, localTrackPointsB.at(lTPB), mapPointsB);
+
+				if(BUNDLE==1)
+				{
+					if(gD>3)
+					{
+						std::cout << "localBA start" << std::endl;
+						mvo::BundleAdjustment* localBA = new mvo::BundleAdjustment();
+						if(!localBA->LocalBA(gD, globalMapData, covGraph)) 
+							std::cerr << "local error" << std::endl;
+						else delete localBA;
+					}	
+				}
 
 				localTrackPointsB.clear();
 				if(!trackerB.GoodFeaturesToTrack(img))
@@ -264,13 +295,12 @@ int main(int argc, char** argv)
 			// img = cv::imread(readImageName.at(imageCurNum), 
 			// 			cv::ImreadModes::IMREAD_UNCHANGED);
 		}
-
 		// tracking A
 		localTrackPointsA[lTPA].OpticalFlowPyrLK(cv::imread(readImageName.at(imageCurNum-1), 
 													cv::ImreadModes::IMREAD_UNCHANGED), img, trackerA);
 		localTrackPointsA.emplace_back(std::move(trackerA));
 		lTPA++;
-
+    
 		for(int i = 0; i < lTPA-1; i++)
 		{
 			ManageTrackPoints(localTrackPointsA.at(lTPA), localTrackPointsA.at(i));
@@ -280,7 +310,12 @@ int main(int argc, char** argv)
 		{
 			std::cerr << "failed manage MapPointsA" << std::endl;
 		}
-		
+
+		if(!mapPointsA.ManageMapPoints(localTrackPointsA.at(lTPA).mdelete))
+		{
+			std::cerr << "failed manage MapPointsA" << std::endl;
+		}
+
 		if(mapPointsA.mworldMapPointsV.size() == localTrackPointsA.at(lTPA).mfeatures.size())
 		{
 			std::cout << "ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁTrackA SolvePnPㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ" << std::endl;
@@ -294,9 +329,9 @@ int main(int argc, char** argv)
 				// std::unique_ptr<mvo::BundleAdjustment> ba = std::make_unique<mvo::BundleAdjustment>(localTrackPointsA.at(lTPA), getPose, mapPointsA));
 				mvo::BundleAdjustment* ba = new mvo::BundleAdjustment(localTrackPointsA.at(lTPA), getPose, mapPointsA);
 				if(!ba->MotionOnlyBA()) std::cerr << "motion error" << std::endl;
-				else delete ba;				
+				else delete ba;
 			}
-
+			
 			if(gD>2)
 			{
 				angularVelocity = mvo::RotationAngle(globalMapData.at(gD-2).mglobalRMat, globalMapData.at(gD-1).mglobalRMat);
@@ -324,6 +359,10 @@ int main(int argc, char** argv)
 		{
 			std::cerr << "failed manage MapPointsB" << std::endl;
 		}
+		if(!mapPointsB.ManageMapPoints(localTrackPointsB.at(lTPB).mdelete))
+		{
+			std::cerr << "failed manage delete PointsB" << std::endl;
+		}		
 
 		if(mapPointsB.mworldMapPointsV.size() == localTrackPointsB.at(lTPB).mfeatures.size())
 		{
@@ -336,7 +375,7 @@ int main(int argc, char** argv)
 			{
 				mvo::BundleAdjustment* ba = new mvo::BundleAdjustment(localTrackPointsB.at(lTPB), getPose, mapPointsB);
 				if(!ba->MotionOnlyBA()) std::cerr << "motion error" << std::endl;
-				else delete ba;				
+				else delete ba;			
 			}
 			if(gD>2)
 			{
@@ -368,14 +407,14 @@ int main(int argc, char** argv)
 		}
 		tvecOfGT.emplace_back(readtvecOfGT.at(imageCurNum));
 		std::cout << std::endl;
-		std::cout << "KeyFrame(glboalMapData)size: " << globalMapData.size() << ", image: " << imageCurNum <<std::endl;
+		std::cout << "KeyFrame(glbalMapData)size: " << globalMapData.size() << ", image: " << imageCurNum <<std::endl;
 		std::cout << "mpoint2D size: " << globalMapData.at(gD).mpoint2D.size() << std::endl;
 		std::cout << "mpoint3D size: " << globalMapData.at(gD).mpoint3D.size() << std::endl;
-		std::cout << "mvdesc size: " << globalMapData.at(gD).mvdesc.size() << std::endl;
+		std::cout << "mvdesc size: " << globalMapData.at(gD).mindex.size() << std::endl;
 		
 		std::cout << "mrvec: " << globalMapData.at(gD).mglobalrvec<< "  angularV: " << angularVelocity << std::endl;
 		std::cout << "mTranslation: " << globalMapData.at(gD).mglobalTranslation << std::endl;
-		std::cout << "tvecOfGT: " << tvecOfGT.at(imageCurNum) << "  KeyFrame: " << gD << " Img/KF: " << imageCurNum/(gD+1) << std::endl; 
+		std::cout << "tvecOfGT: " << tvecOfGT.at(imageCurNum) << "  KeyFrame: " << globalMapData.size() << " gIdx: " << covGraph.mgraph.size() << " Img/KF: " << imageCurNum/(gD+1) << std::endl; 
 		std::cout << "=============================================================================" << std::endl;
 		imageCurNum++;
 		realFrame++;
@@ -386,7 +425,7 @@ int main(int argc, char** argv)
 		cv::imshow("img", img);
 		char ch = cv::waitKey(10);
 		if(ch == 27) break; // ESC key
-		if(ch == 32) if(cv::waitKey(0) == 27) break;;
+		if(ch == 32) if(cv::waitKey(0) == 27) break;; // Spacebar key
 	}	
 
     return 0;
