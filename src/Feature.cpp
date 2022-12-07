@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Feature.h"
+#include "opencv2/core/hal/interface.h"
 
 
 mvo::Feature::Feature()
@@ -66,7 +67,8 @@ bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mv
 
 
     int indexCorrection = 0;
-    for(int i = 0; i < next.mstatus.size(); i++)
+    int N = next.mstatus.size();
+    for(int i = 0; i < N; i++)
     {
         cv::Point2f pt = next.mfeatures.at(i - indexCorrection);
 
@@ -97,6 +99,7 @@ bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mv
     next.mfeatures.clear(); next.mvdesc.clear();
     KeyPointToVec(kp2, next.mfeatures);
     MatToVec(next.mdesc, next.mvdesc);
+    
     if(next.mfeatures.empty())
     {
         std::cerr << "failed calcOpticalFlowPyrLK" << std::endl;
@@ -114,7 +117,8 @@ bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mv
 void ManageTrackPoints(const mvo::Feature& present, mvo::Feature& before)
 {
     int indexCorrection = 0;
-    for(int i = 0; i < present.mstatus.size(); i++)
+    int N = present.mstatus.size();
+    for(int i = 0; i < N; i++)
     {
         if(present.mstatus.at(i) == 0)
         {
@@ -124,7 +128,8 @@ void ManageTrackPoints(const mvo::Feature& present, mvo::Feature& before)
         }
     }
     indexCorrection = 0;
-    for(int i = 0; i < present.mdelete.size(); i++)
+    int M = present.mdelete.size();
+    for(int i = 0; i < M; i++)
     {
         if(present.mdelete.at(i) == 0)
         {
@@ -138,7 +143,8 @@ void ManageTrackPoints(const mvo::Feature& present, mvo::Feature& before)
 bool KeyPointToVec(const std::vector<cv::KeyPoint>& kp, std::vector<cv::Point2f>& features2d)
 {
     cv::Point2f temp;
-    for(int i=0; i<kp.size(); i++)
+    int N = kp.size();
+    for(int i = 0; i < N; i++)
     {
         temp.x = kp.at(i).pt.x;
         temp.y = kp.at(i).pt.y;
@@ -153,7 +159,8 @@ bool KeyPointToVec(const std::vector<cv::KeyPoint>& kp, std::vector<cv::Point2f>
 bool VecToKeyPoint(const std::vector<cv::Point2f>& features2d, std::vector<cv::KeyPoint>& kp)
 {
     cv::KeyPoint temp;
-    for(int i=0; i<features2d.size(); i++)
+    int N = features2d.size();
+    for(int i = 0; i < N; i++)
     {
         temp.pt.x = features2d.at(i).x;
         temp.pt.y = features2d.at(i).y;
@@ -165,7 +172,7 @@ bool VecToKeyPoint(const std::vector<cv::Point2f>& features2d, std::vector<cv::K
     return true;
 }
 
-bool MatToVec(const cv::Mat m, std::vector<std::vector<DTYPE>>& v)
+bool MatToVec(const cv::Mat& m, std::vector<std::vector<DTYPE>>& v)
 {
     std::vector<DTYPE> temp;
     for(int j=0; j<m.rows ; j++)
@@ -177,9 +184,25 @@ bool MatToVec(const cv::Mat m, std::vector<std::vector<DTYPE>>& v)
         v.emplace_back(std::move(temp));
         temp.clear();
     }
+    int N = v.size();
+    if(m.rows != N) return false;
 
-    if(m.rows != v.size()) return false;
+    return true;
+}
 
+bool VecToMat(const std::vector<std::vector<uchar>>& v, cv::Mat& m)
+{
+    int M=v.size(); int N = v.at(0).size();
+    cv::Mat temp(cv::Size(N, M), CV_8UC1);
+
+    for(int i=0; i<M; i++)
+    {
+        for(int j=0; j<N; j++)
+        {
+            temp.at<uchar>(i,j) = v.at(i).at(j);
+        }
+    }
+    m=temp.clone();
     return true;
 }
 
@@ -188,9 +211,11 @@ std::vector<uchar> FindDeletePoints(std::vector<cv::KeyPoint>& kp, std::vector<c
     // kp < mfeatures
     std::vector<uchar> index;
     int k = 0;
-    for(int i=0; i<mfeatures.size(); i++)
+    int M = mfeatures.size();
+    int P = kp.size();
+    for(int i = 0; i < M; i++)
     {
-        for(int j=0; j<kp.size(); j++)
+        for(int j = 0; j < P; j++)
         {
             if(mfeatures.at(i).x == kp.at(j).pt.x && mfeatures.at(i).y == kp.at(j).pt.y)
             {
@@ -207,7 +232,8 @@ std::vector<uchar> FindDeletePoints(std::vector<cv::KeyPoint>& kp, std::vector<c
     }
     int t = 0;
     int f = 0;
-    for(int i=0; i<index.size(); i++)
+    int N = index.size();
+    for(int i = 0; i < N; i++)
     {
         if(index.at(i) == 0) f++;
         else t++;
@@ -224,8 +250,8 @@ void DeletePoints(std::vector<uchar>& idx, std::vector<std::vector<uchar>>& mvde
     }
 
     int indexCorrection = 0;
-
-    for(int i = 0; i < idx.size(); i++)
+    int N = idx.size();
+    for(int i = 0; i < N; i++)
     {
         if(idx.at(i) == 0)
         {

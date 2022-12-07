@@ -228,10 +228,8 @@ int main(int argc, char** argv)
 				}
 				localTrackPointsA.emplace_back(std::move(trackerA));
 				lTPA = 0;
-				std::cout << "localTrackPointsA size : " << localTrackPointsA.size() << std::endl;
-				std::cout << "localTrackPointsA.mfeature size : " << localTrackPointsA.at(0).mfeatures.size() << std::endl;
-				std::cout << "localTrackPointsB size : " << localTrackPointsB.size() << std::endl;
-				std::cout << "localTrackPointsB.mfeature size : " << localTrackPointsB.at(lTPB).mfeatures.size() <<std::endl;
+				std::cout << "localTrackPoints(A,B).size : (" << localTrackPointsA.size() << ", " << localTrackPointsB.size() << ")" << std::endl;
+				std::cout << "localTrackPoints(A,B).mfeature.size : (" << localTrackPointsA.at(0).mfeatures.size() << ", " << localTrackPointsB.at(lTPB).mfeatures.size()<< ")" <<std::endl;
 				imageCurNum++;
 				img = cv::imread(readImageName.at(imageCurNum), 
 							cv::ImreadModes::IMREAD_UNCHANGED);
@@ -282,10 +280,11 @@ int main(int argc, char** argv)
 				}
 				localTrackPointsB.emplace_back(std::move(trackerB));
 				lTPB = 0;
-				std::cout << "localTrackPointsB size : " << localTrackPointsB.size() << std::endl;
-				std::cout << "localTrackPointsB.mfeature size : " << localTrackPointsB.at(0).mfeatures.size() <<std::endl;
-				std::cout << "localTrackPointsA size : " << localTrackPointsA.size() << std::endl;
-				std::cout << "localTrackPointsA.mfeature size : " << localTrackPointsA.at(lTPA).mfeatures.size() << std::endl;
+				std::cout << "localTrackPoints(B,A).size : (" << localTrackPointsB.size()
+				<< ", " << localTrackPointsA.size() << ")" << std::endl;
+				std::cout << "localTrackPoints(B,A).mfeature.size : (" << localTrackPointsB.at(0).mfeatures.size()
+				<< ", " << localTrackPointsA.at(lTPA).mfeatures.size()<< ")" <<std::endl;
+
 				imageCurNum++;
 				img = cv::imread(readImageName.at(imageCurNum), 
 							cv::ImreadModes::IMREAD_UNCHANGED);
@@ -388,9 +387,9 @@ int main(int argc, char** argv)
 		}
 
 		std::cout << std::endl;
-		std::cout << "lTPA: " << lTPA << ", " << "lTPB: " << lTPB << std::endl;
-		std::cout << "lTPA feature size : " << localTrackPointsA[lTPA].mfeatures.size() << std::endl;
-		std::cout << "lTPB feature size : " << localTrackPointsB[lTPB].mfeatures.size() << std::endl;
+		std::cout << "lTPA: " << lTPA << "                  lTPB: " << lTPB << std::endl;
+		std::cout << "lTPA feature size : " << localTrackPointsA[lTPA].mfeatures.size()
+		<< "  lTPB feature size : " << localTrackPointsB[lTPB].mfeatures.size() << std::endl;
 
 		// draw tracking points
 		if(localTrackPointsA[lTPA].mfeatures.size() > localTrackPointsB[lTPB].mfeatures.size())
@@ -408,9 +407,9 @@ int main(int argc, char** argv)
 		tvecOfGT.emplace_back(readtvecOfGT.at(imageCurNum));
 		std::cout << std::endl;
 		std::cout << "KeyFrame(glbalMapData)size: " << globalMapData.size() << ", image: " << imageCurNum <<std::endl;
-		std::cout << "mpoint2D size: " << globalMapData.at(gD).mpoint2D.size() << std::endl;
-		std::cout << "mpoint3D size: " << globalMapData.at(gD).mpoint3D.size() << std::endl;
-		std::cout << "mvdesc size: " << globalMapData.at(gD).mindex.size() << std::endl;
+		std::cout << "mpoint2D size: " << globalMapData.at(gD).mpoint2D.size()
+		<< ", mpoint3D size: " << globalMapData.at(gD).mpoint3D.size()
+		<< ", mvdesc size: " << globalMapData.at(gD).mvdesc.size() << std::endl;
 		
 		std::cout << "mrvec: " << globalMapData.at(gD).mglobalrvec<< "  angularV: " << angularVelocity << std::endl;
 		std::cout << "mTranslation: " << globalMapData.at(gD).mglobalTranslation << std::endl;

@@ -29,6 +29,7 @@ bool mvo::MapData::Get2DPoints(const mvo::Feature& ft)
 {
     mpoint2D.clear();
     mpoint2D = ft.mfeatures;
+    mvdesc = ft.mvdesc;
     mdesc = ft.mdesc;
     if(mpoint2D.size() != ft.mfeatures.size()) return false;
     return true;
@@ -112,13 +113,12 @@ void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triang
     */
 
     matcher.match(before.mdesc, mglobalMapData.at(gD).mdesc, matches);
-
     int max=0, min=100, sum=0;
     int maxq=0; int maxt=0;
     int inlier=0; int inlier2=0;
-    int N=matches.size();
+    int N = matches.size();
 
-    for(int i=0; i<N; i++)
+    for(int i = 0; i < N; i++)
     {
         if(max < matches.at(i).distance) max = matches.at(i).distance;
         if(maxq < matches.at(i).queryIdx) maxq = matches.at(i).queryIdx;
@@ -136,9 +136,11 @@ void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triang
 
     // if mapPoints.at(temp.first) == (gD-1)3dpoints
     // temp.first = (gD-1) 3dPoints idx
-    for(int i=0; i<temp.size(); i++)
+    int M = temp.size();
+    int P = mglobalMapData.at(gD-1).mpoint3D.size();
+    for(int i = 0; i < M; i++)
     {
-        for(int j=0; j<mglobalMapData.at(gD-1).mpoint3D.size(); j++)
+        for(int j = 0; j < P; j++)
         {
             if(mapPoints.mworldMapPointsV.at(temp.at(i).first).x == mglobalMapData.at(gD-1).mpoint3D.at(j).x
             && mapPoints.mworldMapPointsV.at(temp.at(i).first).y == mglobalMapData.at(gD-1).mpoint3D.at(j).y
@@ -153,6 +155,7 @@ void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triang
 
     mgraph.emplace_back(std::move(temp));
     std::cout << "mgraph size: " << mgraph.at(gD-1).size() << std::endl;;
+    std::cout << "before size: " << before.mfeatures.size() << ", gD data size: " << mglobalMapData.at(gD).mpoint2D.size() << std::endl;
     std::cout << "Query: " << maxq << ", Train: " << maxt << " Avg Distance: " << (float)sum/N << std::endl;
     std::cout << "inlier: " << inlier << ", inlier2: " << inlier2 <<std::endl;
 }

@@ -83,8 +83,6 @@ template <typename T> bool mvo::SnavelyReprojectionErrorLocal::operator()(const 
 
     pixel = Kd.cast<T>() * worldToCam * worldPoint_eig;
 
-    std::cout << "pixel[0]: " << pixel[0] << ", pixel[1]: " << pixel[1] << ", pixel[2]: " << pixel[2] << std::endl;
-
     T predicted_x = (pixel[0] / pixel[2]);
     T predicted_y = (pixel[1] / pixel[2]);
 
@@ -106,12 +104,12 @@ bool mvo::BundleAdjustment::MotionOnlyBA()
 {
     Eigen::Vector3d rvec_eig;
     Eigen::Vector3d tvec_eig;
-
+    int N = ft.mfeatures.size();
     rvec_eig[0]=rt.mrvec[0]; rvec_eig[1]=rt.mrvec[1]; rvec_eig[2]=rt.mrvec[2];
     tvec_eig[0]=rt.mtvec.at<double>(0); tvec_eig[1]=rt.mtvec.at<double>(1); tvec_eig[2]=rt.mtvec.at<double>(2);
 
-    Eigen::MatrixXd points2d_eig(2, ft.mfeatures.size());
-    for(int i = 0; i < ft.mfeatures.size(); i++)
+    Eigen::MatrixXd points2d_eig(2, N);
+    for(int i = 0; i < N; i++)
     {
         points2d_eig(0,i)=ft.mfeatures.at(i).x;
         points2d_eig(1,i)=ft.mfeatures.at(i).y;
@@ -124,8 +122,8 @@ bool mvo::BundleAdjustment::MotionOnlyBA()
         std::cerr << "Don't correct matching in Motion only BA" << std::endl;
         return false;
     }
-
-    for(int i = 0; i < tri.mworldMapPointsV.size(); i++)
+    int M = tri.mworldMapPointsV.size();
+    for(int i = 0; i < M; i++)
     {
         points3d_eig(0,i)=tri.mworldMapPointsV.at(i).x;
         points3d_eig(1,i)=tri.mworldMapPointsV.at(i).y;
@@ -135,7 +133,7 @@ bool mvo::BundleAdjustment::MotionOnlyBA()
 
     ceres::Problem problem;
 
-    for(int i = 0; i < tri.mworldMapPointsV.size(); i++)
+    for(int i = 0; i < M; i++)
     {
         ceres::CostFunction* cost_function=
             new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionError, 2, 3, 3>
@@ -170,7 +168,6 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
     std::vector<Eigen::MatrixXd> points3d;
     ceres::Problem problem;
 
-
     for(int i=0; i<gD; i++)
     {
         rvec_local(0,i) = map.at(i).mglobalrvec[0];
@@ -187,23 +184,16 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
             return false;
         }
 
-
         int N = map.at(i).mpoint2D.size();
-
-
         Eigen::MatrixXd points2d_eig(2, N);
-
-
         Eigen::MatrixXd points3d_eig(4, N);
-
-        std::cout << "N: " << N << ", gD: " << gD << std::endl;
             
-        for(int j=0; j<N; j++)
+        for(int j = 0; j < N; j++)
         {
             points2d_eig(0,j) = map.at(i).mpoint2D.at(j).x;
             points2d_eig(1,j) = map.at(i).mpoint2D.at(j).y;        
         }
-        for(int j=0; j<N; j++)
+        for(int j = 0; j < N; j++)
         {
             points3d_eig(0,i) = map.at(i).mpoint3D.at(j).x;
             points3d_eig(1,i) = map.at(i).mpoint3D.at(j).y;
@@ -211,10 +201,9 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
             points3d_eig(3,i) = 1;            
         }
         points2d.push_back(points2d_eig);
-        std::cout << "eig cols: " << points3d_eig.cols() << ", points2d size: " << points2d.size() << std::endl;
         points3d.emplace_back(std::move(points3d_eig));
-        std::cout << "points3d i cols: " << points3d.at(i).cols() << ", points3d size: " << points3d.size() << std::endl;
-        for(int j=0; j<map.at(i).mpoint2D.size(); j++)
+
+        for(int j = 0; j < N; j++)
         {
             ceres::CostFunction* cost_function=
                 new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocal, 2, 3, 3, 3>
@@ -227,24 +216,22 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
         if(i>0)
         {
             int M = cov.mgraph.at(i-1).size();
-            std::cout << "locallll------" << std::endl;
             for(int j=0; j<M; j++)
             {
-                int prev = cov.mgraph.at(i-1).at(j).first;
-                int next = cov.mgraph.at(i-1).at(j).second;
-                std::cout << "j: " << j << std::endl;
+                int prev = cov.mgraph.at(i-1).at(j).first;  //i-1 idx
+                int next = cov.mgraph.at(i-1).at(j).second; // i idx
+                std::cout << "j: " << j << ", prev: " << prev << ", next: " << next << std::endl;
+                std::cout << "points3d.at(i).cols(): " << points3d.at(i).cols() << std::endl;
                 ceres::CostFunction* cost_function1=
                 new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocal, 2, 3, 3, 3>
                 (new mvo::SnavelyReprojectionErrorLocal(points2d.at(i-1)(0, prev), points2d.at(i-1)(1, prev), focald, camX, camY));
                 ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-                std::cout << "local-_-" << std::endl;
                 problem.AddResidualBlock(cost_function1, loss, rvec_local.col(i-1).data(), tvec_local.col(i-1).data(), points3d.at(i).col(next).data());
-                std::cout << "local-_-" << std::endl;
+                // std::cout << "local-_-" << std::endl;
             }
         }
     }// AddResidualBlock end
 
-    std::cout << "locallll------" << std::endl;
     ceres::Solver::Options options;
 
     options.linear_solver_type = ceres::LinearSolverType::ITERATIVE_SCHUR;
@@ -253,9 +240,18 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
     options.max_num_iterations=100;
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
-    std::cout << "locallll------" << std::endl;
 
-    for(int i=0; i<gD; i++)
+    
+    // for(int i = 0; i<gD; i++)
+    // {
+    //     int L = map.at(i).mpoint3D.size();
+    //     for(int j = 0; j < L; j++)
+    //     {
+    //         std::cout << "before(" << i << "," << j << "): " << map.at(i).mpoint3D.at(j).x << ", " << map.at(i).mpoint3D.at(j).y << ", " << map.at(i).mpoint3D.at(j).z << std::endl;
+    //         std::cout << "after (" << i << "," << j << "): " << points3d.at(i)(0,j) << ", " << points3d.at(i)(1,j) << ", " << points3d.at(i)(2,j) << std::endl;
+    //     }
+    // }
+    for(int i = 0; i<gD; i++)
     {
         map.at(i).mglobalrvec[0] = rvec_local(0,i);
         map.at(i).mglobalrvec[1] = rvec_local(1,i);
@@ -265,14 +261,14 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
         map.at(i).mglobaltvec[1] = tvec_local(1,i);
         map.at(i).mglobaltvec[2] = tvec_local(2,i);
 
-        
-        for(int j=0; j<map.at(i).mpoint3D.size(); j++)
+        int n = map.at(i).mpoint3D.size();
+        for(int j = 0; j < n; j++)
         {
             map.at(i).mpoint3D.at(j).x = points3d.at(i)(0,j);
             map.at(i).mpoint3D.at(j).y = points3d.at(i)(1,j);
             map.at(i).mpoint3D.at(j).z = points3d.at(i)(2,j);
         }
     }
-    std::cout << "locallll------" << std::endl;
+
     return true;
 }

@@ -196,13 +196,16 @@ bool ManageMapPoints(const std::vector<uchar>& mstatus, std::vector<cv::Point3f>
 
 bool ManageMinusLocal(std::vector<mvo::Feature>& localTrackPoints, const std::vector<int>& id)
 {
-    for(int i = 0; i<localTrackPoints.size(); i++)
+    int N = localTrackPoints.size();
+    int M = id.size();
+    for(int i = 0; i < N; i++)
     {
-        for(int j = 0; j<id.size(); j++)
+        for(int j = 0; j < M; j++)
         {
             localTrackPoints.at(i).mfeatures.erase(localTrackPoints.at(i).mfeatures.begin()+id.at(j));
             localTrackPoints.at(i).mvdesc.erase(localTrackPoints.at(i).mvdesc.begin()+id.at(j));
         }
+        VecToMat(localTrackPoints.at(i).mvdesc, localTrackPoints.at(i).mdesc);
     }
     
     if(localTrackPoints.at(0).mfeatures.size() == localTrackPoints.at(localTrackPoints.size()-1).mfeatures.size()) return true;
@@ -213,6 +216,7 @@ bool ManageMinusLocal(std::vector<mvo::Feature>& localTrackPoints, const std::ve
 bool ManageMinusZ(mvo::Triangulate& map, cv::Mat& R, std::vector<int>& id)
 {
     id.clear();
+
     double tempd = 0;
     for(int i = 0; i < map.mworldMapPointsV.size(); i++)
     {
@@ -225,6 +229,7 @@ bool ManageMinusZ(mvo::Triangulate& map, cv::Mat& R, std::vector<int>& id)
             map.mworldMapPointsV.erase(map.mworldMapPointsV.begin()+i);
         }
     }
+
     if(map.mworldMapPointsV.size() == 0) return false;
 
     return true;

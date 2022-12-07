@@ -40,7 +40,9 @@ namespace mvo
 void ManageTrackPoints(const mvo::Feature& present, mvo::Feature& before);
 bool KeyPointToVec(const std::vector<cv::KeyPoint>& kp, std::vector<cv::Point2f>& features2d);
 bool VecToKeyPoint(const std::vector<cv::Point2f>& features2d, std::vector<cv::KeyPoint>& kp);
-bool MatToVec(const cv::Mat m, std::vector<std::vector<DTYPE>>& v);
+bool MatToVec(const cv::Mat& m, std::vector<std::vector<DTYPE>>& v);
+bool VecToMat(const std::vector<std::vector<uchar>>& v, cv::Mat& m);
+bool VecToMat(const std::vector<std::vector<DTYPE>>& v, cv::Mat& m);
 std::vector<uchar> FindDeletePoints(std::vector<cv::KeyPoint>& kp, 
                                     std::vector<cv::Point2f>& mfeatures);
 void DeletePoints(std::vector<uchar>& idx, std::vector<std::vector<uchar>>& mvdesc, std::vector<cv::Point2f>& mfeatures);
