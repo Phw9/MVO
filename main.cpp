@@ -211,7 +211,7 @@ int main(int argc, char** argv)
 
 				if(BUNDLE==1)
 				{
-					if(gD>3)
+					if(((gD % LOCAL) == 7) && (gD >= LOCAL))
 					{
 						std::cout << "localBA start" << std::endl;
 						mvo::BundleAdjustment* localBA = new mvo::BundleAdjustment();
@@ -263,7 +263,7 @@ int main(int argc, char** argv)
 
 				if(BUNDLE==1)
 				{
-					if(gD>3)
+					if(((gD % LOCAL) == 0) && (gD >= LOCAL))
 					{
 						std::cout << "localBA start" << std::endl;
 						mvo::BundleAdjustment* localBA = new mvo::BundleAdjustment();
@@ -327,7 +327,8 @@ int main(int argc, char** argv)
 			{
 				// std::unique_ptr<mvo::BundleAdjustment> ba = std::make_unique<mvo::BundleAdjustment>(localTrackPointsA.at(lTPA), getPose, mapPointsA));
 				mvo::BundleAdjustment* ba = new mvo::BundleAdjustment(localTrackPointsA.at(lTPA), getPose, mapPointsA);
-				if(!ba->MotionOnlyBA()) std::cerr << "motion error" << std::endl;
+				if(!ba->MotionOnlyBA())
+					std::cerr << "motion error" << std::endl;
 				else delete ba;
 			}
 			
@@ -373,7 +374,8 @@ int main(int argc, char** argv)
 			if(BUNDLE == 1)
 			{
 				mvo::BundleAdjustment* ba = new mvo::BundleAdjustment(localTrackPointsB.at(lTPB), getPose, mapPointsB);
-				if(!ba->MotionOnlyBA()) std::cerr << "motion error" << std::endl;
+				if(!ba->MotionOnlyBA())
+					std::cerr << "motion error" << std::endl;
 				else delete ba;			
 			}
 			if(gD>2)

@@ -88,6 +88,20 @@ template <typename T> void mvo::Covisibilgraph::MakeEdgeProj(int gD)
         w1 * w3 * (static_cast<T>(1) - cos) - w2 * sin, w2 * w3 * (static_cast<T>(1) - cos) + w1 * sin, cos + w3 * w3 * (static_cast<T>(1) - cos), tvec_eig_2;
 
     Eigen::Matrix<T, 3, 1> pixel3d;
+    std::vector<Eigen::MatrixXd> points3d;
+    for(int i = 0; i < gD; i++)
+    {
+        int N = mglobalMapData.at(i).mpoint3D.size();
+        Eigen::MatrixXd points3d_eig(4, N);
+        for(int j = 0; j < N; j++)
+        {
+            points3d_eig(0,i) = mglobalMapData.at(i).mpoint3D.at(j).x;
+            points3d_eig(1,i) = mglobalMapData.at(i).mpoint3D.at(j).y;
+            points3d_eig(2,i) = mglobalMapData.at(i).mpoint3D.at(j).z;
+            points3d_eig(3,i) = 1;
+        }
+        points3d.emplace_back(std::move(points3d_eig));
+    }
 
     Eigen::Matrix<double, 3, 3> Kd;
     Kd << mfocal, 0, mppx,
@@ -126,7 +140,7 @@ void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triang
         if(min > matches.at(i).distance) min = matches.at(i).distance;
         sum += matches.at(i).distance;
 
-        if(matches.at(i).distance<1)
+        if(matches.at(i).distance < DISTANCEDESC)
         {
             inlier++;
             idxMatch.first=matches.at(i).queryIdx; idxMatch.second=matches.at(i).trainIdx;

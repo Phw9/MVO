@@ -80,7 +80,8 @@ bool mvo::Triangulate::ManageMapPoints(std::vector<mvo::Feature>& feature)
     
     if(mworldMapPointsV.size() == feature.at(N).mstatus.size())
     {
-        for(int i = 0; i < feature.at(N).mstatus.size(); i++)
+        int M = feature.at(N).mstatus.size();
+        for(int i = 0; i < M; i++)
         {
             if(feature.at(N).mstatus.at(i) == 0)
             {
@@ -93,7 +94,8 @@ bool mvo::Triangulate::ManageMapPoints(std::vector<mvo::Feature>& feature)
                 indexCorrection++;
             }
         }
-        for(int i = 0; i < feature.at(N).mdelete.size(); i++)
+        int P = feature.at(N).mdelete.size();
+        for(int i = 0; i < P; i++)
         {
             if(feature.at(N).mdelete.at(i) == 0)
             {
@@ -115,10 +117,10 @@ bool mvo::Triangulate::ManageMapPoints(std::vector<mvo::Feature>& feature)
 bool mvo::Triangulate::ManageMapPoints(const std::vector<uchar>& mstatus)
 {
     int indexCorrection = 0;
-    
+    int N = mstatus.size();
     if(mworldMapPointsV.size() == mstatus.size())
     {
-        for(int i = 0; i < mstatus.size(); i++)
+        for(int i = 0; i < N; i++)
         {
             if(mstatus.at(i) == 0)
             {
@@ -174,10 +176,10 @@ void mvo::Triangulate::MatToPoints3f()
 bool ManageMapPoints(const std::vector<uchar>& mstatus, std::vector<cv::Point3f>& map)
 {
     int indexCorrection = 0;
-    
+    int N = mstatus.size();
     if(map.size() == mstatus.size())
     {
-        for(int i = 0; i < mstatus.size(); i++)
+        for(int i = 0; i < N; i++)
         {
             if(mstatus.at(i) == 0)
             {
@@ -216,8 +218,8 @@ bool ManageMinusLocal(std::vector<mvo::Feature>& localTrackPoints, const std::ve
 bool ManageMinusZ(mvo::Triangulate& map, cv::Mat& R, std::vector<int>& id)
 {
     id.clear();
-
     double tempd = 0;
+    int N = map.mworldMapPointsV.size();    // N error??
     for(int i = 0; i < map.mworldMapPointsV.size(); i++)
     {
         tempd = (R.at<double>(2,0)*map.mworldMapPointsV.at(i).x) +
@@ -243,26 +245,29 @@ void ManageInlier(std::vector<mvo::Feature>& features2d, std::vector<cv::Point3f
     int flast = features2d.at(0).mfeatures.size() - 1;
     idv.reserve(3000);
     idv.emplace_back(inlier.at<int>(0,0)-1);
+
+    int N = features2d.size();
     for(int i = 0; i < inlier.rows; i++)
     {
         idv.emplace_back(inlier.at<int>(i,0));
     }
 
-    for(int i=0; i<idv.size()-1; i++)
+    int M = idv.size()-1;
+    for(int i = 0; i < M; i++)
     {
         interval = idv.at(i+1) - idv.at(i)-1;
         for(int j = i; j<interval+i; j++)
         {
-            for(int k = 0; k < features2d.size(); k++)
+            for(int k = 0; k < N; k++)
             {
                 features2d.at(k).mfeatures.erase(features2d.at(k).mfeatures.begin()+j);
             }
             mapPoints3d.erase(mapPoints3d.begin()+j);  
         }
-
-        if(i == idv.size()-2 && flast-ilast != 0)
+        int I = idv.size()-2;
+        if(i == I && flast-ilast != 0)
         {
-            for(int l = 0; l < features2d.size(); l++)
+            for(int l = 0; l < N; l++)
             {
                 for(int h = 0; h < flast-ilast; h++)
                 {

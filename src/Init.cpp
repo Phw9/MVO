@@ -44,10 +44,8 @@ float mvo::Initializer::CheckHomography(const std::vector<cv::Point2f>& refKeys1
 
     const float invSigmaSquare = (1.0f)/(sigma*sigma);
     
-    for(int i=0; i<N; i++)
+    for(int i = 0; i < N; i++)
     {
-        bool bIn = true;
-
         const cv::Point2f &kp1 = refKeys1.at(i); // .first
         const cv::Point2f &kp2 = refKeys2.at(i); // .second
 
@@ -67,11 +65,8 @@ float mvo::Initializer::CheckHomography(const std::vector<cv::Point2f>& refKeys1
         const float chiSquare1 = squareDist1*invSigmaSquare;
         // std::cout << "SquareDist1: " << squareDist1;
         // std::cout << "   chiSquare1: " << chiSquare1 << std::endl;
-        if(chiSquare1>th)
-            bIn = false;
-        else
+        if(chiSquare1 < th)
             score += th - chiSquare1;
-
         // Reprojection error in second image
         // x1in2 = H21*x1
 
@@ -83,9 +78,7 @@ float mvo::Initializer::CheckHomography(const std::vector<cv::Point2f>& refKeys1
         const float chiSquare2 = squareDist2*invSigmaSquare;
         // std::cout << "SquareDist2: " << squareDist2;
         // std::cout << "   chiSquare2: " << chiSquare2 << std::endl;
-        if(chiSquare2>th)
-            bIn = false;
-        else
+        if(chiSquare2 < th)
             score += th - chiSquare2;
     }
     return score;
@@ -121,10 +114,8 @@ float mvo::Initializer::CheckFundamental(const std::vector<cv::Point2f>& refKeys
 
     const float invSigmaSquare = (1.0f)/(sigma*sigma);
 
-    for(int i=0; i<N; i++)
+    for(int i = 0; i < N; i++)
     {
-        bool bIn = true;
-
         const cv::Point2f &kp1 = refKeys1.at(i); //.first
         const cv::Point2f &kp2 = refKeys2.at(i); //.second
 
@@ -146,9 +137,7 @@ float mvo::Initializer::CheckFundamental(const std::vector<cv::Point2f>& refKeys
         const float squareDist1 = num2*num2/(a2*a2+b2*b2);
         const float chiSquare1 = squareDist1*invSigmaSquare;
 
-        if(chiSquare1>th)
-            bIn = false;
-        else
+        if(chiSquare1<th)
             score += thScore - chiSquare1;
 
         // Reprojection error in second image
@@ -164,9 +153,7 @@ float mvo::Initializer::CheckFundamental(const std::vector<cv::Point2f>& refKeys
         const float squareDist2 = num1*num1/(a1*a1+b1*b1);
         const float chiSquare2 = squareDist2*invSigmaSquare;
 
-        if(chiSquare2>th)
-            bIn = false;
-        else
+        if(chiSquare2 < th)
             score += thScore - chiSquare2;
     }
     return score;
@@ -280,6 +267,8 @@ void Viewer::MyVisualize::active_cam()
 void Viewer::MyVisualize::DrawPoint(const std::vector<mvo::MapData>& v,
                                     const std::vector<cv::Vec3f>& gtPose)
 {
+    int N = v.size();
+    int M = gtPose.size();
     glClearColor(1.0f,1.0f,1.0f,1.0f);
     if(v.size() == 0)
 	{
@@ -292,7 +281,7 @@ void Viewer::MyVisualize::DrawPoint(const std::vector<mvo::MapData>& v,
         glBegin(GL_POINTS);
         glColor3f(1.0,0.0,0.0); //
 
-        for(int i=0;i<v.size();i++)
+        for(int i = 0; i < N; i++)
 	    {
             glVertex3d(v.at(i).mglobalTranslation[0], 0, v.at(i).mglobalTranslation[2]);
             // std::cout << "tvec" << i << ": " << tvec.at(i)[0] << ", " << tvec.at(i)[1] << ", " << tvec.at(i)[2] << std::endl;
@@ -303,7 +292,7 @@ void Viewer::MyVisualize::DrawPoint(const std::vector<mvo::MapData>& v,
         glBegin(GL_POINTS);
         glColor3f(0.0,0.0,1.0);
 
-        for(int i=0;i<gtPose.size();i++)
+        for(int i = 0; i < M; i++)
 	    {
             glVertex3f(gtPose.at(i)[0], 0, gtPose.at(i)[2]);
             // std::cout << "gtPose" << i << ": " << gtPose.at(i)[0] << ", " << gtPose.at(i)[1] << ", " << gtPose.at(i)[2] << std::endl;
@@ -314,13 +303,14 @@ void Viewer::MyVisualize::DrawPoint(const std::vector<mvo::MapData>& v,
         glBegin(GL_POINTS);
         glColor3f(0.0,0.0,0.0);
 
-        for(int i = 0; i < v.size(); i++)
+        for(int i = 0; i < N; i++)
 	    {
-           for(int j = 0; j < v.at(i).mpoint3D.size(); j++)
-           {
-            glVertex3f(v.at(i).mpoint3D.at(j).x,
-                        0,
-                        v.at(i).mpoint3D.at(j).z);
+            int V = v.at(i).mpoint3D.size();
+            for(int j = 0; j < V; j++)
+            {
+                glVertex3f(v.at(i).mpoint3D.at(j).x,
+                            0,
+                           v.at(i).mpoint3D.at(j).z);
             // std::cout << "allOfPoints" << i << ": " << allOfPoints.at(i).mworldMapPointsV.at(j).x << ", " << allOfPoints.at(i).mworldMapPointsV.at(j).y << ", " <<allOfPoints.at(i).mworldMapPointsV.at(j).z << std::endl;
            }
         }
@@ -329,8 +319,8 @@ void Viewer::MyVisualize::DrawPoint(const std::vector<mvo::MapData>& v,
         glPointSize(2);
         glBegin(GL_POINTS);
         glColor3f(1.0,0.0,1.0);
-
-        for(int i = 0; i < v.at(v.size()-1).mpoint3D.size(); i++)
+        int P = v.at(v.size()-1).mpoint3D.size();
+        for(int i = 0; i < P; i++)
 	    {
             glVertex3f(v.at(v.size()-1).mpoint3D.at(i).x, 0, v.at(v.size()-1).mpoint3D.at(i).z);
             // std::cout << "fovPoints" << i << ": " << fovPoints.at(i).x << ", " << fovPoints.at(i).y << ", " << fovPoints.at(i).z << std::endl;
@@ -344,8 +334,12 @@ void Viewer::MyVisualize::DrawPoint(const std::vector<cv::Vec3d>& tvec,
                 const std::vector<mvo::Triangulate>& allOfPoints,
                 const std::vector<cv::Point3f>& fovPoints)
 {
+    int M = tvec.size();
+    int N = gtPose.size();
+    int O = allOfPoints.size();
+    int P = fovPoints.size();
     glClearColor(1.0f,1.0f,1.0f,1.0f);
-    if(tvec.size()==0 || gtPose.size()==0)
+    if(tvec.size() == 0 || gtPose.size() == 0)
 	{
         return;
     }
@@ -356,7 +350,7 @@ void Viewer::MyVisualize::DrawPoint(const std::vector<cv::Vec3d>& tvec,
         glBegin(GL_POINTS);
         glColor3f(1.0,0.0,0.0); //
 
-        for(int i=0;i<tvec.size();i++)
+        for(int i = 0; i < M; i++)
 	    {
             glVertex3d(tvec.at(i)[0], 0, tvec.at(i)[2]);
             // std::cout << "tvec" << i << ": " << tvec.at(i)[0] << ", " << tvec.at(i)[1] << ", " << tvec.at(i)[2] << std::endl;
@@ -367,7 +361,7 @@ void Viewer::MyVisualize::DrawPoint(const std::vector<cv::Vec3d>& tvec,
         glBegin(GL_POINTS);
         glColor3f(0.0,0.0,1.0);
 
-        for(int i=0;i<gtPose.size();i++)
+        for(int i = 0; i < N; i++)
 	    {
             glVertex3f(gtPose.at(i)[0], 0, gtPose.at(i)[2]);
             // std::cout << "gtPose" << i << ": " << gtPose.at(i)[0] << ", " << gtPose.at(i)[1] << ", " << gtPose.at(i)[2] << std::endl;
@@ -378,15 +372,16 @@ void Viewer::MyVisualize::DrawPoint(const std::vector<cv::Vec3d>& tvec,
         glBegin(GL_POINTS);
         glColor3f(0.0,0.0,0.0);
 
-        for(int i = 0; i < allOfPoints.size(); i++)
+        for(int i = 0; i < O; i++)
 	    {
-           for(int j = 0; j < allOfPoints.at(i).mworldMapPointsV.size(); j++)
-           {
-            glVertex3f(allOfPoints.at(i).mworldMapPointsV.at(j).x,
-                        0,
-                        allOfPoints.at(i).mworldMapPointsV.at(j).z);
-            // std::cout << "allOfPoints" << i << ": " << allOfPoints.at(i).mworldMapPointsV.at(j).x << ", " << allOfPoints.at(i).mworldMapPointsV.at(j).y << ", " <<allOfPoints.at(i).mworldMapPointsV.at(j).z << std::endl;
-           }
+            int J = allOfPoints.at(i).mworldMapPointsV.size();
+            for(int j = 0; j < J; j++)
+            {
+                glVertex3f(allOfPoints.at(i).mworldMapPointsV.at(j).x,
+                           0,
+                           allOfPoints.at(i).mworldMapPointsV.at(j).z);
+                // std::cout << "allOfPoints" << i << ": " << allOfPoints.at(i).mworldMapPointsV.at(j).x << ", " << allOfPoints.at(i).mworldMapPointsV.at(j).y << ", " <<allOfPoints.at(i).mworldMapPointsV.at(j).z << std::endl;
+            }
         }
         glEnd();      
 
@@ -394,7 +389,7 @@ void Viewer::MyVisualize::DrawPoint(const std::vector<cv::Vec3d>& tvec,
         glBegin(GL_POINTS);
         glColor3f(1.0,0.0,1.0);
 
-        for(int i = 0; i < fovPoints.size(); i++)
+        for(int i = 0; i < P; i++)
 	    {
             glVertex3f(fovPoints.at(i).x, 0, fovPoints.at(i).z);
             // std::cout << "fovPoints" << i << ": " << fovPoints.at(i).x << ", " << fovPoints.at(i).y << ", " << fovPoints.at(i).z << std::endl;
@@ -408,7 +403,8 @@ cv::Mat Viewer::MyVisualize::DrawFeatures(cv::Mat& src,
                                                 std::vector<cv::Point2f>& beforePoints, 
                                                 std::vector<cv::Point2f>& afterPoints)
 {
-    for (int i = 0; i < beforePoints.size(); i++)
+    int N = beforePoints.size();
+    for (int i = 0; i < N; i++)
 	{
         //random color
         int rgb[3];

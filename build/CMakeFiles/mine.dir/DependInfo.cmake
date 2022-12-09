@@ -4,13 +4,13 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/phw93/MVO/src/BundleAdjustment.cpp" "/home/phw93/MVO/build/CMakeFiles/mine.dir/src/BundleAdjustment.cpp.o"
-  "/home/phw93/MVO/src/Converter.cpp" "/home/phw93/MVO/build/CMakeFiles/mine.dir/src/Converter.cpp.o"
-  "/home/phw93/MVO/src/Feature.cpp" "/home/phw93/MVO/build/CMakeFiles/mine.dir/src/Feature.cpp.o"
-  "/home/phw93/MVO/src/Init.cpp" "/home/phw93/MVO/build/CMakeFiles/mine.dir/src/Init.cpp.o"
-  "/home/phw93/MVO/src/MapData.cpp" "/home/phw93/MVO/build/CMakeFiles/mine.dir/src/MapData.cpp.o"
-  "/home/phw93/MVO/src/PoseEstimation.cpp" "/home/phw93/MVO/build/CMakeFiles/mine.dir/src/PoseEstimation.cpp.o"
-  "/home/phw93/MVO/src/Triangulate.cpp" "/home/phw93/MVO/build/CMakeFiles/mine.dir/src/Triangulate.cpp.o"
+  "/home/phw93/Dev/MVO/src/BundleAdjustment.cpp" "/home/phw93/Dev/MVO/build/CMakeFiles/mine.dir/src/BundleAdjustment.cpp.o"
+  "/home/phw93/Dev/MVO/src/Converter.cpp" "/home/phw93/Dev/MVO/build/CMakeFiles/mine.dir/src/Converter.cpp.o"
+  "/home/phw93/Dev/MVO/src/Feature.cpp" "/home/phw93/Dev/MVO/build/CMakeFiles/mine.dir/src/Feature.cpp.o"
+  "/home/phw93/Dev/MVO/src/Init.cpp" "/home/phw93/Dev/MVO/build/CMakeFiles/mine.dir/src/Init.cpp.o"
+  "/home/phw93/Dev/MVO/src/MapData.cpp" "/home/phw93/Dev/MVO/build/CMakeFiles/mine.dir/src/MapData.cpp.o"
+  "/home/phw93/Dev/MVO/src/PoseEstimation.cpp" "/home/phw93/Dev/MVO/build/CMakeFiles/mine.dir/src/PoseEstimation.cpp.o"
+  "/home/phw93/Dev/MVO/src/Triangulate.cpp" "/home/phw93/Dev/MVO/build/CMakeFiles/mine.dir/src/Triangulate.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -19,7 +19,7 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
   "GFLAGS_IS_A_DLL=0"
   "HAVE_EIGEN"
   "HAVE_GLEW"
-  "PANGO_DEFAULT_WIN_URI=\"x11\""
+  "PANGO_DEFAULT_WIN_URI=\"wayland\""
   "_LINUX_"
   "mine_EXPORTS"
   )

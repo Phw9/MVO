@@ -12,13 +12,13 @@
 #define VIEWPOINTY -40.0
 #define VIEWPOINTZ -0.1
 
-#define NUMOFPOINTS 200
+#define NUMOFPOINTS 200 // 200
 
-#define ANGULARVELOCITY 0.055
-#define NUMOFINLIER 180
-#define INLIERRATIO 0.88    //0.85
-#define MINLOCAL 2
-#define BUNDLE 1 // 1 = on, 2 = off
+#define ANGULARVELOCITY 0.055 // 0.055
+#define NUMOFINLIER 180 // 180
+#define INLIERRATIO 0.85    //0.85
+#define MINLOCAL 4
+#define BUNDLE 2 // 1 = on, 2 = off
 
 int initialNum = 1; // 1 = auto, 2 = default
 float inlierRatio = 1000.0f;
