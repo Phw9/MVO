@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 				std::cout << "score: " << RH << std::endl;
 				// RH>0.45
 				// SH>1800 && isnan(SF) == true
-				if(lTPA==3)
+				if(lTPA == 3)	// 1, 3
 				{
 					std::cout << "RH>0.45" << std::endl;
 					getEssential.CreateEssentialMatrix(localTrackPointsA.at(0).mfeatures, localTrackPointsA[lTPA].mfeatures, intrinsicKf);
@@ -187,6 +187,17 @@ int main(int argc, char** argv)
 				// triangulate
 				std::cout << "ㅇㅇㅇNewTrack Aㅇㅇㅇ" << std::endl;
 
+				if(BUNDLE==1)
+				{
+					if(((gD % LOCAL) == 0) && (gD >= LOCAL))
+					{
+						std::cout << "localBA start" << std::endl;
+						mvo::BundleAdjustment* localBA = new mvo::BundleAdjustment();
+						if(!localBA->LocalBA(gD, globalMapData, covGraph))
+							std::cerr << "local error" << std::endl;
+						else delete localBA;
+					}	
+				}
 				// descriptor of mapPointsA & mapPointsB matcher
 
 				mapPointsB.CalcWorldPoints(globalMapData.at(gD).mglobalRTMat, getPose.mCombineRt, 
@@ -209,17 +220,6 @@ int main(int argc, char** argv)
 
 				covGraph.MakeEdgeDesc(gD, localTrackPointsA.at(lTPA), mapPointsA);
 
-				if(BUNDLE==1)
-				{
-					if(((gD % LOCAL) == 7) && (gD >= LOCAL))
-					{
-						std::cout << "localBA start" << std::endl;
-						mvo::BundleAdjustment* localBA = new mvo::BundleAdjustment();
-						if(!localBA->LocalBA(gD, globalMapData, covGraph))
-							std::cerr << "local error" << std::endl;
-						else delete localBA;
-					}	
-				}
 
 				localTrackPointsA.clear();
 				if(!trackerA.GoodFeaturesToTrack(img))
@@ -240,6 +240,17 @@ int main(int argc, char** argv)
 			{
 				// triangulate
 				std::cout << "ㅇㅇㅇNewTrack Bㅇㅇㅇ" << std::endl;
+				if(BUNDLE==1)
+				{
+					if(((gD % LOCAL) == 0) && (gD >= LOCAL))
+					{
+						std::cout << "localBA start" << std::endl;
+						mvo::BundleAdjustment* localBA = new mvo::BundleAdjustment();
+						if(!localBA->LocalBA(gD, globalMapData, covGraph)) 
+							std::cerr << "local error" << std::endl;
+						else delete localBA;
+					}	
+				}
 
 				mapPointsA.CalcWorldPoints(globalMapData.at(gD).mglobalRTMat, getPose.mCombineRt, 
 										localTrackPointsA.at(0), localTrackPointsA.at(lTPA));
@@ -261,17 +272,6 @@ int main(int argc, char** argv)
 				
 				covGraph.MakeEdgeDesc(gD, localTrackPointsB.at(lTPB), mapPointsB);
 
-				if(BUNDLE==1)
-				{
-					if(((gD % LOCAL) == 0) && (gD >= LOCAL))
-					{
-						std::cout << "localBA start" << std::endl;
-						mvo::BundleAdjustment* localBA = new mvo::BundleAdjustment();
-						if(!localBA->LocalBA(gD, globalMapData, covGraph)) 
-							std::cerr << "local error" << std::endl;
-						else delete localBA;
-					}	
-				}
 
 				localTrackPointsB.clear();
 				if(!trackerB.GoodFeaturesToTrack(img))

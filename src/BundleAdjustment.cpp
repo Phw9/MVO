@@ -246,7 +246,7 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
     ceres::Solver::Options options;
 
     options.linear_solver_type = ceres::LinearSolverType::ITERATIVE_SCHUR;
-    options.minimizer_progress_to_stdout = true;
+    options.minimizer_progress_to_stdout = false;
     options.num_threads = 4;
     options.max_num_iterations=100;
     ceres::Solver::Summary summary;
@@ -263,10 +263,14 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
     // }
     for(int i = 0; i < LOCAL; i++)
     {
+        // std::cout << "mglobalrvec: " << map.at(bw).mglobalrvec[0] << "," << map.at(bw).mglobalrvec[1] << "," << map.at(bw).mglobalrvec[2] << std::endl;
+        // std::cout << "rvecBA:      " << rvec_local(0,i) << "," << rvec_local(1,i) << "," << rvec_local(2,i) << std::endl;
         map.at(bw).mglobalrvec[0] = rvec_local(0,i);
         map.at(bw).mglobalrvec[1] = rvec_local(1,i);
         map.at(bw).mglobalrvec[2] = rvec_local(2,i);
 
+        // std::cout << "mglobaltvec: " << map.at(bw).mglobaltvec[0] << "," << map.at(bw).mglobaltvec[1] << "," << map.at(bw).mglobaltvec[2] << std::endl;
+        // std::cout << "tvecBA:      " << tvec_local(0,i) << ","<< tvec_local(1,i) << "," << tvec_local(2,i) << std::endl;
         map.at(bw).mglobaltvec[0] = tvec_local(0,i);
         map.at(bw).mglobaltvec[1] = tvec_local(1,i);
         map.at(bw).mglobaltvec[2] = tvec_local(2,i);
@@ -274,6 +278,8 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
         int n = map.at(bw).mpoint3D.size();
         for(int j = 0; j < n; j++)
         {
+            // std::cout << "map.at(bw): " <<  map.at(bw).mpoint3D.at(j).x << "," <<  map.at(bw).mpoint3D.at(j).y << "," <<  map.at(bw).mpoint3D.at(j).z << std::endl;
+            // std::cout << "points3d  : " <<  points3d.at(i)(0,j) << "," <<  points3d.at(i)(1,j) << "," <<  points3d.at(i)(2,j) << std::endl;
             map.at(bw).mpoint3D.at(j).x = points3d.at(i)(0,j);
             map.at(bw).mpoint3D.at(j).y = points3d.at(i)(1,j);
             map.at(bw).mpoint3D.at(j).z = points3d.at(i)(2,j);

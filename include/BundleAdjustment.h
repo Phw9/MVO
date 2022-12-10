@@ -5,7 +5,7 @@
 #include "Triangulate.h"
 #include "MapData.h"
 
-#define LOCAL 10
+#define LOCAL 20
 // static float camXf = 6.018873000000e+02; 
 // static float camYf = 1.831104000000e+02; 
 // static float focalLengthf = 7.070912000000e+02; 

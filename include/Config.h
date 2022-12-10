@@ -15,9 +15,9 @@
 #define NUMOFPOINTS 200 // 200
 
 #define ANGULARVELOCITY 0.055 // 0.055
-#define NUMOFINLIER 180 // 180
+#define NUMOFINLIER 200 // 200
 #define INLIERRATIO 0.85    //0.85
-#define MINLOCAL 4
+#define MINLOCAL 5 // 5
 #define BUNDLE 2 // 1 = on, 2 = off
 
 int initialNum = 1; // 1 = auto, 2 = default
