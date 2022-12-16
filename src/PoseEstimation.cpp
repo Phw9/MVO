@@ -46,6 +46,48 @@ bool mvo::StrctureFromMotion::CreateEssentialMatrix(const std::vector<cv::Point2
     return true;
 }
 
+bool mvo::StrctureFromMotion::CreateHomographyMatrix(const std::vector<cv::Point2f>& pts1, const std::vector<cv::Point2f>& pts2, const cv::Mat& K)
+{
+    mHomography = cv::findHomography(pts1, pts2, 0, 3.0, cv::noArray(), 2000, 0.995);
+    if (mHomography.empty())
+    {
+        std::cerr << "Can't find Homography matrix" << std::endl;
+        return false;
+    }
+    cv::Mat dd;
+    std::cout << "mHomography: " << mHomography << std::endl;
+    std::cout << "K: " << K << std::endl;
+    cv::decomposeHomographyMat(mHomography, K, mRotation, mTranslation, cv::noArray());
+    std::cout << "dd: " << dd << std::endl;
+
+    if (mRotation.empty() || mTranslation.empty())
+    {
+        std::cerr << "Can't get Essential Rt" << std::endl;
+        return false;
+    }
+
+    cv::Mat temp = cv::Mat();
+    temp = mRotation.t();
+    temp.push_back(mTranslation.t());
+    mCombineRt = temp.t();
+    if (!(mCombineRt.rows == 3 && mCombineRt.cols == 4))
+    {
+        std::cerr << "failed Combine Rotation Translation Matrix" << std::endl;
+        return false;
+    }
+    std::cout << mCombineRt << std::endl;
+    cv::Rodrigues(mRotation, mrvec);
+    for (int j = 0; j < mTranslation.rows; j++)
+    {
+		for (int i = 0; i < mTranslation.cols; i++)
+        {
+			mtvec[j] = mTranslation.at<double>(j, i);
+		}
+	}
+    // std::cout << "mCombineRT: " << mCombineRt << std::endl;
+    return true;
+}
+
 bool mvo::StrctureFromMotion::GetEssentialRt(const cv::InputArray& E, const cv::InputArray& K, const std::vector<cv::Point2f>& pts1, const std::vector<cv::Point2f>& pts2)
 {
     cv::recoverPose(E, pts1, pts2, K, mRotation, mTranslation);

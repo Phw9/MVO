@@ -16,6 +16,11 @@ namespace mvo
                                     const cv::InputArray& K);
         bool GetEssentialRt(const cv::InputArray& E, const cv::InputArray& K, 
                             const std::vector<cv::Point2f>& pts1, const std::vector<cv::Point2f>& pts2);
+        bool CreateHomographyMatrix(const std::vector<cv::Point2f>& pts1, 
+                                    const std::vector<cv::Point2f>& pts2, 
+                                    const cv::Mat& K);
+        bool GetHomographyRt(const cv::InputArray& E, const cv::InputArray& K, 
+                            const std::vector<cv::Point2f>& pts1, const std::vector<cv::Point2f>& pts2);                                    
         bool GetHomography();
         bool GetFundamental();
                                     

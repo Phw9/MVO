@@ -5,10 +5,8 @@
 #include "Triangulate.h"
 #include "MapData.h"
 
-#define LOCAL 20
-// static float camXf = 6.018873000000e+02; 
-// static float camYf = 1.831104000000e+02; 
-// static float focalLengthf = 7.070912000000e+02; 
+#define LOCAL 10 // 10
+
 static double camX = 6.018873000000e+02;
 static double camY = 1.831104000000e+02;
 static double focald = 7.070912000000e+02;
@@ -51,6 +49,26 @@ namespace mvo
         double focal;
         double ppx;
         double ppy;
+    };
+
+    struct SnavelyReprojectionErrorLocalPoseFixed
+    {
+        SnavelyReprojectionErrorLocalPoseFixed(double observed_x, double observed_y, 
+                                                  double focal, double ppx, double ppy, 
+                                            Eigen::Vector3d rvec_eig, Eigen::Vector3d tvec_eig);
+        ~SnavelyReprojectionErrorLocalPoseFixed() = default;
+
+        template <typename T>
+        bool operator()(const T *const worldPoint,
+                        T *residuals) const;
+
+        double observed_x;
+        double observed_y;
+        double focal;
+        double ppx;
+        double ppy;
+        Eigen::Vector3d rvec_eig;
+        Eigen::Vector3d tvec_eig;
     };
 
     class BundleAdjustment

@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 	int lTPB = 0;
 	std::vector<uchar> stats;
 
-	mvo::StrctureFromMotion getEssential;
+	mvo::StrctureFromMotion getInitialize;
 	mvo::PoseEstimation getPose;
 	mvo::Initializer checkScore;
 
@@ -111,11 +111,13 @@ int main(int argc, char** argv)
 				std::cout << "score: " << RH << std::endl;
 				// RH>0.45
 				// SH>1800 && isnan(SF) == true
-				if(lTPA == 3)	// 1, 3
+				if(lTPA == 1)	// 1, 3
 				{
 					std::cout << "RH>0.45" << std::endl;
-					getEssential.CreateEssentialMatrix(localTrackPointsA.at(0).mfeatures, localTrackPointsA[lTPA].mfeatures, intrinsicKf);
-					setMapData.GetSFMPose(getEssential);
+
+					getInitialize.CreateEssentialMatrix(localTrackPointsA.at(0).mfeatures, localTrackPointsA[lTPA].mfeatures, intrinsicKf);
+					
+					setMapData.GetSFMPose(getInitialize);
 
 					if(!mapPointsA.CalcWorldPoints(m1, setMapData.mglobalRTMat,
 							localTrackPointsA[0], localTrackPointsA[lTPA]))
