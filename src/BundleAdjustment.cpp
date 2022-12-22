@@ -8,7 +8,6 @@ mvo::SnavelyReprojectionError::operator()(const T *const rvec_eig,
                         const T *const tvec_eig,
                         T *residuals) const
 {
-
     const T theta = sqrt(rvec_eig[0] * rvec_eig[0] + rvec_eig[1] * rvec_eig[1] + rvec_eig[2] * rvec_eig[2]);
 
     const T tvec_eig_0 = tvec_eig[0];
@@ -207,11 +206,14 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
 {
     // gD = 3, 13, 23, 33 ...
     int w = 0;
+    int lw = 0;
     int bw = 0;
+
 
     if(gD>10)
     {
-        w = gD - LOCAL; 
+        w = gD - LOCAL;
+        lw = gD - LOCAL -5;
         bw = w;        // 0, 3, 13 ....
     }
     else
@@ -227,12 +229,14 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
     std::vector<Eigen::MatrixXd> points3d;
     points2d.reserve(11); points3d.reserve(11);
     ceres::Problem problem;
+    // initial BA
     if(w == 0)
     {
         // pose fixed
-        int fixed = LOCAL/2;
+        int fixed = 5;
         for(int i = 0; i < fixed; i++)
         {
+            std::cout << "lw: " << lw << "  , w: " << w <<std::endl;
             rvec_local(0,i) = map.at(w).mglobalrvec[0];
             rvec_local(1,i) = map.at(w).mglobalrvec[1];
             rvec_local(2,i) = map.at(w).mglobalrvec[2];
@@ -305,7 +309,7 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
                 }
             }
             w++;
-        }// AddResidualBlock end
+        }// pose fixed end
 
         for(int i = fixed; i < LOCAL; i++)
         {
@@ -370,38 +374,115 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
             w++;
         }// AddResidualBlock end
     }
-    else
+    else // usually
     {
-        for(int i = 0; i < LOCAL; i++)
+        int fixed = 5;
+        for(int i = 0; i < fixed; i++)
         {
-            rvec_local(0,i) = map.at(w).mglobalrvec[0];
-            rvec_local(1,i) = map.at(w).mglobalrvec[1];
-            rvec_local(2,i) = map.at(w).mglobalrvec[2];
+            std::cout << "lw: " << lw << "  , w: " << w <<std::endl;
+            rvec_local(0,i) = map.at(lw).mglobalrvec[0];
+            rvec_local(1,i) = map.at(lw).mglobalrvec[1];
+            rvec_local(2,i) = map.at(lw).mglobalrvec[2];
 
-            tvec_local(0,i) = map.at(w).mglobaltvec[0];
-            tvec_local(1,i) = map.at(w).mglobaltvec[1];
-            tvec_local(2,i) = map.at(w).mglobaltvec[2];
+            tvec_local(0,i) = map.at(lw).mglobaltvec[0];
+            tvec_local(1,i) = map.at(lw).mglobaltvec[1];
+            tvec_local(2,i) = map.at(lw).mglobaltvec[2];
             
-            if(map.at(w).mpoint2D.size() != map.at(w).mpoint3D.size())
+            if(map.at(lw).mpoint2D.size() != map.at(lw).mpoint3D.size())
             {
                 std::cerr<< "localBA Matching error" << std::endl;
                 return false;
             }
 
-            int N = map.at(w).mpoint2D.size();
+            int N = map.at(lw).mpoint2D.size();
             Eigen::MatrixXd points2d_eig(2, N);
             Eigen::MatrixXd points3d_eig(4, N);
                 
             for(int j = 0; j < N; j++)
             {
-                points2d_eig(0,j) = map.at(w).mpoint2D.at(j).x;
-                points2d_eig(1,j) = map.at(w).mpoint2D.at(j).y;        
+                points2d_eig(0,j) = map.at(lw).mpoint2D.at(j).x;
+                points2d_eig(1,j) = map.at(lw).mpoint2D.at(j).y;        
             }
             for(int j = 0; j < N; j++)
             {
-                points3d_eig(0,j) = map.at(w).mpoint3D.at(j).x;
-                points3d_eig(1,j) = map.at(w).mpoint3D.at(j).y;
-                points3d_eig(2,j) = map.at(w).mpoint3D.at(j).z;
+                points3d_eig(0,j) = map.at(lw).mpoint3D.at(j).x;
+                points3d_eig(1,j) = map.at(lw).mpoint3D.at(j).y;
+                points3d_eig(2,j) = map.at(lw).mpoint3D.at(j).z;
+                points3d_eig(3,j) = 1;            
+            }
+            points2d.push_back(points2d_eig);
+            points3d.emplace_back(std::move(points3d_eig));
+
+            Eigen::Vector3d rvec;
+            Eigen::Vector3d tvec;
+
+            rvec[0] = rvec_local(0,i);
+            rvec[1] = rvec_local(1,i);
+            rvec[2] = rvec_local(2,i);
+
+            tvec[0] = tvec_local(0,i);
+            tvec[1] = tvec_local(1,i);
+            tvec[2] = tvec_local(2,i);
+            for(int j = 0; j < N; j++)
+            {
+                ceres::CostFunction* cost_function=
+                    new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocalPoseFixed, 2, 3>
+                    (new mvo::SnavelyReprojectionErrorLocalPoseFixed(points2d_eig(0,j), points2d_eig(1,j), focald, camX, camY,
+                                                                     rvec, tvec));
+                ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                problem.AddResidualBlock(cost_function, loss, points3d.at(i).col(j).data());
+            }
+
+            if(i > 0)
+            {
+                int M = cov.mgraph.at(lw-1).size();
+                for(int j = 0; j < M; j++)
+                {
+                    int prev = cov.mgraph.at(lw-1).at(j).first;  //i-1 idx
+                    int next = cov.mgraph.at(lw-1).at(j).second; // i idx
+                    // std::cout << "j: " << j << ", prev: " << prev << ", next: " << next << std::endl;
+                    // std::cout << "points3d.at(i).cols(): " << points3d.at(i).cols() << std::endl;
+                    ceres::CostFunction* cost_function1=
+                    new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocalPoseFixed, 2, 3>
+                    (new mvo::SnavelyReprojectionErrorLocalPoseFixed(points2d.at(i-1)(0, prev), points2d.at(i-1)(1, prev),
+                                                                     focald, camX, camY, rvec, tvec));
+                    ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                    problem.AddResidualBlock(cost_function1, loss, points3d.at(i).col(next).data());
+                }
+            }
+            lw++;
+        }// before local addresidual
+
+        for(int i = 0; i < LOCAL; i++)
+        {
+            rvec_local(0,i) = map.at(lw).mglobalrvec[0];
+            rvec_local(1,i) = map.at(lw).mglobalrvec[1];
+            rvec_local(2,i) = map.at(lw).mglobalrvec[2];
+
+            tvec_local(0,i) = map.at(lw).mglobaltvec[0];
+            tvec_local(1,i) = map.at(lw).mglobaltvec[1];
+            tvec_local(2,i) = map.at(lw).mglobaltvec[2];
+            
+            if(map.at(lw).mpoint2D.size() != map.at(lw).mpoint3D.size())
+            {
+                std::cerr<< "localBA Matching error" << std::endl;
+                return false;
+            }
+
+            int N = map.at(lw).mpoint2D.size();
+            Eigen::MatrixXd points2d_eig(2, N);
+            Eigen::MatrixXd points3d_eig(4, N);
+                
+            for(int j = 0; j < N; j++)
+            {
+                points2d_eig(0,j) = map.at(lw).mpoint2D.at(j).x;
+                points2d_eig(1,j) = map.at(lw).mpoint2D.at(j).y;        
+            }
+            for(int j = 0; j < N; j++)
+            {
+                points3d_eig(0,j) = map.at(lw).mpoint3D.at(j).x;
+                points3d_eig(1,j) = map.at(lw).mpoint3D.at(j).y;
+                points3d_eig(2,j) = map.at(lw).mpoint3D.at(j).z;
                 points3d_eig(3,j) = 1;            
             }
             points2d.push_back(points2d_eig);
@@ -418,11 +499,11 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
 
             if(i > 0)
             {
-                int M = cov.mgraph.at(w-1).size();
+                int M = cov.mgraph.at(lw-1).size();
                 for(int j = 0; j < M; j++)
                 {
-                    int prev = cov.mgraph.at(w-1).at(j).first;  //i-1 idx
-                    int next = cov.mgraph.at(w-1).at(j).second; // i idx
+                    int prev = cov.mgraph.at(lw-1).at(j).first;  //i-1 idx
+                    int next = cov.mgraph.at(lw-1).at(j).second; // i idx
                     // std::cout << "j: " << j << ", prev: " << prev << ", next: " << next << std::endl;
                     // std::cout << "points3d.at(i).cols(): " << points3d.at(i).cols() << std::endl;
                     ceres::CostFunction* cost_function1=
@@ -432,7 +513,7 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
                     problem.AddResidualBlock(cost_function1, loss, rvec_local.col(i-1).data(), tvec_local.col(i-1).data(), points3d.at(i).col(next).data());
                 }
             }
-            w++;
+            lw++;
         }// AddResidualBlock end
     }
 

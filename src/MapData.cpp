@@ -143,7 +143,7 @@ void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triang
         if(matches.at(i).distance < DISTANCEDESC)
         {
             inlier++;
-            idxMatch.first=matches.at(i).queryIdx; idxMatch.second=matches.at(i).trainIdx;
+            idxMatch.first = matches.at(i).queryIdx; idxMatch.second=matches.at(i).trainIdx;
             temp.emplace_back(std::move(idxMatch));
         }
     }

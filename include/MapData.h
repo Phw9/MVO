@@ -8,7 +8,7 @@
 #include "Triangulate.h"
 #include "PoseEstimation.h"
 
-#define DISTANCEDESC 3
+#define DISTANCEDESC 20
 
 namespace mvo
 {

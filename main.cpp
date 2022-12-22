@@ -19,6 +19,7 @@ int main(int argc, char** argv)
 	}
 	std::deque<std::string> readImageName;
 	cv::Mat img;
+	cv::Mat img2;
 	int imageCurNum = 0;
 	int realFrame = 0;
 	float RH = 100; float SH, SF;
@@ -69,6 +70,8 @@ int main(int argc, char** argv)
 			{
 				img = cv::imread(readImageName.at(imageCurNum), 
 									cv::ImreadModes::IMREAD_UNCHANGED);
+				img2 = cv::imread(readImageName.at(imageCurNum), 
+									cv::ImreadModes::IMREAD_UNCHANGED);
 				if (img.empty())
 				{
 					std::cerr << "frame upload failed" << std::endl;
@@ -85,6 +88,8 @@ int main(int argc, char** argv)
 			while(initialNum!=0)
 			{
 				img = cv::imread(readImageName.at(imageCurNum), 
+									cv::ImreadModes::IMREAD_UNCHANGED);
+				img2 = cv::imread(readImageName.at(imageCurNum), 
 									cv::ImreadModes::IMREAD_UNCHANGED);
 				if (img.empty())
 				{
@@ -152,8 +157,11 @@ int main(int argc, char** argv)
 					initialNum = 0;
 				}
 				cv::cvtColor(img, img, cv::ColorConversionCodes::COLOR_GRAY2BGR);
+				cv::cvtColor(img2, img2, cv::ColorConversionCodes::COLOR_GRAY2BGR);
 				img = pangolinViewer.DrawFeatures(img, localTrackPointsA.at(lTPA-1).mfeatures, 
 													localTrackPointsA.at(lTPA).mfeatures);
+				
+
 				tvecOfGT.emplace_back(readtvecOfGT.at(imageCurNum));
 				std::cout << "KeyFrame(glbalMapData)size: " << globalMapData.size() << ", real:" << realFrame << ", image: " << imageCurNum <<std::endl;
 				std::cout << "tvecOfGT: " << tvecOfGT.at(imageCurNum) << std::endl;
@@ -165,6 +173,7 @@ int main(int argc, char** argv)
 				pangolin::FinishFrame();
 				
 				cv::imshow("img", img);
+				cv::imshow("img11", img2);
 				if(cv::waitKey(0) == 27) break; // ESC key
 			}
 			std::cout << "======================  2-view end & start!!  ======================" << std::endl;
@@ -172,6 +181,9 @@ int main(int argc, char** argv)
 		// Start
 		img = cv::imread(readImageName.at(imageCurNum), 
 						cv::ImreadModes::IMREAD_UNCHANGED);
+		img2 = cv::imread(readImageName.at(imageCurNum), 
+						cv::ImreadModes::IMREAD_UNCHANGED);						
+		
 		
 		while((localTrackPointsA.size()> MINLOCAL && localTrackPointsB.size()> MINLOCAL) && 
 				(localTrackPointsA[lTPA].mfeatures.size() < NUMOFPOINTS || 
@@ -408,6 +420,31 @@ int main(int argc, char** argv)
 		img = pangolinViewer.DrawFeatures(img, localTrackPointsB.at(lTPB-1).mfeatures, 
 											localTrackPointsB.at(lTPB).mfeatures);		
 		}
+
+		// Descriptor Matching Viewer : Search img2
+		std::vector<cv::Point2f> aaa;
+		std::vector<cv::Point2f> bbb;
+		aaa.clear(); aaa.reserve(1000);
+		bbb.clear(); bbb.reserve(1000);
+		if(gD>1)
+		{
+
+			int abab = covGraph.mgraph.at(gD-1).size();
+			for(int i = 0; i < abab; i++)
+			{
+				cv::Point2f pr;
+				cv::Point2f ne;
+				int prev = covGraph.mgraph.at(gD-1).at(i).first;
+				int next = covGraph.mgraph.at(gD-1).at(i).second;
+				pr = globalMapData.at(gD-1).mpoint2D.at(prev);
+				ne = globalMapData.at(gD).mpoint2D.at(next);
+				aaa.push_back(pr);
+				bbb.push_back(ne);
+			}
+			cv::cvtColor(img2, img2, cv::ColorConversionCodes::COLOR_GRAY2BGR);
+			img2 = pangolinViewer.DrawFeatures(img2, aaa, bbb);
+		}
+
 		tvecOfGT.emplace_back(readtvecOfGT.at(imageCurNum));
 		std::cout << std::endl;
 		std::cout << "KeyFrame(glbalMapData)size: " << globalMapData.size() << ", image: " << imageCurNum <<std::endl;
@@ -426,7 +463,8 @@ int main(int argc, char** argv)
 		pangolinViewer.DrawPoint(globalMapData, tvecOfGT);
     	pangolin::FinishFrame();
 		cv::imshow("img", img);
-		char ch = cv::waitKey(10);
+		cv::imshow("img11", img2);
+		char ch = cv::waitKey(0);
 		if(ch == 27) break; // ESC key
 		if(ch == 32) if(cv::waitKey(0) == 27) break;; // Spacebar key
 	}	
