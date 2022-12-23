@@ -133,7 +133,7 @@ int main(int argc, char** argv)
 					{
 						std::cerr << "failed ManageMinusZ A" << std::endl;
 					}
-
+					
 					if(!ManageMinusLocal(localTrackPointsA, mapStats))
 					{
 						std::cerr << "failed Minus local" << std::endl;
@@ -173,7 +173,7 @@ int main(int argc, char** argv)
 				pangolin::FinishFrame();
 				
 				cv::imshow("img", img);
-				cv::imshow("img11", img2);
+				cv::imshow("descriptor", img2);
 				if(cv::waitKey(0) == 27) break; // ESC key
 			}
 			std::cout << "======================  2-view end & start!!  ======================" << std::endl;
@@ -184,13 +184,11 @@ int main(int argc, char** argv)
 		img2 = cv::imread(readImageName.at(imageCurNum), 
 						cv::ImreadModes::IMREAD_UNCHANGED);						
 		
-		
-		while((localTrackPointsA.size()> MINLOCAL && localTrackPointsB.size()> MINLOCAL) && 
-				(localTrackPointsA[lTPA].mfeatures.size() < NUMOFPOINTS || 
-				localTrackPointsB[lTPB].mfeatures.size() < NUMOFPOINTS || 
-				angularVelocity > ANGULARVELOCITY ||
-				(getPose.minlier.rows < NUMOFINLIER) ||
-				inlierRatio < INLIERRATIO))
+		while(localTrackPointsA[lTPA].mfeatures.size() < NUMOFPOINTS || 
+			localTrackPointsB[lTPB].mfeatures.size() < NUMOFPOINTS || 
+			angularVelocity > ANGULARVELOCITY ||
+			inlierRatio < INLIERRATIO || 
+			(getPose.minlier.rows < NUMOFINLIER && getPose.minlier.rows != 0))
 		{
 			imageCurNum--;
 			img = cv::imread(readImageName.at(imageCurNum), 
@@ -200,12 +198,13 @@ int main(int argc, char** argv)
 			{
 				// triangulate
 				std::cout << "ㅇㅇㅇNewTrack Aㅇㅇㅇ" << std::endl;
-
+				
 				if(BUNDLE==1)
 				{
 					if(((gD % LOCAL) == 0) && (gD >= LOCAL))
 					{
 						std::cout << "localBA start" << std::endl;
+						
 						mvo::BundleAdjustment* localBA = new mvo::BundleAdjustment();
 						if(!localBA->LocalBA(gD, globalMapData, covGraph))
 							std::cerr << "local error" << std::endl;
@@ -213,10 +212,8 @@ int main(int argc, char** argv)
 					}	
 				}
 				// descriptor of mapPointsA & mapPointsB matcher
-
 				mapPointsB.CalcWorldPoints(globalMapData.at(gD).mglobalRTMat, getPose.mCombineRt, 
 										localTrackPointsB.at(0), localTrackPointsB.at(lTPB));
-
 				if(!ManageMinusZ(mapPointsB, getPose.mCombineRt, mapStats))
 				{
 					std::cerr << "failed ManageMinusZ B" << std::endl;
@@ -225,7 +222,6 @@ int main(int argc, char** argv)
 				{
 					std::cerr << "failed Minus local B" << std::endl;
 				}
-
 				setMapData.GetPnPPose(getPose);
 				setMapData.Get2DPoints(localTrackPointsB.at(lTPB));
 				setMapData.Get3DPoints(mapPointsB);
@@ -463,7 +459,7 @@ int main(int argc, char** argv)
 		pangolinViewer.DrawPoint(globalMapData, tvecOfGT);
     	pangolin::FinishFrame();
 		cv::imshow("img", img);
-		cv::imshow("img11", img2);
+		cv::imshow("descriptor", img2);
 		char ch = cv::waitKey(0);
 		if(ch == 27) break; // ESC key
 		if(ch == 32) if(cv::waitKey(0) == 27) break;; // Spacebar key

@@ -14,7 +14,7 @@
 #define ERRORSIZE 20 // 20
 #define MAXCORNER 1000 // 1000
 #define QUALITYLEVEL 0.001 // 0.001
-#define MINDISTANCE 8 // 8
+#define MINDISTANCE 4 // 8
 
 
 namespace mvo

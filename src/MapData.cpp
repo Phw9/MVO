@@ -65,54 +65,16 @@ mvo::Covisibilgraph::Covisibilgraph(const std::vector<mvo::MapData>& v,
                                                       const double& ppy)
                                 : mglobalMapData(v), mfocal(focal), mppx(ppx), mppy(ppy){};
 
-template <typename T> void mvo::Covisibilgraph::MakeEdgeProj(int gD)
+template <typename T> void mvo::Covisibilgraph::MakeEdgeProj(int gD, std::vector<mvo::MapData>& mapdata)
 {
-    const T theta = sqrt(mglobalMapData.at(gD).mglobalrvec[0] * mglobalMapData.at(gD).mglobalrvec[0] +
-                         mglobalMapData.at(gD).mglobalrvec[1] * mglobalMapData.at(gD).mglobalrvec[1] +
-                         mglobalMapData.at(gD).mglobalrvec[2] * mglobalMapData.at(gD).mglobalrvec[2]);
+    int w = gD-10;
 
-    const T tvec_eig_0 = mglobalMapData.at(gD).mglobaltvec[0];
-    const T tvec_eig_1 = mglobalMapData.at(gD).mglobaltvec[1];
-    const T tvec_eig_2 = mglobalMapData.at(gD).mglobaltvec[2];
-
-    const T w1 = mglobalMapData.at(gD).mglobalrvec[0] / theta;
-    const T w2 = mglobalMapData.at(gD).mglobalrvec[1] / theta;
-    const T w3 = mglobalMapData.at(gD).mglobalrvec[2] / theta;
-
-    const T cos = ceres::cos(theta);
-    const T sin = ceres::sin(theta);
-
-    Eigen::Matrix<T, 3, 4> worldToCam;
-    worldToCam << cos + w1 * w1 * (static_cast<T>(1) - cos), w1 * w2 * (static_cast<T>(1) - cos) - w3 * sin, w1 * w3 * (static_cast<T>(1) - cos) + w2 * sin, tvec_eig_0,
-        w1 * w2 * (static_cast<T>(1) - cos) + w3 * sin, cos + w2 * w2 * (static_cast<T>(1) - cos), w2 * w3 * (static_cast<T>(1) - cos) - w1 * sin, tvec_eig_1,
-        w1 * w3 * (static_cast<T>(1) - cos) - w2 * sin, w2 * w3 * (static_cast<T>(1) - cos) + w1 * sin, cos + w3 * w3 * (static_cast<T>(1) - cos), tvec_eig_2;
-
-    Eigen::Matrix<T, 3, 1> pixel3d;
-    std::vector<Eigen::MatrixXd> points3d;
-    for(int i = 0; i < gD; i++)
-    {
-        int N = mglobalMapData.at(i).mpoint3D.size();
-        Eigen::MatrixXd points3d_eig(4, N);
-        for(int j = 0; j < N; j++)
-        {
-            points3d_eig(0,i) = mglobalMapData.at(i).mpoint3D.at(j).x;
-            points3d_eig(1,i) = mglobalMapData.at(i).mpoint3D.at(j).y;
-            points3d_eig(2,i) = mglobalMapData.at(i).mpoint3D.at(j).z;
-            points3d_eig(3,i) = 1;
-        }
-        points3d.emplace_back(std::move(points3d_eig));
-    }
-
-    Eigen::Matrix<double, 3, 3> Kd;
-    Kd << mfocal, 0, mppx,
-        0, mfocal, mppy,
-        0, 0, 1;
-    
-    pixel3d = Kd.cast<T>() * worldToCam * mglobalMapData.at(gD).mpoint3D.at(gD);
+    w++;
 }
 
 void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triangulate& mapPoints)
 {
+    std::cout << "gD: " << gD << ", size: " << mglobalMapData.size() << std::endl;
     cv::BFMatcher matcher(cv::NORM_HAMMING);
     std::vector<cv::DMatch> matches;
     matches.reserve(2000);
@@ -125,7 +87,7 @@ void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triang
     2. Correspond 3dPoints between (before==mapPoints) and (gD-1)
     3. Correcting index (before) in (gD-1)
     */
-
+    // 1
     matcher.match(before.mdesc, mglobalMapData.at(gD).mdesc, matches);
     int max=0, min=100, sum=0;
     int maxq=0; int maxt=0;
@@ -143,7 +105,7 @@ void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triang
         if(matches.at(i).distance < DISTANCEDESC)
         {
             inlier++;
-            idxMatch.first = matches.at(i).queryIdx; idxMatch.second=matches.at(i).trainIdx;
+            idxMatch.first = matches.at(i).queryIdx; idxMatch.second = matches.at(i).trainIdx;
             temp.emplace_back(std::move(idxMatch));
         }
     }
@@ -152,6 +114,7 @@ void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triang
     // temp.first = (gD-1) 3dPoints idx
     int M = temp.size();
     int P = mglobalMapData.at(gD-1).mpoint3D.size();
+
     for(int i = 0; i < M; i++)
     {
         for(int j = 0; j < P; j++)
@@ -167,9 +130,72 @@ void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triang
         }
     }
 
+    int indexCorrection = 0;
+
+    for(int i = 0; i < M; i++)
+    {
+        if(!this->Projection(mglobalMapData.at(gD-1).mglobalrvec, mglobalMapData.at(gD-1).mglobaltvec,
+                        mglobalMapData.at(gD-1).mpoint2D.at(temp.at(i-indexCorrection).first),
+                        mglobalMapData.at(gD).mpoint3D.at(temp.at(i-indexCorrection).second)))
+        {
+            temp.erase(temp.begin() + (i - indexCorrection));
+            indexCorrection++;
+        }
+    }
     mgraph.emplace_back(std::move(temp));
     std::cout << "mgraph size: " << mgraph.at(gD-1).size() << std::endl;;
     std::cout << "before size: " << before.mfeatures.size() << ", gD data size: " << mglobalMapData.at(gD).mpoint2D.size() << std::endl;
     std::cout << "Query: " << maxq << ", Train: " << maxt << " Avg Distance: " << (float)sum/N << std::endl;
     std::cout << "inlier: " << inlier << ", inlier2: " << inlier2 <<std::endl;
+}
+
+bool mvo::Covisibilgraph::Projection(const cv::Vec3d& rvec, const cv::Vec3d& tvec, const cv::Point2f& pts, const cv::Point3f& world)
+{
+        const double theta = sqrt(rvec[0] * rvec[0] +
+                             rvec[1] * rvec[1] + 
+                             rvec[2] * rvec[2]);
+        
+        const double tvec_eig_0 = tvec[0];
+        const double tvec_eig_1 = tvec[1];
+        const double tvec_eig_2 = tvec[2];
+
+        const double w1 = rvec[0] / theta;
+        const double w2 = rvec[1] / theta;
+        const double w3 = rvec[2] / theta;
+
+        const double cos = ceres::cos(theta);
+        const double sin = ceres::sin(theta);
+
+        Eigen::Matrix<double, 3, 4> worldToCam;
+        worldToCam << cos + w1 * w1 * (static_cast<double>(1) - cos), w1 * w2 * (static_cast<double>(1) - cos) - w3 * sin, w1 * w3 * (static_cast<double>(1) - cos) + w2 * sin, tvec_eig_0,
+            w1 * w2 * (static_cast<double>(1) - cos) + w3 * sin, cos + w2 * w2 * (static_cast<double>(1) - cos), w2 * w3 * (static_cast<double>(1) - cos) - w1 * sin, tvec_eig_1,
+            w1 * w3 * (static_cast<double>(1) - cos) - w2 * sin, w2 * w3 * (static_cast<double>(1) - cos) + w1 * sin, cos + w3 * w3 * (static_cast<double>(1) - cos), tvec_eig_2;
+
+        Eigen::Matrix<double, 3, 1> pixel3d;
+        Eigen::Vector4d worldHomoGen4d;
+
+        worldHomoGen4d[0] = world.x;
+        worldHomoGen4d[1] = world.y;
+        worldHomoGen4d[2] = world.z;
+        worldHomoGen4d[3] = static_cast<double>(1);
+
+
+        Eigen::Matrix<double, 3, 3> Kd;
+        Kd << mfocal, 0, mppx,
+            0, mfocal, mppy,
+            0, 0, 1;
+        
+        pixel3d = Kd.cast<double>() * worldToCam * worldHomoGen4d;
+
+        double predicted_x = (pixel3d[0] / pixel3d[2]);
+        double predicted_y = (pixel3d[1] / pixel3d[2]);
+
+        Eigen::Vector2d residuals;
+        residuals[0] = predicted_x - double(pts.x);
+        residuals[1] = predicted_y - double(pts.y);
+
+        // std::cout << abs(residuals[0]) << ", " << abs(residuals[1]) << std::endl;
+
+        if(abs(residuals[0]) < 2 && abs(residuals[1]) <2) return true;
+        else    return false;
 }

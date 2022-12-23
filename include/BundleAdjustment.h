@@ -10,6 +10,7 @@
 static double camX = 6.018873000000e+02;
 static double camY = 1.831104000000e+02;
 static double focald = 7.070912000000e+02;
+static double reprojerr = 3.0;
 
 
 namespace mvo

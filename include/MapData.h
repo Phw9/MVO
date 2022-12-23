@@ -44,12 +44,16 @@ namespace mvo
                                             const double& ppy);
         ~Covisibilgraph()=default;
         
-        template <typename T> void MakeEdgeProj(int gD);
+        template <typename T> void MakeEdgeProj(int gD, std::vector<mvo::MapData>& mapdata);
         void MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triangulate& mapPoints);
         void CullingNode(int gD);
+        bool Projection(const cv::Vec3d& rvec, const cv::Vec3d& tvec,
+                                              const cv::Point2f& pts, const cv::Point3f& world);
+
 
         const std::vector<mvo::MapData>& mglobalMapData;
         // vector < pair <(gD-1)index,(gD)index>
+        std::vector<std::vector<std::pair<int, int>>> mgraphreproj;
         std::vector<std::vector<std::pair<int, int>>> mgraph;
         const double& mfocal;
         const double& mppx;
@@ -57,5 +61,6 @@ namespace mvo
     };
 
     void PushData(std::vector<mvo::MapData>& v, const mvo::MapData& md);
+
 }
 

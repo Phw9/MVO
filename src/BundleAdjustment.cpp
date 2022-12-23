@@ -41,7 +41,13 @@ mvo::SnavelyReprojectionError::operator()(const T *const rvec_eig,
     residuals[0] = predicted_x - T(observed_x);
     residuals[1] = predicted_y - T(observed_y);
 
+    // if(residuals[0] < reprojerr && residuals[1] < reprojerr)
+    // {
+    //     return true;
+    // }
+    // else return false;
     return true;
+
 }
 
 mvo::SnavelyReprojectionErrorLocal::SnavelyReprojectionErrorLocal(double observed_x, double observed_y,
@@ -87,7 +93,13 @@ template <typename T> bool mvo::SnavelyReprojectionErrorLocal::operator()(const 
     residuals[0] = predicted_x - T(observed_x);
     residuals[1] = predicted_y - T(observed_y);
     // std::cout << residuals[0] << std::endl << residuals[1] << std::endl;
+    // if(residuals[0] < reprojerr && residuals[1] < reprojerr)
+    // {
+    //     return true;
+    // }
+    // else return false;
     return true;
+
 }
 
 mvo::SnavelyReprojectionErrorLocalPoseFixed::SnavelyReprojectionErrorLocalPoseFixed
@@ -134,7 +146,7 @@ mvo::SnavelyReprojectionErrorLocalPoseFixed::operator()(const T *const worldPoin
 
     residuals[0] = predicted_x - T(observed_x);
     residuals[1] = predicted_y - T(observed_y);
-    // std::cout << residuals[0] << std::endl << residuals[1] << std::endl;
+
     return true;
 }
 
@@ -208,13 +220,15 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
     int w = 0;
     int lw = 0;
     int bw = 0;
+    int blw = 0;
 
 
     if(gD>10)
     {
         w = gD - LOCAL;
         lw = gD - LOCAL -5;
-        bw = w;        // 0, 3, 13 ....
+        bw = w;
+        blw = lw;      // 0, 3, 13 ....
     }
     else
     {
@@ -373,6 +387,50 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
             }
             w++;
         }// AddResidualBlock end
+
+        ceres::Solver::Options options;
+
+        options.linear_solver_type = ceres::LinearSolverType::ITERATIVE_SCHUR;
+        options.minimizer_progress_to_stdout = false;
+        options.num_threads = 4;
+        options.max_num_iterations=100;
+        ceres::Solver::Summary summary;
+        ceres::Solve(options, &problem, &summary);
+
+        // for(int i = 0; i<gD; i++)
+        // {
+        //     int L = map.at(i).mpoint3D.size();
+        //     for(int j = 0; j < L; j++)
+        //     {
+        //         std::cout << "before(" << i << "," << j << "): " << map.at(i).mpoint3D.at(j).x << ", " << map.at(i).mpoint3D.at(j).y << ", " << map.at(i).mpoint3D.at(j).z << std::endl;
+        //         std::cout << "after (" << i << "," << j << "): " << points3d.at(i)(0,j) << ", " << points3d.at(i)(1,j) << ", " << points3d.at(i)(2,j) << std::endl;
+        //     }
+        // }
+        for(int i = 0; i < w; i++)
+        {
+            // std::cout << "before rvec: " << map.at(bw).mglobalrvec[0] << "," << map.at(bw).mglobalrvec[1] << "," << map.at(bw).mglobalrvec[2] << std::endl;
+            // std::cout << "after rvec:      " << rvec_local(0,i) << "," << rvec_local(1,i) << "," << rvec_local(2,i) << std::endl;
+            map.at(bw).mglobalrvec[0] = rvec_local(0,i);
+            map.at(bw).mglobalrvec[1] = rvec_local(1,i);
+            map.at(bw).mglobalrvec[2] = rvec_local(2,i);
+
+            // std::cout << "before tvec: " << map.at(bw).mglobaltvec[0] << "," << map.at(bw).mglobaltvec[1] << "," << map.at(bw).mglobaltvec[2] << std::endl;
+            // std::cout << "after tvec:      " << tvec_local(0,i) << ","<< tvec_local(1,i) << "," << tvec_local(2,i) << std::endl;
+            map.at(bw).mglobaltvec[0] = tvec_local(0,i);
+            map.at(bw).mglobaltvec[1] = tvec_local(1,i);
+            map.at(bw).mglobaltvec[2] = tvec_local(2,i);
+
+            int n = map.at(bw).mpoint3D.size();
+            for(int j = 0; j < n; j++)
+            {
+                // std::cout << "before map: " <<  map.at(bw).mpoint3D.at(j).x << "," <<  map.at(bw).mpoint3D.at(j).y << "," <<  map.at(bw).mpoint3D.at(j).z << std::endl;
+                // std::cout << "after map : " <<  points3d.at(i)(0,j) << "," <<  points3d.at(i)(1,j) << "," <<  points3d.at(i)(2,j) << std::endl;
+                map.at(bw).mpoint3D.at(j).x = points3d.at(i)(0,j);
+                map.at(bw).mpoint3D.at(j).y = points3d.at(i)(1,j);
+                map.at(bw).mpoint3D.at(j).z = points3d.at(i)(2,j);
+            }
+            bw++;
+        }
     }
     else // usually
     {
@@ -453,6 +511,7 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
             lw++;
         }// before local addresidual
 
+
         for(int i = 0; i < LOCAL; i++)
         {
             rvec_local(0,i) = map.at(lw).mglobalrvec[0];
@@ -515,51 +574,96 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
             }
             lw++;
         }// AddResidualBlock end
-    }
 
-    ceres::Solver::Options options;
+        ceres::Solver::Options options;
 
-    options.linear_solver_type = ceres::LinearSolverType::ITERATIVE_SCHUR;
-    options.minimizer_progress_to_stdout = false;
-    options.num_threads = 4;
-    options.max_num_iterations=100;
-    ceres::Solver::Summary summary;
-    ceres::Solve(options, &problem, &summary);
-    
-    // for(int i = 0; i<gD; i++)
-    // {
-    //     int L = map.at(i).mpoint3D.size();
-    //     for(int j = 0; j < L; j++)
-    //     {
-    //         std::cout << "before(" << i << "," << j << "): " << map.at(i).mpoint3D.at(j).x << ", " << map.at(i).mpoint3D.at(j).y << ", " << map.at(i).mpoint3D.at(j).z << std::endl;
-    //         std::cout << "after (" << i << "," << j << "): " << points3d.at(i)(0,j) << ", " << points3d.at(i)(1,j) << ", " << points3d.at(i)(2,j) << std::endl;
-    //     }
-    // }
-    for(int i = 0; i < LOCAL; i++)
-    {
-        // std::cout << "mglobalrvec: " << map.at(bw).mglobalrvec[0] << "," << map.at(bw).mglobalrvec[1] << "," << map.at(bw).mglobalrvec[2] << std::endl;
-        // std::cout << "rvecBA:      " << rvec_local(0,i) << "," << rvec_local(1,i) << "," << rvec_local(2,i) << std::endl;
-        map.at(bw).mglobalrvec[0] = rvec_local(0,i);
-        map.at(bw).mglobalrvec[1] = rvec_local(1,i);
-        map.at(bw).mglobalrvec[2] = rvec_local(2,i);
-
-        // std::cout << "mglobaltvec: " << map.at(bw).mglobaltvec[0] << "," << map.at(bw).mglobaltvec[1] << "," << map.at(bw).mglobaltvec[2] << std::endl;
-        // std::cout << "tvecBA:      " << tvec_local(0,i) << ","<< tvec_local(1,i) << "," << tvec_local(2,i) << std::endl;
-        map.at(bw).mglobaltvec[0] = tvec_local(0,i);
-        map.at(bw).mglobaltvec[1] = tvec_local(1,i);
-        map.at(bw).mglobaltvec[2] = tvec_local(2,i);
-
-        int n = map.at(bw).mpoint3D.size();
-        for(int j = 0; j < n; j++)
+        options.linear_solver_type = ceres::LinearSolverType::ITERATIVE_SCHUR;
+        options.minimizer_progress_to_stdout = false;
+        options.num_threads = 4;
+        options.max_num_iterations=100;
+        ceres::Solver::Summary summary;
+        ceres::Solve(options, &problem, &summary);
+        
+        // for(int i = 0; i<gD; i++)
+        // {
+        //     int L = map.at(i).mpoint3D.size();
+        //     for(int j = 0; j < L; j++)
+        //     {
+        //         std::cout << "before(" << i << "," << j << "): " << map.at(i).mpoint3D.at(j).x << ", " << map.at(i).mpoint3D.at(j).y << ", " << map.at(i).mpoint3D.at(j).z << std::endl;
+        //         std::cout << "after (" << i << "," << j << "): " << points3d.at(i)(0,j) << ", " << points3d.at(i)(1,j) << ", " << points3d.at(i)(2,j) << std::endl;
+        //     }
+        // }
+        for(int i = 0; i < fixed + LOCAL; i++)
         {
-            // std::cout << "map.at(bw): " <<  map.at(bw).mpoint3D.at(j).x << "," <<  map.at(bw).mpoint3D.at(j).y << "," <<  map.at(bw).mpoint3D.at(j).z << std::endl;
-            // std::cout << "points3d  : " <<  points3d.at(i)(0,j) << "," <<  points3d.at(i)(1,j) << "," <<  points3d.at(i)(2,j) << std::endl;
-            map.at(bw).mpoint3D.at(j).x = points3d.at(i)(0,j);
-            map.at(bw).mpoint3D.at(j).y = points3d.at(i)(1,j);
-            map.at(bw).mpoint3D.at(j).z = points3d.at(i)(2,j);
+            // std::cout << "before rvec: " << map.at(bw).mglobalrvec[0] << "," << map.at(bw).mglobalrvec[1] << "," << map.at(bw).mglobalrvec[2] << std::endl;
+            // std::cout << "after rvec:      " << rvec_local(0,i) << "," << rvec_local(1,i) << "," << rvec_local(2,i) << std::endl;
+            map.at(blw).mglobalrvec[0] = rvec_local(0,i);
+            map.at(blw).mglobalrvec[1] = rvec_local(1,i);
+            map.at(blw).mglobalrvec[2] = rvec_local(2,i);
+
+            // std::cout << "before tvec: " << map.at(bw).mglobaltvec[0] << "," << map.at(bw).mglobaltvec[1] << "," << map.at(bw).mglobaltvec[2] << std::endl;
+            // std::cout << "after tvec:      " << tvec_local(0,i) << ","<< tvec_local(1,i) << "," << tvec_local(2,i) << std::endl;
+            map.at(blw).mglobaltvec[0] = tvec_local(0,i);
+            map.at(blw).mglobaltvec[1] = tvec_local(1,i);
+            map.at(blw).mglobaltvec[2] = tvec_local(2,i);
+
+            int n = map.at(blw).mpoint3D.size();
+            for(int j = 0; j < n; j++)
+            {
+                // std::cout << "before map: " <<  map.at(bw).mpoint3D.at(j).x << "," <<  map.at(bw).mpoint3D.at(j).y << "," <<  map.at(bw).mpoint3D.at(j).z << std::endl;
+                // std::cout << "after map : " <<  points3d.at(i)(0,j) << "," <<  points3d.at(i)(1,j) << "," <<  points3d.at(i)(2,j) << std::endl;
+                map.at(blw).mpoint3D.at(j).x = points3d.at(i)(0,j);
+                map.at(blw).mpoint3D.at(j).y = points3d.at(i)(1,j);
+                map.at(blw).mpoint3D.at(j).z = points3d.at(i)(2,j);
+            }
+            blw++;
         }
-        bw++;
     }
+
+    // ceres::Solver::Options options;
+
+    // options.linear_solver_type = ceres::LinearSolverType::ITERATIVE_SCHUR;
+    // options.minimizer_progress_to_stdout = false;
+    // options.num_threads = 4;
+    // options.max_num_iterations=100;
+    // ceres::Solver::Summary summary;
+    // ceres::Solve(options, &problem, &summary);
+    
+    // // for(int i = 0; i<gD; i++)
+    // // {
+    // //     int L = map.at(i).mpoint3D.size();
+    // //     for(int j = 0; j < L; j++)
+    // //     {
+    // //         std::cout << "before(" << i << "," << j << "): " << map.at(i).mpoint3D.at(j).x << ", " << map.at(i).mpoint3D.at(j).y << ", " << map.at(i).mpoint3D.at(j).z << std::endl;
+    // //         std::cout << "after (" << i << "," << j << "): " << points3d.at(i)(0,j) << ", " << points3d.at(i)(1,j) << ", " << points3d.at(i)(2,j) << std::endl;
+    // //     }
+    // // }
+    // for(int i = 0; i < LOCAL; i++)
+    // {
+    //     // std::cout << "before rvec: " << map.at(bw).mglobalrvec[0] << "," << map.at(bw).mglobalrvec[1] << "," << map.at(bw).mglobalrvec[2] << std::endl;
+    //     // std::cout << "after rvec:      " << rvec_local(0,i) << "," << rvec_local(1,i) << "," << rvec_local(2,i) << std::endl;
+    //     map.at(bw).mglobalrvec[0] = rvec_local(0,i);
+    //     map.at(bw).mglobalrvec[1] = rvec_local(1,i);
+    //     map.at(bw).mglobalrvec[2] = rvec_local(2,i);
+
+    //     // std::cout << "before tvec: " << map.at(bw).mglobaltvec[0] << "," << map.at(bw).mglobaltvec[1] << "," << map.at(bw).mglobaltvec[2] << std::endl;
+    //     // std::cout << "after tvec:      " << tvec_local(0,i) << ","<< tvec_local(1,i) << "," << tvec_local(2,i) << std::endl;
+    //     map.at(bw).mglobaltvec[0] = tvec_local(0,i);
+    //     map.at(bw).mglobaltvec[1] = tvec_local(1,i);
+    //     map.at(bw).mglobaltvec[2] = tvec_local(2,i);
+
+    //     int n = map.at(bw).mpoint3D.size();
+    //     for(int j = 0; j < n; j++)
+    //     {
+    //         std::cout << "before map: " <<  map.at(bw).mpoint3D.at(j).x << "," <<  map.at(bw).mpoint3D.at(j).y << "," <<  map.at(bw).mpoint3D.at(j).z << std::endl;
+    //         std::cout << "after map : " <<  points3d.at(i)(0,j) << "," <<  points3d.at(i)(1,j) << "," <<  points3d.at(i)(2,j) << std::endl;
+    //         map.at(bw).mpoint3D.at(j).x = points3d.at(i)(0,j);
+    //         map.at(bw).mpoint3D.at(j).y = points3d.at(i)(1,j);
+    //         map.at(bw).mpoint3D.at(j).z = points3d.at(i)(2,j);
+    //     }
+    //     std::cout << "=======================================  " << i << std::endl;
+    //     bw++;
+    // }
 
     return true;
 }
