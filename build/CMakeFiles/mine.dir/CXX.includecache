@@ -6,16 +6,6 @@
 
 #IncludeRegexTransform: 
 
-../include/BundleAdjustment.h
-opencv2/core.hpp
-../include/opencv2/core.hpp
-ceres/loss_function.h
-../include/ceres/loss_function.h
-Triangulate.h
-../include/Triangulate.h
-MapData.h
-../include/MapData.h
-
 ../include/Config.h
 opencv2/imgproc.hpp
 ../include/opencv2/imgproc.hpp
@@ -38,39 +28,11 @@ opencv2/video.hpp
 opencv2/core.hpp
 ../include/opencv2/core.hpp
 
-../include/MapData.h
-algorithm
--
-ceres/ceres.h
-../include/ceres/ceres.h
-eigen3/Eigen/Core
--
-eigen3/Eigen/Geometry
--
-eigen3/Eigen/Dense
--
-Triangulate.h
-../include/Triangulate.h
-PoseEstimation.h
-../include/PoseEstimation.h
-
 ../include/PoseEstimation.h
 Feature.h
 ../include/Feature.h
 opencv2/calib3d.hpp
 ../include/opencv2/calib3d.hpp
-
-../include/Triangulate.h
-iostream
--
-opencv2/calib3d.hpp
-../include/opencv2/calib3d.hpp
-Feature.h
-../include/Feature.h
-
-/home/phw93/Dev/MVO/src/BundleAdjustment.cpp
-BundleAdjustment.h
-/home/phw93/Dev/MVO/src/BundleAdjustment.h
 
 /home/phw93/Dev/MVO/src/PoseEstimation.cpp
 iostream

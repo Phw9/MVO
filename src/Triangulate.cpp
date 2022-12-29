@@ -220,17 +220,22 @@ bool ManageMinusZ(mvo::Triangulate& map, cv::Mat& R, std::vector<int>& id)
     id.clear();
     double tempd = 0;
     int N = map.mworldMapPointsV.size();    // N error??
+    // std::cout << "tempd: ";
     for(int i = 0; i < map.mworldMapPointsV.size(); i++)
     {
         tempd = (R.at<double>(2,0)*map.mworldMapPointsV.at(i).x) +
                 (R.at<double>(2,1)*map.mworldMapPointsV.at(i).y) +
                 (R.at<double>(2,2)*map.mworldMapPointsV.at(i).z);
+
         if(tempd < 0)
         {
             id.emplace_back(i);
             map.mworldMapPointsV.erase(map.mworldMapPointsV.begin()+i);
+            // std::cout << tempd << " ";
         }
+        // else std::cout << tempd << " ";
     }
+    // std::cout << std::endl;
 
     if(map.mworldMapPointsV.size() == 0) return false;
 

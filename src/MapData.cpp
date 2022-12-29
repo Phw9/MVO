@@ -16,6 +16,13 @@ bool mvo::MapData::GetSFMPose(const mvo::StrctureFromMotion& sfm)
     return true;
 }
 
+void mvo::GetLocalPose(std::vector<cv::Mat>& v, const cv::Mat& m)
+{
+    cv::Mat temp;
+    temp = m.clone();
+    v.push_back(m);
+}
+
 bool mvo::MapData::GetPnPPose(const mvo::PoseEstimation& pe)
 {
     mglobalRTMat = pe.mCombineRt.clone();  mglobalRMat = pe.mRotation.clone();
@@ -75,12 +82,89 @@ template <typename T> void mvo::Covisibilgraph::MakeEdgeProj(int gD, std::vector
 void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triangulate& mapPoints)
 {
     std::cout << "gD: " << gD << ", size: " << mglobalMapData.size() << std::endl;
+
     cv::BFMatcher matcher(cv::NORM_HAMMING);
     std::vector<cv::DMatch> matches;
     matches.reserve(2000);
     std::vector<std::pair<int,int>> temp;
     temp.reserve(2000);
     std::pair<int,int> idxMatch;
+    std::vector<std::vector<std::pair<int,int>>> ttemp;
+    ttemp.reserve(2000);
+
+    if(gD < 10)
+    {
+        std::cout << "a: " << gD - 1 <<
+                     " wk: " << mglobalMapData.at(gD).mpoint3D.size() << std::endl;
+        int a = gD - 1;
+        // int a = gD;
+        int wk = mglobalMapData.at(gD).mpoint3D.size();
+        for(int i = 0; i < a; i++)
+        {
+            int b = mglobalMapData.at(i).mpoint2D.size();
+            for(int j = 0; j < b; j++)
+            {
+                for(int k = 0; k < wk; k++)
+                {
+                    if(this->Projection(mglobalMapData.at(i).mglobalrvec, mglobalMapData.at(i).mglobaltvec,
+                                         mglobalMapData.at(i).mpoint2D.at(j), mglobalMapData.at(gD).mpoint3D.at(k)))
+                    {
+                        idxMatch.first = j;
+                        idxMatch.second = k;
+                        temp.emplace_back(std::move(idxMatch));
+                        break;
+                    }
+                }
+            }
+            int tmpsz = temp.size();
+            if(tmpsz == 0)
+            {
+                temp.reserve(10);
+                ttemp.emplace_back(std::move(temp));
+            }
+            else
+            {
+                ttemp.emplace_back(std::move(temp));
+            }
+        }
+    }
+    else
+    {
+        // std::cout << "else a: " << gD - 1 <<
+        //              " wk: " << mglobalMapData.at(gD).mpoint3D.size() << std::endl;
+
+        int c = gD - 10;
+        int wk = mglobalMapData.at(gD).mpoint3D.size();
+        for(int i = 0; i < 9; i++)
+        {
+            int b = mglobalMapData.at(c).mpoint2D.size();
+            for(int j = 0; j < b; j++)
+            {
+                for(int k = 0; k < wk; k++)
+                {
+                    if(this->Projection(mglobalMapData.at(c).mglobalrvec, mglobalMapData.at(c).mglobaltvec,
+                                         mglobalMapData.at(c).mpoint2D.at(j), mglobalMapData.at(gD).mpoint3D.at(k)))
+                    {
+                        idxMatch.first = j;
+                        idxMatch.second = k;
+                        temp.emplace_back(std::move(idxMatch));
+                        break;
+                    }
+                }
+            }
+            int tmpsz = temp.size();
+            if(tmpsz == 0)
+            {
+                temp.reserve(10);
+                ttemp.emplace_back(std::move(temp));
+            }
+            else
+            {
+                ttemp.emplace_back(std::move(temp));
+            }
+            c++;
+        }
+    }
 
     /*
     1. Matching 2D Points between before(query) and gD(train) 
@@ -106,6 +190,7 @@ void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triang
         {
             inlier++;
             idxMatch.first = matches.at(i).queryIdx; idxMatch.second = matches.at(i).trainIdx;
+            // std::cout << "first: " << idxMatch.first << " second: " << idxMatch.second << std::endl;
             temp.emplace_back(std::move(idxMatch));
         }
     }
@@ -114,7 +199,7 @@ void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triang
     // temp.first = (gD-1) 3dPoints idx
     int M = temp.size();
     int P = mglobalMapData.at(gD-1).mpoint3D.size();
-
+    std::cout << "temp desc: " << temp.size() << ", " << P << " > " << mapPoints.mworldMapPointsV.size() << std::endl;
     for(int i = 0; i < M; i++)
     {
         for(int j = 0; j < P; j++)
@@ -129,6 +214,7 @@ void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triang
             }
         }
     }
+    std::cout << "inlier2: " << inlier2 << std::endl;
 
     int indexCorrection = 0;
 
@@ -142,12 +228,31 @@ void mvo::Covisibilgraph::MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triang
             indexCorrection++;
         }
     }
-    mgraph.emplace_back(std::move(temp));
-    std::cout << "mgraph size: " << mgraph.at(gD-1).size() << std::endl;;
-    std::cout << "before size: " << before.mfeatures.size() << ", gD data size: " << mglobalMapData.at(gD).mpoint2D.size() << std::endl;
+    ttemp.emplace_back(std::move(temp));
+    mglobalgraph.emplace_back(std::move(ttemp));
+    
+    // std::cout << "mglobalgraph size : " << mglobalgraph.size() << std::endl;
+    int mgge = mglobalgraph.size();
+    int mgges = mglobalgraph.size();
+    if(mgge > 10) mgge = 10;
+    int mggs = gD - mgge;
+    // std::cout << "mggs : " << mggs << " mgge : " << mgge << std::endl;
+    for(int i = mggs; i < mgges; i++)
+    {
+        std::cout << "inlier " << i << ", num of local matching(" << mglobalgraph.at(i).size() << ") : ";
+        int mggis = mglobalgraph.at(i).size();
+        for(int j = 0; j < mggis; j++)
+        {
+            std::cout << mglobalgraph.at(i).at(j).size() << " ";
+        }
+        std::cout << std::endl;
+    }
+    // std::cout << "mgraph size: " << mgraph.at(gD-1).size() << std::endl;
+    std::cout << "before size: " << before.mfeatures.size() << ", gD data size: " << mglobalMapData.at(gD).mpoint3D.size() << std::endl;
     std::cout << "Query: " << maxq << ", Train: " << maxt << " Avg Distance: " << (float)sum/N << std::endl;
     std::cout << "inlier: " << inlier << ", inlier2: " << inlier2 <<std::endl;
 }
+
 
 bool mvo::Covisibilgraph::Projection(const cv::Vec3d& rvec, const cv::Vec3d& tvec, const cv::Point2f& pts, const cv::Point3f& world)
 {

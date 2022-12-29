@@ -48,12 +48,12 @@ namespace mvo
         void MakeEdgeDesc(int gD, mvo::Feature& before, mvo::Triangulate& mapPoints);
         void CullingNode(int gD);
         bool Projection(const cv::Vec3d& rvec, const cv::Vec3d& tvec,
-                                              const cv::Point2f& pts, const cv::Point3f& world);
-
+                        const cv::Point2f& pts, const cv::Point3f& world);
 
         const std::vector<mvo::MapData>& mglobalMapData;
         // vector < pair <(gD-1)index,(gD)index>
         std::vector<std::vector<std::pair<int, int>>> mgraphreproj;
+        std::vector<std::vector<std::vector<std::pair<int, int>>>> mglobalgraph;
         std::vector<std::vector<std::pair<int, int>>> mgraph;
         const double& mfocal;
         const double& mppx;
@@ -61,6 +61,7 @@ namespace mvo
     };
 
     void PushData(std::vector<mvo::MapData>& v, const mvo::MapData& md);
+    void GetLocalPose(std::vector<cv::Mat>& v, const cv::Mat& m);
 
 }
 

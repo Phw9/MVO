@@ -41,6 +41,7 @@ int main(int argc, char** argv)
 	mvo::StrctureFromMotion getInitialize;
 	mvo::PoseEstimation getPose;
 	mvo::Initializer checkScore;
+	std::vector<cv::Mat> localPose;
 
 	std::vector<int> mapStats;
 	mvo::Triangulate mapPointsA, mapPointsB;
@@ -116,12 +117,12 @@ int main(int argc, char** argv)
 				std::cout << "score: " << RH << std::endl;
 				// RH>0.45
 				// SH>1800 && isnan(SF) == true
-				if(lTPA == 1)	// 1, 3
+				if(lTPA == 3)	// 1, 3
 				{
 					std::cout << "RH>0.45" << std::endl;
 
 					getInitialize.CreateEssentialMatrix(localTrackPointsA.at(0).mfeatures, localTrackPointsA[lTPA].mfeatures, intrinsicKf);
-					
+					mvo::GetLocalPose(localPose, getInitialize.mCombineRt);
 					setMapData.GetSFMPose(getInitialize);
 
 					if(!mapPointsA.CalcWorldPoints(m1, setMapData.mglobalRTMat,
@@ -194,14 +195,15 @@ int main(int argc, char** argv)
 			img = cv::imread(readImageName.at(imageCurNum), 
 						cv::ImreadModes::IMREAD_UNCHANGED);
 
-			if(localTrackPointsA[lTPA].mfeatures.size() < NUMOFPOINTS || mapPointsA.mworldMapPointsV.size() == localTrackPointsA.at(lTPA).mfeatures.size())
+			if(mapPointsA.mworldMapPointsV.size() == localTrackPointsA.at(lTPA).mfeatures.size())
 			{
 				// triangulate
 				std::cout << "ㅇㅇㅇNewTrack Aㅇㅇㅇ" << std::endl;
 				
-				if(BUNDLE==1)
+				if(BUNDLE == 1)
 				{
-					if(((gD % LOCAL) == 0) && (gD >= LOCAL))
+					if(((gD % (LOCAL)) == 0) && (gD >= (LOCAL - 1)) ||
+						angularVelocity > ANGULARVELOCITY)
 					{
 						std::cout << "localBA start" << std::endl;
 						
@@ -209,12 +211,12 @@ int main(int argc, char** argv)
 						if(!localBA->LocalBA(gD, globalMapData, covGraph))
 							std::cerr << "local error" << std::endl;
 						else delete localBA;
-					}	
+					}
 				}
 				// descriptor of mapPointsA & mapPointsB matcher
 				mapPointsB.CalcWorldPoints(globalMapData.at(gD).mglobalRTMat, getPose.mCombineRt, 
 										localTrackPointsB.at(0), localTrackPointsB.at(lTPB));
-				if(!ManageMinusZ(mapPointsB, getPose.mCombineRt, mapStats))
+				if(!ManageMinusZ(mapPointsB, localPose.at(lTPB/2), mapStats))
 				{
 					std::cerr << "failed ManageMinusZ B" << std::endl;
 				}
@@ -222,6 +224,8 @@ int main(int argc, char** argv)
 				{
 					std::cerr << "failed Minus local B" << std::endl;
 				}
+
+				localPose.clear();
 				setMapData.GetPnPPose(getPose);
 				setMapData.Get2DPoints(localTrackPointsB.at(lTPB));
 				setMapData.Get3DPoints(mapPointsB);
@@ -229,7 +233,6 @@ int main(int argc, char** argv)
 				gD++; gIdx++;
 
 				covGraph.MakeEdgeDesc(gD, localTrackPointsA.at(lTPA), mapPointsA);
-
 
 				localTrackPointsA.clear();
 				if(!trackerA.GoodFeaturesToTrack(img))
@@ -246,26 +249,27 @@ int main(int argc, char** argv)
 				break;
 			}
 
-			if(localTrackPointsB[lTPB].mfeatures.size() < NUMOFPOINTS || mapPointsB.mworldMapPointsV.size() == localTrackPointsB.at(lTPB).mfeatures.size())
+			if(mapPointsB.mworldMapPointsV.size() == localTrackPointsB.at(lTPB).mfeatures.size())
 			{
 				// triangulate
 				std::cout << "ㅇㅇㅇNewTrack Bㅇㅇㅇ" << std::endl;
-				if(BUNDLE==1)
+				if(BUNDLE == 1)
 				{
-					if(((gD % LOCAL) == 0) && (gD >= LOCAL))
+					if(((gD % (LOCAL)) == 0) && (gD >= (LOCAL - 1)) ||
+						angularVelocity > ANGULARVELOCITY)
 					{
 						std::cout << "localBA start" << std::endl;
 						mvo::BundleAdjustment* localBA = new mvo::BundleAdjustment();
 						if(!localBA->LocalBA(gD, globalMapData, covGraph)) 
 							std::cerr << "local error" << std::endl;
 						else delete localBA;
-					}	
+					}
 				}
 
 				mapPointsA.CalcWorldPoints(globalMapData.at(gD).mglobalRTMat, getPose.mCombineRt, 
 										localTrackPointsA.at(0), localTrackPointsA.at(lTPA));
 
-				if(!ManageMinusZ(mapPointsA, getPose.mCombineRt, mapStats))
+				if(!ManageMinusZ(mapPointsA, localPose.at(lTPA/2), mapStats))
 				{
 					std::cerr << "failed ManageMinusZ A" << std::endl;
 				}
@@ -274,6 +278,7 @@ int main(int argc, char** argv)
 					std::cerr << "failed Minus local A" << std::endl;
 				}
 
+				localPose.clear();
 				setMapData.GetPnPPose(getPose);
 				setMapData.Get2DPoints(localTrackPointsA.at(lTPA));
 				setMapData.Get3DPoints(mapPointsA);
@@ -281,7 +286,6 @@ int main(int argc, char** argv)
 				gD++; gIdx++;
 				
 				covGraph.MakeEdgeDesc(gD, localTrackPointsB.at(lTPB), mapPointsB);
-
 
 				localTrackPointsB.clear();
 				if(!trackerB.GoodFeaturesToTrack(img))
@@ -330,6 +334,7 @@ int main(int argc, char** argv)
 			std::cout << "ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁTrackA SolvePnPㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ" << std::endl;
 
 			getPose.solvePnP(mapPointsA.mworldMapPointsV, localTrackPointsA.at(lTPA).mfeatures, intrinsicKd);
+			mvo::GetLocalPose(localPose, getPose.mCombineRt);
 			inlierRatio = (float)getPose.minlier.rows/(float)localTrackPointsA.at(lTPA).mfeatures.size();
 			std::cout << "inlierRatio: " << inlierRatio << std::endl;
 			
@@ -378,6 +383,7 @@ int main(int argc, char** argv)
 		{
 			std::cout << "ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁTrackB SolvePnPㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ" << std::endl;
 			getPose.solvePnP(mapPointsB.mworldMapPointsV, localTrackPointsB.at(lTPB).mfeatures, intrinsicKf);
+			mvo::GetLocalPose(localPose, getPose.mCombineRt);
 			inlierRatio = (float)getPose.minlier.rows/(float)localTrackPointsB.at(lTPB).mfeatures.size();
 			std::cout << "inlierRatio: " << inlierRatio << std::endl;
 
@@ -422,16 +428,18 @@ int main(int argc, char** argv)
 		std::vector<cv::Point2f> bbb;
 		aaa.clear(); aaa.reserve(1000);
 		bbb.clear(); bbb.reserve(1000);
-		if(gD>1)
+		if(gD>=1)
 		{
 
-			int abab = covGraph.mgraph.at(gD-1).size();
-			for(int i = 0; i < abab; i++)
+			int mgidx = covGraph.mglobalgraph.at(gD-1).size() - 1;
+			int baba = covGraph.mglobalgraph.at(gD-1).at(mgidx).size();
+			std::cout << "mgidx: " << mgidx << ", baba: " << baba << std::endl;
+			for(int i = 0; i < baba; i++)
 			{
 				cv::Point2f pr;
 				cv::Point2f ne;
-				int prev = covGraph.mgraph.at(gD-1).at(i).first;
-				int next = covGraph.mgraph.at(gD-1).at(i).second;
+				int prev = covGraph.mglobalgraph.at(gD-1).at(mgidx).at(i).first;
+				int next = covGraph.mglobalgraph.at(gD-1).at(mgidx).at(i).second;
 				pr = globalMapData.at(gD-1).mpoint2D.at(prev);
 				ne = globalMapData.at(gD).mpoint2D.at(next);
 				aaa.push_back(pr);
@@ -449,8 +457,8 @@ int main(int argc, char** argv)
 		<< ", mvdesc size: " << globalMapData.at(gD).mvdesc.size() << std::endl;
 		
 		std::cout << "mrvec: " << globalMapData.at(gD).mglobalrvec<< "  angularV: " << angularVelocity << std::endl;
-		std::cout << "mTranslation: " << globalMapData.at(gD).mglobalTranslation << std::endl;
-		std::cout << "tvecOfGT: " << tvecOfGT.at(imageCurNum) << "  KeyFrame: " << globalMapData.size() << " gIdx: " << covGraph.mgraph.size() << " Img/KF: " << imageCurNum/(gD+1) << std::endl; 
+		std::cout << "mTranslation: " << globalMapData.at(gD).mglobalTranslation << " gD: " << gD << std::endl;
+		std::cout << "tvecOfGT: " << tvecOfGT.at(imageCurNum) << "  KeyFrame: " << globalMapData.size() << " gIdx: " << covGraph.mglobalgraph.size() << " Img/KF: " << imageCurNum/(gD+1) << std::endl; 
 		std::cout << "=============================================================================" << std::endl;
 		imageCurNum++;
 		realFrame++;
@@ -460,7 +468,7 @@ int main(int argc, char** argv)
     	pangolin::FinishFrame();
 		cv::imshow("img", img);
 		cv::imshow("descriptor", img2);
-		char ch = cv::waitKey(0);
+		char ch = cv::waitKey(20);
 		if(ch == 27) break; // ESC key
 		if(ch == 32) if(cv::waitKey(0) == 27) break;; // Spacebar key
 	}	

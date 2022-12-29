@@ -250,7 +250,7 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
         int fixed = 5;
         for(int i = 0; i < fixed; i++)
         {
-            std::cout << "lw: " << lw << "  , w: " << w <<std::endl;
+            // std::cout << "lw: " << lw << ", w: " << w <<std::endl;
             rvec_local(0,i) = map.at(w).mglobalrvec[0];
             rvec_local(1,i) = map.at(w).mglobalrvec[1];
             rvec_local(2,i) = map.at(w).mglobalrvec[2];
@@ -301,26 +301,33 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
                     new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocalPoseFixed, 2, 3>
                     (new mvo::SnavelyReprojectionErrorLocalPoseFixed(points2d_eig(0,j), points2d_eig(1,j), focald, camX, camY,
                                                                      rvec, tvec));
-                ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                ceres::LossFunction* loss = new ceres::TrivialLoss();
+                // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
                 problem.AddResidualBlock(cost_function, loss, points3d.at(i).col(j).data());
             }
 
+            // 3d point fixed, 2d point 0 ~ present
             if(i > 0)
             {
-                int M = cov.mgraph.at(w-1).size();
-                for(int j = 0; j < M; j++)
-                {
-                    int prev = cov.mgraph.at(w-1).at(j).first;  //i-1 idx
-                    int next = cov.mgraph.at(w-1).at(j).second; // i idx
-                    // std::cout << "j: " << j << ", prev: " << prev << ", next: " << next << std::endl;
-                    // std::cout << "points3d.at(i).cols(): " << points3d.at(i).cols() << std::endl;
-                    ceres::CostFunction* cost_function1=
-                    new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocalPoseFixed, 2, 3>
-                    (new mvo::SnavelyReprojectionErrorLocalPoseFixed(points2d.at(i-1)(0, prev), points2d.at(i-1)(1, prev),
-                                                                     focald, camX, camY, rvec, tvec));
-                    ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-                    problem.AddResidualBlock(cost_function1, loss, points3d.at(i).col(next).data());
-                }
+                int cmk = cov.mglobalgraph.at(i-1).size(); // local matching size
+                    for(int j = 0; j < cmk; j++)
+                    {
+                        int cml = cov.mglobalgraph.at(i-1).at(j).size(); // local idx size
+                        for(int k = 0; k < cml; k++)
+                        {
+                            int prev = cov.mglobalgraph.at(i-1).at(j).at(k).first;
+                            int next = cov.mglobalgraph.at(i-1).at(j).at(k).second;
+                            // std::cout << "j: " << j << ", prev: " << prev << ", next: " << next << std::endl;
+                            // std::cout << "points3d.at(i).cols(): " << points3d.at(i).cols() << std::endl;
+                            ceres::CostFunction* cost_function1=
+                            new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocalPoseFixed, 2, 3>
+                            (new mvo::SnavelyReprojectionErrorLocalPoseFixed(points2d.at(j)(0, prev), points2d.at(j)(1, prev),
+                                                                            focald, camX, camY, rvec, tvec));
+                            ceres::LossFunction* loss = new ceres::TrivialLoss();                
+                            // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                            problem.AddResidualBlock(cost_function1, loss, points3d.at(i).col(next).data());
+                        }
+                    }
             }
             w++;
         }// pose fixed end
@@ -365,24 +372,34 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
                 ceres::CostFunction* cost_function=
                     new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocal, 2, 3, 3, 3>
                     (new mvo::SnavelyReprojectionErrorLocal(points2d_eig(0,j), points2d_eig(1,j), focald, camX, camY));
-                ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                ceres::LossFunction* loss = new ceres::TrivialLoss();
+                // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
                 problem.AddResidualBlock(cost_function, loss, rvec_local.col(i).data(), tvec_local.col(i).data(), points3d.at(i).col(j).data());
             }
 
             if(i > 0)
             {
-                int M = cov.mgraph.at(w-1).size();
-                for(int j = 0; j < M; j++)
+                // std::cout << "szszsz" << std::endl;
+                int cmk = cov.mglobalgraph.at(i-1).size(); // local matching size
+                // std::cout << "szszszszszsz" << std::endl;
+                for(int j = 0; j < cmk; j++)
                 {
-                    int prev = cov.mgraph.at(w-1).at(j).first;  //i-1 idx
-                    int next = cov.mgraph.at(w-1).at(j).second; // i idx
-                    // std::cout << "j: " << j << ", prev: " << prev << ", next: " << next << std::endl;
-                    // std::cout << "points3d.at(i).cols(): " << points3d.at(i).cols() << std::endl;
-                    ceres::CostFunction* cost_function1=
-                    new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocal, 2, 3, 3, 3>
-                    (new mvo::SnavelyReprojectionErrorLocal(points2d.at(i-1)(0, prev), points2d.at(i-1)(1, prev), focald, camX, camY));
-                    ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-                    problem.AddResidualBlock(cost_function1, loss, rvec_local.col(i-1).data(), tvec_local.col(i-1).data(), points3d.at(i).col(next).data());
+                    // std::cout << "j: " << j << std::endl;
+                    int cml = cov.mglobalgraph.at(i-1).at(j).size(); // local idx size
+                    for(int k = 0; k < cml; k++)
+                    {
+                        // std::cout << "k: " << k << std::endl;
+                        int prev = cov.mglobalgraph.at(i-1).at(j).at(k).first;
+                        int next = cov.mglobalgraph.at(i-1).at(j).at(k).second;
+                        // std::cout << "j: " << j << ", prev: " << prev << ", next: " << next << std::endl;
+                        // std::cout << "points3d.at(i).cols(): " << points3d.at(i).cols() << std::endl;
+                        ceres::CostFunction* cost_function1=
+                        new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocal, 2, 3, 3, 3>
+                        (new mvo::SnavelyReprojectionErrorLocal(points2d.at(j)(0, prev), points2d.at(j)(1, prev), focald, camX, camY));
+                        ceres::LossFunction* loss = new ceres::TrivialLoss();
+                        // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                        problem.AddResidualBlock(cost_function1, loss, rvec_local.col(j).data(), tvec_local.col(j).data(), points3d.at(i).col(next).data());
+                    }
                 }
             }
             w++;
@@ -437,7 +454,7 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
         int fixed = 5;
         for(int i = 0; i < fixed; i++)
         {
-            std::cout << "lw: " << lw << "  , w: " << w <<std::endl;
+            // std::cout << "lw: " << lw << ", w: " << w <<std::endl;
             rvec_local(0,i) = map.at(lw).mglobalrvec[0];
             rvec_local(1,i) = map.at(lw).mglobalrvec[1];
             rvec_local(2,i) = map.at(lw).mglobalrvec[2];
@@ -487,25 +504,43 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
                     new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocalPoseFixed, 2, 3>
                     (new mvo::SnavelyReprojectionErrorLocalPoseFixed(points2d_eig(0,j), points2d_eig(1,j), focald, camX, camY,
                                                                      rvec, tvec));
-                ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                ceres::LossFunction* loss = new ceres::TrivialLoss();                
+                // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
                 problem.AddResidualBlock(cost_function, loss, points3d.at(i).col(j).data());
             }
+            
+            
+            int pts2d = points2d.size()-1;
+            if(pts2d > 10)
+            {
+                pts2d = 10;
+            }
+            // std::cout << "points2d size: " << pts2d << std::endl;
 
             if(i > 0)
             {
-                int M = cov.mgraph.at(lw-1).size();
-                for(int j = 0; j < M; j++)
+                int cmk = cov.mglobalgraph.at(lw-1).size(); // local matching size
+                int cmks = cmk - pts2d;
+                for(int j = 0; j < pts2d; j++)
                 {
-                    int prev = cov.mgraph.at(lw-1).at(j).first;  //i-1 idx
-                    int next = cov.mgraph.at(lw-1).at(j).second; // i idx
-                    // std::cout << "j: " << j << ", prev: " << prev << ", next: " << next << std::endl;
-                    // std::cout << "points3d.at(i).cols(): " << points3d.at(i).cols() << std::endl;
-                    ceres::CostFunction* cost_function1=
-                    new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocalPoseFixed, 2, 3>
-                    (new mvo::SnavelyReprojectionErrorLocalPoseFixed(points2d.at(i-1)(0, prev), points2d.at(i-1)(1, prev),
+                    int cml = cov.mglobalgraph.at(lw-1).at(cmks).size(); // local idx size
+                    // std::cout << "j: " << j << ", cmk: " << cmk << ", cmks: " << cmks <<", cml: " << cml << std::endl;
+                    for(int k = 0; k < cml; k++)
+                    {
+                        int prev = cov.mglobalgraph.at(lw-1).at(cmks).at(k).first;
+                        int next = cov.mglobalgraph.at(lw-1).at(cmks).at(k).second;
+                        // std::cout << "points3d.at(i).cols(): " << points3d.at(i).cols() << std::endl;
+                        // std::cout << "j: " << j << ", cmk: " << cmk << ", cmks: " << cmks <<", cml: " << cml << ", prev: " << prev << ", next: " << next << std::endl;
+                        
+                        ceres::CostFunction* cost_function1=
+                        new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocalPoseFixed, 2, 3>
+                        (new mvo::SnavelyReprojectionErrorLocalPoseFixed(points2d.at(j)(0, prev), points2d.at(j)(1, prev),
                                                                      focald, camX, camY, rvec, tvec));
-                    ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-                    problem.AddResidualBlock(cost_function1, loss, points3d.at(i).col(next).data());
+                        ceres::LossFunction* loss = new ceres::TrivialLoss();
+                        // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                        problem.AddResidualBlock(cost_function1, loss, points3d.at(i).col(next).data());
+                    }
+                    cmks++;
                 }
             }
             lw++;
@@ -552,24 +587,42 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
                 ceres::CostFunction* cost_function=
                     new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocal, 2, 3, 3, 3>
                     (new mvo::SnavelyReprojectionErrorLocal(points2d_eig(0,j), points2d_eig(1,j), focald, camX, camY));
-                ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                ceres::LossFunction* loss = new ceres::TrivialLoss();
+                // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
                 problem.AddResidualBlock(cost_function, loss, rvec_local.col(i).data(), tvec_local.col(i).data(), points3d.at(i).col(j).data());
             }
-
-            if(i > 0)
+            
+            
+            int pts2d = points2d.size()-1;
+            if(pts2d > 10)
             {
-                int M = cov.mgraph.at(lw-1).size();
-                for(int j = 0; j < M; j++)
+                pts2d = 10;
+            }
+            // std::cout << "points2d size: " << pts2d << std::endl;
+
+            if(i >= 0)
+            {
+                int cmk = cov.mglobalgraph.at(lw-1).size(); // local matching size
+                int cmks = cmk - pts2d;
+                for(int j = 0; j < pts2d; j++)
                 {
-                    int prev = cov.mgraph.at(lw-1).at(j).first;  //i-1 idx
-                    int next = cov.mgraph.at(lw-1).at(j).second; // i idx
-                    // std::cout << "j: " << j << ", prev: " << prev << ", next: " << next << std::endl;
-                    // std::cout << "points3d.at(i).cols(): " << points3d.at(i).cols() << std::endl;
-                    ceres::CostFunction* cost_function1=
-                    new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocal, 2, 3, 3, 3>
-                    (new mvo::SnavelyReprojectionErrorLocal(points2d.at(i-1)(0, prev), points2d.at(i-1)(1, prev), focald, camX, camY));
-                    ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-                    problem.AddResidualBlock(cost_function1, loss, rvec_local.col(i-1).data(), tvec_local.col(i-1).data(), points3d.at(i).col(next).data());
+                    int cml = cov.mglobalgraph.at(lw-1).at(cmks).size(); // local idx size
+                    // std::cout << "j: " << j << ", cmk: " << cmk << ", cmks: " << cmks <<", cml: " << cml << std::endl;
+                    for(int k = 0; k < cml; k++)
+                    {
+                        int prev = cov.mglobalgraph.at(lw-1).at(cmks).at(k).first;
+                        int next = cov.mglobalgraph.at(lw-1).at(cmks).at(k).second;
+                        // std::cout << "j: " << j << ", cmk: " << cmk << ", cmks: " << cmks <<", cml: " << cml << ", prev: " << prev << ", next: " << next << std::endl;
+                        // std::cout << "points3d.at(i).cols(): " << points3d.at(i).cols() << std::endl;
+                        ceres::CostFunction* cost_function1=
+                        new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocal, 2, 3, 3, 3>
+                        (new mvo::SnavelyReprojectionErrorLocal(points2d.at(j)(0, prev), points2d.at(j)(1, prev),
+                                                                focald, camX, camY));
+                        ceres::LossFunction* loss = new ceres::TrivialLoss();
+                        // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                        problem.AddResidualBlock(cost_function1, loss, rvec_local.col(j).data(), tvec_local.col(j).data(), points3d.at(i).col(next).data());
+                    }
+                    cmks++;
                 }
             }
             lw++;
@@ -619,51 +672,5 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
             blw++;
         }
     }
-
-    // ceres::Solver::Options options;
-
-    // options.linear_solver_type = ceres::LinearSolverType::ITERATIVE_SCHUR;
-    // options.minimizer_progress_to_stdout = false;
-    // options.num_threads = 4;
-    // options.max_num_iterations=100;
-    // ceres::Solver::Summary summary;
-    // ceres::Solve(options, &problem, &summary);
-    
-    // // for(int i = 0; i<gD; i++)
-    // // {
-    // //     int L = map.at(i).mpoint3D.size();
-    // //     for(int j = 0; j < L; j++)
-    // //     {
-    // //         std::cout << "before(" << i << "," << j << "): " << map.at(i).mpoint3D.at(j).x << ", " << map.at(i).mpoint3D.at(j).y << ", " << map.at(i).mpoint3D.at(j).z << std::endl;
-    // //         std::cout << "after (" << i << "," << j << "): " << points3d.at(i)(0,j) << ", " << points3d.at(i)(1,j) << ", " << points3d.at(i)(2,j) << std::endl;
-    // //     }
-    // // }
-    // for(int i = 0; i < LOCAL; i++)
-    // {
-    //     // std::cout << "before rvec: " << map.at(bw).mglobalrvec[0] << "," << map.at(bw).mglobalrvec[1] << "," << map.at(bw).mglobalrvec[2] << std::endl;
-    //     // std::cout << "after rvec:      " << rvec_local(0,i) << "," << rvec_local(1,i) << "," << rvec_local(2,i) << std::endl;
-    //     map.at(bw).mglobalrvec[0] = rvec_local(0,i);
-    //     map.at(bw).mglobalrvec[1] = rvec_local(1,i);
-    //     map.at(bw).mglobalrvec[2] = rvec_local(2,i);
-
-    //     // std::cout << "before tvec: " << map.at(bw).mglobaltvec[0] << "," << map.at(bw).mglobaltvec[1] << "," << map.at(bw).mglobaltvec[2] << std::endl;
-    //     // std::cout << "after tvec:      " << tvec_local(0,i) << ","<< tvec_local(1,i) << "," << tvec_local(2,i) << std::endl;
-    //     map.at(bw).mglobaltvec[0] = tvec_local(0,i);
-    //     map.at(bw).mglobaltvec[1] = tvec_local(1,i);
-    //     map.at(bw).mglobaltvec[2] = tvec_local(2,i);
-
-    //     int n = map.at(bw).mpoint3D.size();
-    //     for(int j = 0; j < n; j++)
-    //     {
-    //         std::cout << "before map: " <<  map.at(bw).mpoint3D.at(j).x << "," <<  map.at(bw).mpoint3D.at(j).y << "," <<  map.at(bw).mpoint3D.at(j).z << std::endl;
-    //         std::cout << "after map : " <<  points3d.at(i)(0,j) << "," <<  points3d.at(i)(1,j) << "," <<  points3d.at(i)(2,j) << std::endl;
-    //         map.at(bw).mpoint3D.at(j).x = points3d.at(i)(0,j);
-    //         map.at(bw).mpoint3D.at(j).y = points3d.at(i)(1,j);
-    //         map.at(bw).mpoint3D.at(j).z = points3d.at(i)(2,j);
-    //     }
-    //     std::cout << "=======================================  " << i << std::endl;
-    //     bw++;
-    // }
-
     return true;
 }
