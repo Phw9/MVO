@@ -301,6 +301,6 @@ bool mvo::Covisibilgraph::Projection(const cv::Vec3d& rvec, const cv::Vec3d& tve
 
         // std::cout << abs(residuals[0]) << ", " << abs(residuals[1]) << std::endl;
 
-        if(abs(residuals[0]) < 2 && abs(residuals[1]) <2) return true;
+        if(abs(residuals[0]) < REPROJECTERROR && abs(residuals[1]) < REPROJECTERROR) return true;
         else    return false;
 }

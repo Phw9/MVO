@@ -60,9 +60,9 @@ bool mvo::Feature::OpticalFlowPyrLK(const cv::Mat& src1, const cv::Mat& src2, mv
 {
     next.mfeatures.clear(); next.mstatus.clear(); next.merr.clear(); next.mvdesc.clear();
     cv::Size winSize = cv::Size(21,21);
-    cv::TermCriteria termcrit = cv::TermCriteria(cv::TermCriteria::COUNT+cv::TermCriteria::EPS, 30, 0.11);
+    cv::TermCriteria termcrit = cv::TermCriteria(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 40, 0.01);
     cv::calcOpticalFlowPyrLK(src1, src2, mfeatures, next.mfeatures, next.mstatus, next.merr,
-                             winSize, 3, termcrit, 0, 0.0001);
+                             winSize, 3, termcrit, 0, 0.001);
 
 
 

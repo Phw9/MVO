@@ -92,7 +92,7 @@ template <typename T> bool mvo::SnavelyReprojectionErrorLocal::operator()(const 
 
     residuals[0] = predicted_x - T(observed_x);
     residuals[1] = predicted_y - T(observed_y);
-    // std::cout << residuals[0] << std::endl << residuals[1] << std::endl;
+    // std::cout << residuals[0] <<", " << residuals[1] <<"| ";
     // if(residuals[0] < reprojerr && residuals[1] < reprojerr)
     // {
     //     return true;
@@ -206,11 +206,22 @@ bool mvo::BundleAdjustment::MotionOnlyBA()
     ceres::Solve(options, &problem, &summary);
     // std::cout << summary.BriefReport() << std::endl;
 
-    for(int i=0; i<3; i++)
+    for(int i = 0; i < 3; i++)
     {
         rt.mrvec = double(rvec_eig[i]);
         rt.mtvec.at<double>(i) = double(tvec_eig[i]);
     }
+    cv::Rodrigues(rt.mrvec, rt.mRotation);
+    cv::Mat temp = -rt.mRotation.inv();
+    temp = temp * rt.mtvec;
+
+    for (int j = 0; j < rt.mtvec.rows; j++)
+    {
+		for (int i = 0; i < rt.mtvec.cols; i++)
+        {
+			rt.mtranslation[j] = temp.at<double>(j, i);
+		}
+	}
     return true;
 }
 
@@ -226,15 +237,15 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
     if(gD>10)
     {
         w = gD - LOCAL;
-        lw = gD - LOCAL -5;
+        lw = gD - LOCAL;
         bw = w;
         blw = lw;      // 0, 3, 13 ....
     }
-    else
-    {
-        w = 0;
-        bw = 0;
-    }
+    // else
+    // {
+    //     w = 0;
+    //     bw = 0;
+    // }
     //  gD-q < x < gD == w < x < gD
 
     Eigen::MatrixXd rvec_local(3, LOCAL);
@@ -250,7 +261,6 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
         int fixed = 5;
         for(int i = 0; i < fixed; i++)
         {
-            // std::cout << "lw: " << lw << ", w: " << w <<std::endl;
             rvec_local(0,i) = map.at(w).mglobalrvec[0];
             rvec_local(1,i) = map.at(w).mglobalrvec[1];
             rvec_local(2,i) = map.at(w).mglobalrvec[2];
@@ -294,6 +304,7 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
             tvec[0] = tvec_local(0,i);
             tvec[1] = tvec_local(1,i);
             tvec[2] = tvec_local(2,i);
+            std::cout << "======== " << w << " ==========" << std::endl;
 
             for(int j = 0; j < N; j++)
             {
@@ -309,14 +320,14 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
             // 3d point fixed, 2d point 0 ~ present
             if(i > 0)
             {
-                int cmk = cov.mglobalgraph.at(i-1).size(); // local matching size
+                int cmk = cov.mglobalgraph.at(w-1).size(); // local matching size
                     for(int j = 0; j < cmk; j++)
                     {
-                        int cml = cov.mglobalgraph.at(i-1).at(j).size(); // local idx size
+                        int cml = cov.mglobalgraph.at(w-1).at(j).size(); // local idx size
                         for(int k = 0; k < cml; k++)
                         {
-                            int prev = cov.mglobalgraph.at(i-1).at(j).at(k).first;
-                            int next = cov.mglobalgraph.at(i-1).at(j).at(k).second;
+                            int prev = cov.mglobalgraph.at(w-1).at(j).at(k).first;
+                            int next = cov.mglobalgraph.at(w-1).at(j).at(k).second;
                             // std::cout << "j: " << j << ", prev: " << prev << ", next: " << next << std::endl;
                             // std::cout << "points3d.at(i).cols(): " << points3d.at(i).cols() << std::endl;
                             ceres::CostFunction* cost_function1=
@@ -436,6 +447,20 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
             map.at(bw).mglobaltvec[0] = tvec_local(0,i);
             map.at(bw).mglobaltvec[1] = tvec_local(1,i);
             map.at(bw).mglobaltvec[2] = tvec_local(2,i);
+            
+            cv::Rodrigues(map.at(bw).mglobalrvec, map.at(bw).mglobalRMat);
+            cv::Mat temp = -map.at(bw).mglobalRMat.inv();
+            
+            std::cout << bw << std::endl;
+            std::cout << temp << std::endl;
+            std::cout << map.at(bw).mglobaltvec << std::endl;
+            temp = temp * map.at(bw).mglobaltvec;
+
+            for (int j = 0; j < 3; j++)
+            {
+                map.at(bw).mglobalTranslation[j] = temp.at<double>(j, 0);
+            }
+            std::cout << map.at(bw).mglobalTranslation << std::endl;
 
             int n = map.at(bw).mpoint3D.size();
             for(int j = 0; j < n; j++)
@@ -498,6 +523,8 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
             tvec[0] = tvec_local(0,i);
             tvec[1] = tvec_local(1,i);
             tvec[2] = tvec_local(2,i);
+            std::cout << "======== " << lw << " ==========" << std::endl;
+
             for(int j = 0; j < N; j++)
             {
                 ceres::CostFunction* cost_function=
@@ -547,7 +574,7 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
         }// before local addresidual
 
 
-        for(int i = 0; i < LOCAL; i++)
+        for(int i = fixed; i < LOCAL; i++)
         {
             rvec_local(0,i) = map.at(lw).mglobalrvec[0];
             rvec_local(1,i) = map.at(lw).mglobalrvec[1];
@@ -581,6 +608,7 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
             }
             points2d.push_back(points2d_eig);
             points3d.emplace_back(std::move(points3d_eig));
+            std::cout << "======== " << lw << " ==========" << std::endl;
 
             for(int j = 0; j < N; j++)
             {
@@ -646,7 +674,7 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
         //         std::cout << "after (" << i << "," << j << "): " << points3d.at(i)(0,j) << ", " << points3d.at(i)(1,j) << ", " << points3d.at(i)(2,j) << std::endl;
         //     }
         // }
-        for(int i = 0; i < fixed + LOCAL; i++)
+        for(int i = 0; i < LOCAL; i++)
         {
             // std::cout << "before rvec: " << map.at(bw).mglobalrvec[0] << "," << map.at(bw).mglobalrvec[1] << "," << map.at(bw).mglobalrvec[2] << std::endl;
             // std::cout << "after rvec:      " << rvec_local(0,i) << "," << rvec_local(1,i) << "," << rvec_local(2,i) << std::endl;
@@ -659,6 +687,20 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
             map.at(blw).mglobaltvec[0] = tvec_local(0,i);
             map.at(blw).mglobaltvec[1] = tvec_local(1,i);
             map.at(blw).mglobaltvec[2] = tvec_local(2,i);
+
+            cv::Rodrigues(map.at(blw).mglobalrvec, map.at(blw).mglobalRMat);
+            std::cout << blw << std::endl;
+            
+            cv::Mat temp = -map.at(blw).mglobalRMat.inv();
+            std::cout << temp << std::endl;
+            std::cout << map.at(blw).mglobaltvec << std::endl;
+            temp = temp * map.at(blw).mglobaltvec;
+
+            for (int j = 0; j < 3; j++)
+            {
+                map.at(blw).mglobalTranslation[j] = temp.at<double>(j, 0);
+            }
+            std::cout << map.at(blw).mglobalTranslation << std::endl;
 
             int n = map.at(blw).mpoint3D.size();
             for(int j = 0; j < n; j++)

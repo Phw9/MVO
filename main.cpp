@@ -117,7 +117,7 @@ int main(int argc, char** argv)
 				std::cout << "score: " << RH << std::endl;
 				// RH>0.45
 				// SH>1800 && isnan(SF) == true
-				if(lTPA == 3)	// 1, 3
+				if(lTPA == 1)	// 1, 3
 				{
 					std::cout << "RH>0.45" << std::endl;
 
@@ -184,12 +184,14 @@ int main(int argc, char** argv)
 						cv::ImreadModes::IMREAD_UNCHANGED);
 		img2 = cv::imread(readImageName.at(imageCurNum), 
 						cv::ImreadModes::IMREAD_UNCHANGED);						
-		
-		while(localTrackPointsA[lTPA].mfeatures.size() < NUMOFPOINTS || 
-			localTrackPointsB[lTPB].mfeatures.size() < NUMOFPOINTS || 
-			angularVelocity > ANGULARVELOCITY ||
-			inlierRatio < INLIERRATIO || 
-			(getPose.minlier.rows < NUMOFINLIER && getPose.minlier.rows != 0))
+		// localTrackPointsA[lTPA].mfeatures.size() < NUMOFPOINTS || 
+		// localTrackPointsB[lTPB].mfeatures.size() < NUMOFPOINTS ||
+		// (getPose.minlier.rows < NUMOFINLIER && getPose.minlier.rows != 0)
+		while(angularVelocity > ANGULARVELOCITY ||
+			localTrackPointsA[lTPA].mfeatures.size() < NUMOFPOINTS || 
+			localTrackPointsB[lTPB].mfeatures.size() < NUMOFPOINTS ||
+			(getPose.minlier.rows < NUMOFINLIER && getPose.minlier.rows != 0) ||
+			inlierRatio < INLIERRATIO)
 		{
 			imageCurNum--;
 			img = cv::imread(readImageName.at(imageCurNum), 
@@ -202,7 +204,7 @@ int main(int argc, char** argv)
 				
 				if(BUNDLE == 1)
 				{
-					if(((gD % (LOCAL)) == 0) && (gD >= (LOCAL - 1)) ||
+					if(((gD % LOCAL) == 0) && gD > 8 || 
 						angularVelocity > ANGULARVELOCITY)
 					{
 						std::cout << "localBA start" << std::endl;
@@ -255,7 +257,7 @@ int main(int argc, char** argv)
 				std::cout << "ㅇㅇㅇNewTrack Bㅇㅇㅇ" << std::endl;
 				if(BUNDLE == 1)
 				{
-					if(((gD % (LOCAL)) == 0) && (gD >= (LOCAL - 1)) ||
+					if(((gD % LOCAL) == 0) && gD > 8 ||
 						angularVelocity > ANGULARVELOCITY)
 					{
 						std::cout << "localBA start" << std::endl;
@@ -349,7 +351,7 @@ int main(int argc, char** argv)
 			
 			if(gD>2)
 			{
-				angularVelocity = mvo::RotationAngle(globalMapData.at(gD-2).mglobalRMat, globalMapData.at(gD-1).mglobalRMat);
+				angularVelocity = mvo::RotationAngle(globalMapData.at(gD-1).mglobalrvec, globalMapData.at(gD).mglobalrvec);
 			}
 
 			std::cout << std::endl;
@@ -396,7 +398,7 @@ int main(int argc, char** argv)
 			}
 			if(gD>2)
 			{
-				angularVelocity = mvo::RotationAngle(globalMapData.at(gD-2).mglobalRMat, globalMapData.at(gD-1).mglobalRMat);
+				angularVelocity = mvo::RotationAngle(globalMapData.at(gD-1).mglobalrvec, globalMapData.at(gD).mglobalrvec);
 			}
 			std::cout << std::endl;
 			std::cout << "mapPoints.size B: " << mapPointsB.mworldMapPointsV.size() << std::endl;
@@ -468,7 +470,7 @@ int main(int argc, char** argv)
     	pangolin::FinishFrame();
 		cv::imshow("img", img);
 		cv::imshow("descriptor", img2);
-		char ch = cv::waitKey(20);
+		char ch = cv::waitKey(30);
 		if(ch == 27) break; // ESC key
 		if(ch == 32) if(cv::waitKey(0) == 27) break;; // Spacebar key
 	}	

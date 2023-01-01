@@ -6,11 +6,12 @@
 #include "MapData.h"
 
 #define LOCAL 10 // 10
+#define LOSS 1 // 1 = Trivial, 2 = Cauchy
 
 static double camX = 6.018873000000e+02;
 static double camY = 1.831104000000e+02;
 static double focald = 7.070912000000e+02;
-static double reprojerr = 3.0;
+static double reprojerr = 2.0;
 
 
 namespace mvo

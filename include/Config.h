@@ -14,10 +14,10 @@
 
 #define NUMOFPOINTS 200 // 200
 
-#define ANGULARVELOCITY 0.2 // 0.055
-#define NUMOFINLIER 200     // 200
-#define INLIERRATIO 0.70    //0.70
-#define BUNDLE 2 // 1 = on, 2 = off
+#define ANGULARVELOCITY 0.1 // 0.1
+#define NUMOFINLIER 200    // 200
+#define INLIERRATIO 0.70    //0.70 
+#define BUNDLE 1 // 1 = motion, 2 = off 3 = local
 
 int initialNum = 1; // 1 = auto, 2 = default
 float inlierRatio = 1000.0f;

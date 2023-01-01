@@ -146,6 +146,7 @@ void mvo::PoseEstimation::solvePnP(const std::vector<cv::Point3f>& objectPoints,
     cv::Rodrigues(mrvec, mRotation);
     cv::Mat temp = -mRotation.inv();
     temp = temp*mtvec;
+
     for (int j = 0; j < mtvec.rows; j++)
     {
 		for (int i = 0; i < mtvec.cols; i++)
@@ -207,15 +208,19 @@ cv::Mat mvo::MultiplyMat(const cv::Mat& R1, const cv::Mat& R2)
         return temp3;
 }
 
-double mvo::RotationAngle(const cv::Mat& R1, const cv::Mat& R2)
+double mvo::RotationAngle(const cv::Vec3d& R1, const cv::Vec3d& R2)
 {
-    cv::Mat temp = R1; cv::Vec<double,1> v;
-    cv::Vec3d tempd;
+    cv::Vec3d tempV;
+    cv::Mat temp; cv::Vec<double,1> v;
+    cv::Mat tempR1;
+    cv::Mat tempR2;
+    cv::Rodrigues(R1, tempR1);
+    cv::Rodrigues(R2, tempR2);
+    tempR2 = tempR2.inv();
+    temp = tempR1 * tempR2;
+    cv::Rodrigues(temp, tempV);
+    v = tempV.t() * tempV;
     double theta;
-    temp = temp.inv();
-    temp = temp * R2;
-    cv::Rodrigues(temp, tempd);
-    v = tempd.t() * tempd;
     theta = sqrt(v(0));
     return theta;
 }
