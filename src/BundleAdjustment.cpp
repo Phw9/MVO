@@ -192,8 +192,16 @@ bool mvo::BundleAdjustment::MotionOnlyBA()
         ceres::CostFunction* cost_function=
             new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionError, 2, 3, 3>
             (new mvo::SnavelyReprojectionError(points2d_eig(0,i), points2d_eig(1,i), points3d_eig.col(i), focald, camX, camY));
-        ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-        problem.AddResidualBlock(cost_function, loss, rvec_eig.data(), tvec_eig.data());
+        if(LOSS == 1)
+        {
+            ceres::LossFunction* loss = new ceres::TrivialLoss;
+            problem.AddResidualBlock(cost_function, loss, rvec_eig.data(), tvec_eig.data());
+        }
+        else
+        {
+            ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+            problem.AddResidualBlock(cost_function, loss, rvec_eig.data(), tvec_eig.data());
+        }
     }
 
     ceres::Solver::Options options;
@@ -312,9 +320,16 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
                     new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocalPoseFixed, 2, 3>
                     (new mvo::SnavelyReprojectionErrorLocalPoseFixed(points2d_eig(0,j), points2d_eig(1,j), focald, camX, camY,
                                                                      rvec, tvec));
-                ceres::LossFunction* loss = new ceres::TrivialLoss();
-                // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-                problem.AddResidualBlock(cost_function, loss, points3d.at(i).col(j).data());
+                if(LOSS == 1)
+                {
+                    ceres::LossFunction* loss = new ceres::TrivialLoss();
+                    problem.AddResidualBlock(cost_function, loss, points3d.at(i).col(j).data());
+                }
+                else
+                {
+                    ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                    problem.AddResidualBlock(cost_function, loss, points3d.at(i).col(j).data());
+                }
             }
 
             // 3d point fixed, 2d point 0 ~ present
@@ -334,9 +349,17 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
                             new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocalPoseFixed, 2, 3>
                             (new mvo::SnavelyReprojectionErrorLocalPoseFixed(points2d.at(j)(0, prev), points2d.at(j)(1, prev),
                                                                             focald, camX, camY, rvec, tvec));
-                            ceres::LossFunction* loss = new ceres::TrivialLoss();                
-                            // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-                            problem.AddResidualBlock(cost_function1, loss, points3d.at(i).col(next).data());
+                            if(LOSS == 1)
+                            {
+                                ceres::LossFunction* loss = new ceres::TrivialLoss();                
+                                problem.AddResidualBlock(cost_function1, loss, points3d.at(i).col(next).data());
+                            }
+                            else
+                            {
+                                ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                                problem.AddResidualBlock(cost_function1, loss, points3d.at(i).col(next).data());
+                            }
+                            
                         }
                     }
             }
@@ -383,9 +406,17 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
                 ceres::CostFunction* cost_function=
                     new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocal, 2, 3, 3, 3>
                     (new mvo::SnavelyReprojectionErrorLocal(points2d_eig(0,j), points2d_eig(1,j), focald, camX, camY));
-                ceres::LossFunction* loss = new ceres::TrivialLoss();
-                // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-                problem.AddResidualBlock(cost_function, loss, rvec_local.col(i).data(), tvec_local.col(i).data(), points3d.at(i).col(j).data());
+                if(LOSS == 1)
+                {
+                    ceres::LossFunction* loss = new ceres::TrivialLoss();
+                    problem.AddResidualBlock(cost_function, loss, rvec_local.col(i).data(), tvec_local.col(i).data(), points3d.at(i).col(j).data());
+                }
+                else
+                {
+                    ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                    problem.AddResidualBlock(cost_function, loss, rvec_local.col(i).data(), tvec_local.col(i).data(), points3d.at(i).col(j).data());
+                }
+                
             }
 
             if(i > 0)
@@ -407,9 +438,16 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
                         ceres::CostFunction* cost_function1=
                         new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocal, 2, 3, 3, 3>
                         (new mvo::SnavelyReprojectionErrorLocal(points2d.at(j)(0, prev), points2d.at(j)(1, prev), focald, camX, camY));
-                        ceres::LossFunction* loss = new ceres::TrivialLoss();
-                        // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-                        problem.AddResidualBlock(cost_function1, loss, rvec_local.col(j).data(), tvec_local.col(j).data(), points3d.at(i).col(next).data());
+                        if(LOSS == 1)
+                        {
+                            ceres::LossFunction* loss = new ceres::TrivialLoss();
+                            problem.AddResidualBlock(cost_function1, loss, rvec_local.col(j).data(), tvec_local.col(j).data(), points3d.at(i).col(next).data());
+                        }
+                        else
+                        {
+                            ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                            problem.AddResidualBlock(cost_function1, loss, rvec_local.col(j).data(), tvec_local.col(j).data(), points3d.at(i).col(next).data());
+                        }
                     }
                 }
             }
@@ -531,9 +569,16 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
                     new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocalPoseFixed, 2, 3>
                     (new mvo::SnavelyReprojectionErrorLocalPoseFixed(points2d_eig(0,j), points2d_eig(1,j), focald, camX, camY,
                                                                      rvec, tvec));
-                ceres::LossFunction* loss = new ceres::TrivialLoss();                
-                // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-                problem.AddResidualBlock(cost_function, loss, points3d.at(i).col(j).data());
+                if(LOSS == 1)
+                {
+                    ceres::LossFunction* loss = new ceres::TrivialLoss();                
+                    problem.AddResidualBlock(cost_function, loss, points3d.at(i).col(j).data());
+                }
+                else
+                {
+                    ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                    problem.AddResidualBlock(cost_function, loss, points3d.at(i).col(j).data());
+                }
             }
             
             
@@ -563,9 +608,16 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
                         new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocalPoseFixed, 2, 3>
                         (new mvo::SnavelyReprojectionErrorLocalPoseFixed(points2d.at(j)(0, prev), points2d.at(j)(1, prev),
                                                                      focald, camX, camY, rvec, tvec));
-                        ceres::LossFunction* loss = new ceres::TrivialLoss();
-                        // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-                        problem.AddResidualBlock(cost_function1, loss, points3d.at(i).col(next).data());
+                        if(LOSS == 1)
+                        {
+                            ceres::LossFunction* loss = new ceres::TrivialLoss();
+                            problem.AddResidualBlock(cost_function1, loss, points3d.at(i).col(next).data());
+                        }
+                        else
+                        {
+                            ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                            problem.AddResidualBlock(cost_function1, loss, points3d.at(i).col(next).data());
+                        }
                     }
                     cmks++;
                 }
@@ -615,9 +667,16 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
                 ceres::CostFunction* cost_function=
                     new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocal, 2, 3, 3, 3>
                     (new mvo::SnavelyReprojectionErrorLocal(points2d_eig(0,j), points2d_eig(1,j), focald, camX, camY));
-                ceres::LossFunction* loss = new ceres::TrivialLoss();
-                // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-                problem.AddResidualBlock(cost_function, loss, rvec_local.col(i).data(), tvec_local.col(i).data(), points3d.at(i).col(j).data());
+                if(LOSS == 1)
+                {
+                    ceres::LossFunction* loss = new ceres::TrivialLoss();
+                    problem.AddResidualBlock(cost_function, loss, rvec_local.col(i).data(), tvec_local.col(i).data(), points3d.at(i).col(j).data());
+                }
+                else
+                {
+                    ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                    problem.AddResidualBlock(cost_function, loss, rvec_local.col(i).data(), tvec_local.col(i).data(), points3d.at(i).col(j).data());
+                }
             }
             
             
@@ -646,9 +705,16 @@ bool mvo::BundleAdjustment::LocalBA(int gD, std::vector<mvo::MapData>& map, mvo:
                         new ceres::AutoDiffCostFunction<mvo::SnavelyReprojectionErrorLocal, 2, 3, 3, 3>
                         (new mvo::SnavelyReprojectionErrorLocal(points2d.at(j)(0, prev), points2d.at(j)(1, prev),
                                                                 focald, camX, camY));
-                        ceres::LossFunction* loss = new ceres::TrivialLoss();
-                        // ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
-                        problem.AddResidualBlock(cost_function1, loss, rvec_local.col(j).data(), tvec_local.col(j).data(), points3d.at(i).col(next).data());
+                        if(LOSS == 1)
+                        {
+                            ceres::LossFunction* loss = new ceres::TrivialLoss();
+                            problem.AddResidualBlock(cost_function1, loss, rvec_local.col(j).data(), tvec_local.col(j).data(), points3d.at(i).col(next).data());
+                        }
+                        else
+                        {
+                            ceres::LossFunction* loss = new ceres::CauchyLoss(1.0);
+                            problem.AddResidualBlock(cost_function1, loss, rvec_local.col(j).data(), tvec_local.col(j).data(), points3d.at(i).col(next).data());
+                        }
                     }
                     cmks++;
                 }
