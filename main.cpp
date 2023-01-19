@@ -42,10 +42,12 @@ int main(int argc, char** argv)
 	mvo::PoseEstimation getPose;
 	mvo::Initializer checkScore;
 	std::vector<cv::Mat> localPose;
+	localPose.reserve(100);
 
 	std::vector<int> mapStats;
 	mvo::Triangulate mapPointsA, mapPointsB;
 	std::vector<cv::Point3f> localMapPointsA, localMapPointsB;
+	localMapPointsA.reserve(100); localMapPointsB.reserve(100);
 
 	mvo::MapData setMapData;
 	std::vector<mvo::MapData> globalMapData;

@@ -70,6 +70,7 @@ add_library(mine SHARED
    ${PROJECT_SOURCE_DIR}/src/Feature.cpp
    ${PROJECT_SOURCE_DIR}/src/Init.cpp
    ${PROJECT_SOURCE_DIR}/src/PoseEstimation.cpp
+   ${PROJECT_SOURCE_DIR}/src/LoopClosure.cpp
    ${PROJECT_SOURCE_DIR}/src/Triangulate.cpp
    ${PROJECT_SOURCE_DIR}/src/MapData.cpp
 )

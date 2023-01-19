@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/phw93/Dev/MVO
+CMAKE_SOURCE_DIR = /home/phw93/dev/MVO
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/phw93/Dev/MVO/build
+CMAKE_BINARY_DIR = /home/phw93/dev/MVO/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/phw93/Dev/MVO/build/CMakeFiles /home/phw93/Dev/MVO/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/phw93/dev/MVO/build/CMakeFiles /home/phw93/dev/MVO/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/phw93/Dev/MVO/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/phw93/dev/MVO/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -271,6 +271,33 @@ src/Init.cpp.s:
 	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/Init.cpp.s
 .PHONY : src/Init.cpp.s
 
+src/LoopClosure.o: src/LoopClosure.cpp.o
+
+.PHONY : src/LoopClosure.o
+
+# target to build an object file
+src/LoopClosure.cpp.o:
+	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/LoopClosure.cpp.o
+.PHONY : src/LoopClosure.cpp.o
+
+src/LoopClosure.i: src/LoopClosure.cpp.i
+
+.PHONY : src/LoopClosure.i
+
+# target to preprocess a source file
+src/LoopClosure.cpp.i:
+	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/LoopClosure.cpp.i
+.PHONY : src/LoopClosure.cpp.i
+
+src/LoopClosure.s: src/LoopClosure.cpp.s
+
+.PHONY : src/LoopClosure.s
+
+# target to generate assembly for a file
+src/LoopClosure.cpp.s:
+	$(MAKE) -f CMakeFiles/mine.dir/build.make CMakeFiles/mine.dir/src/LoopClosure.cpp.s
+.PHONY : src/LoopClosure.cpp.s
+
 src/MapData.o: src/MapData.cpp.o
 
 .PHONY : src/MapData.o
@@ -377,6 +404,9 @@ help:
 	@echo "... src/Init.o"
 	@echo "... src/Init.i"
 	@echo "... src/Init.s"
+	@echo "... src/LoopClosure.o"
+	@echo "... src/LoopClosure.i"
+	@echo "... src/LoopClosure.s"
 	@echo "... src/MapData.o"
 	@echo "... src/MapData.i"
 	@echo "... src/MapData.s"
