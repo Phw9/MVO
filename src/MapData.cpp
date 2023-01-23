@@ -13,6 +13,7 @@ bool mvo::MapData::GetSFMPose(const mvo::StrctureFromMotion& sfm)
 {
     mglobalRTMat = sfm.mCombineRt.clone();  mglobalRMat = sfm.mRotation.clone();
     mglobalrvec = sfm.mrvec;        mglobaltvec = sfm.mtvec;
+    mdesc = cv::Mat(); // orb feature 뽑아줘야함
     return true;
 }
 
@@ -25,19 +26,27 @@ void mvo::GetLocalPose(std::vector<cv::Mat>& v, const cv::Mat& m)
 
 bool mvo::MapData::GetPnPPose(const mvo::PoseEstimation& pe)
 {
-    mglobalRTMat = pe.mCombineRt.clone();  mglobalRMat = pe.mRotation.clone();
+    mglobalRTMat = pe.mCombineRt.clone();  mglobalRMat = pe.mRotation.clone();  minlier = pe.minlier.clone();
     mglobalrvec = pe.mrvec;  mglobaltvec = pe.mtvec;  mglobalTranslation = pe.mtranslation;
+
     // std::cout << "mglobalRTMat: " << mglobalRTMat <<std::endl;
     // std::cout << "pe.mCombineRT: " << pe.mCombineRt <<std::endl;
     return true;
 }
 
-bool mvo::MapData::Get2DPoints(const mvo::Feature& ft)
+bool mvo::MapData::Get2DPoints(const mvo::Feature& ft, OrbDatabase &db, std::vector<std::vector<cv::Mat>>& globaldesc)
 {
     mpoint2D.clear();
     mpoint2D = ft.mfeatures;
     mvdesc = ft.mvdesc;
-    mdesc = ft.mdesc;
+    mdesc = ft.mdesc.clone();
+    mvecdesc.resize(mdesc.rows);
+    for(int i =0; i < mdesc.rows; ++i)
+    {
+        mvecdesc[i] = mdesc.row(i);
+    }
+    db.add(mvecdesc);
+    globaldesc.push_back(mvecdesc);
     if(mpoint2D.size() != ft.mfeatures.size()) return false;
     return true;
 }

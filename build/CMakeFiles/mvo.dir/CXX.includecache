@@ -90,6 +90,16 @@ stdlib.h
 math.h
 -
 
+../include/LoopClosure.h
+MapData.h
+../include/MapData.h
+opencv2/core.hpp
+-
+opencv2/highgui.hpp
+-
+opencv2/features2d.hpp
+-
+
 ../include/MapData.h
 algorithm
 -
@@ -105,6 +115,8 @@ Triangulate.h
 ../include/Triangulate.h
 PoseEstimation.h
 ../include/PoseEstimation.h
+DBoW2/DBoW2.h
+../include/DBoW2/DBoW2.h
 
 ../include/PoseEstimation.h
 Feature.h
@@ -120,17 +132,19 @@ opencv2/calib3d.hpp
 Feature.h
 ../include/Feature.h
 
-/home/phw93/dev/MVO/main.cpp
+/home/phw93/Dev/MVO/main.cpp
 Config.h
-/home/phw93/dev/MVO/Config.h
+/home/phw93/Dev/MVO/Config.h
 Init.h
-/home/phw93/dev/MVO/Init.h
+/home/phw93/Dev/MVO/Init.h
 BundleAdjustment.h
-/home/phw93/dev/MVO/BundleAdjustment.h
+/home/phw93/Dev/MVO/BundleAdjustment.h
+LoopClosure.h
+/home/phw93/Dev/MVO/LoopClosure.h
 opencv2/imgcodecs.hpp
-/home/phw93/dev/MVO/opencv2/imgcodecs.hpp
+/home/phw93/Dev/MVO/opencv2/imgcodecs.hpp
 opencv2/highgui.hpp
-/home/phw93/dev/MVO/opencv2/highgui.hpp
+/home/phw93/Dev/MVO/opencv2/highgui.hpp
 
 /usr/local/include/opencv4/opencv2/calib3d.hpp
 opencv2/core.hpp

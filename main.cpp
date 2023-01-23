@@ -1,6 +1,7 @@
 #include "Config.h"
 #include "Init.h"
 #include "BundleAdjustment.h"
+#include "LoopClosure.h"
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui.hpp"
 
@@ -51,10 +52,16 @@ int main(int argc, char** argv)
 
 	mvo::MapData setMapData;
 	std::vector<mvo::MapData> globalMapData;
+	std::vector<std::vector<cv::Mat>> globaldesc;
 	globalMapData.reserve(10000);
 	int gD = 0;
 	int gIdx = -1;
 	mvo::Covisibilgraph covGraph(globalMapData, focald, camXd, camYd);
+	// load the vocabulary from disk
+  	OrbVocabulary voc("image00_voc.yml.gz");
+	OrbDatabase db(voc, false, 0); // false = do not use direct index
+	bool bloop = false;
+
 	Viewer::MyVisualize pangolinViewer=Viewer::MyVisualize(WINDOWWIDTH, WINDOWHEIGHT);
     pangolinViewer.initialize();
     pangolin::OpenGlRenderState s_cam(
@@ -142,7 +149,7 @@ int main(int argc, char** argv)
 						std::cerr << "failed Minus local" << std::endl;
 					}
 					
-					setMapData.Get2DPoints(localTrackPointsA.at(lTPA));
+					setMapData.Get2DPoints(localTrackPointsA.at(lTPA), db, globaldesc);
 					setMapData.Get3DPoints(mapPointsA);
 					globalMapData.emplace_back(std::move(setMapData));
 
@@ -231,7 +238,7 @@ int main(int argc, char** argv)
 
 				localPose.clear();
 				setMapData.GetPnPPose(getPose);
-				setMapData.Get2DPoints(localTrackPointsB.at(lTPB));
+				setMapData.Get2DPoints(localTrackPointsB.at(lTPB), db, globaldesc);
 				setMapData.Get3DPoints(mapPointsB);
 				globalMapData.emplace_back(std::move(setMapData));	// mvo::PushData(globalMapData, setMapData);
 				gD++; gIdx++;
@@ -284,7 +291,7 @@ int main(int argc, char** argv)
 
 				localPose.clear();
 				setMapData.GetPnPPose(getPose);
-				setMapData.Get2DPoints(localTrackPointsA.at(lTPA));
+				setMapData.Get2DPoints(localTrackPointsA.at(lTPA), db, globaldesc);
 				setMapData.Get3DPoints(mapPointsA);
 				globalMapData.emplace_back(std::move(setMapData));	// mvo::PushData(globalMapData, setMapData);
 				gD++; gIdx++;

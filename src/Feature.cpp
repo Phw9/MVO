@@ -53,6 +53,8 @@ bool mvo::Feature::GoodFeaturesToTrack(const cv::Mat& src)
     // std::cout << "after mfeatures: " << mfeatures.size() << std::endl;
     // std::cout << "after kp size: " << kp.size() << std::endl;
     // std::cout << "mvdesc: " << mvdesc.size() << std::endl;
+    
+
     return true;
 }
 

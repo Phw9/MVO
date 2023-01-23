@@ -6,10 +6,11 @@ CMakeFiles/mvo.dir/main.cpp.o
  ../include/Config.h
  ../include/Feature.h
  ../include/Init.h
+ ../include/LoopClosure.h
  ../include/MapData.h
  ../include/PoseEstimation.h
  ../include/Triangulate.h
- /home/phw93/dev/MVO/main.cpp
+ /home/phw93/Dev/MVO/main.cpp
  /usr/local/include/opencv4/opencv2/calib3d.hpp
  /usr/local/include/opencv4/opencv2/core.hpp
  /usr/local/include/opencv4/opencv2/core/affine.hpp

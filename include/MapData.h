@@ -8,6 +8,8 @@
 #include "Triangulate.h"
 #include "PoseEstimation.h"
 
+#include "DBoW2/DBoW2.h"
+
 #define DISTANCEDESC 20 // 20
 #define REPROJECTERROR 2 // 2
 
@@ -21,7 +23,7 @@ namespace mvo
         
         bool GetSFMPose(const mvo::StrctureFromMotion& sfm);
         bool GetPnPPose(const mvo::PoseEstimation& pe);
-        bool Get2DPoints(const mvo::Feature& feature);
+        bool Get2DPoints(const mvo::Feature& feature, OrbDatabase &db, std::vector<std::vector<cv::Mat>>& globaldesc);
         bool Get3DPoints(const mvo::Triangulate& tr);
 
         std::vector<cv::Point2f> mpoint2D;
@@ -33,7 +35,9 @@ namespace mvo
         cv::Vec3d mglobalTranslation;
         cv::Mat mdesc;
         std::vector<std::vector<DTYPE>> mvdesc;
+        std::vector<cv::Mat> mvecdesc;
         std::vector<int> mindex;
+        cv::Mat minlier;
     };
 
     class Covisibilgraph
