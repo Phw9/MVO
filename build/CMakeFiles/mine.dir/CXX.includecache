@@ -6,6 +6,22 @@
 
 #IncludeRegexTransform: 
 
+../include/BundleAdjustment.h
+opencv2/core.hpp
+../include/opencv2/core.hpp
+ceres/loss_function.h
+../include/ceres/loss_function.h
+Triangulate.h
+../include/Triangulate.h
+MapData.h
+../include/MapData.h
+
+../include/Config.h
+opencv2/imgproc.hpp
+../include/opencv2/imgproc.hpp
+opencv2/core.hpp
+../include/opencv2/core.hpp
+
 ../include/Feature.h
 vector
 -
@@ -74,6 +90,16 @@ stdlib.h
 math.h
 -
 
+../include/LoopClosure.h
+MapData.h
+../include/MapData.h
+opencv2/core.hpp
+-
+opencv2/highgui.hpp
+-
+opencv2/features2d.hpp
+-
+
 ../include/MapData.h
 algorithm
 -
@@ -106,9 +132,45 @@ opencv2/calib3d.hpp
 Feature.h
 ../include/Feature.h
 
-/home/phw93/Dev/MVO/src/Init.cpp
+/home/phw93/dev/b/MVO/src/BundleAdjustment.cpp
+BundleAdjustment.h
+/home/phw93/dev/b/MVO/src/BundleAdjustment.h
+
+/home/phw93/dev/b/MVO/src/Feature.cpp
+iostream
+-
+Feature.h
+/home/phw93/dev/b/MVO/src/Feature.h
+opencv2/core/hal/interface.h
+/home/phw93/dev/b/MVO/src/opencv2/core/hal/interface.h
+
+/home/phw93/dev/b/MVO/src/Init.cpp
 Init.h
-/home/phw93/Dev/MVO/src/Init.h
+/home/phw93/dev/b/MVO/src/Init.h
+
+/home/phw93/dev/b/MVO/src/LoopClosure.cpp
+LoopClosure.h
+/home/phw93/dev/b/MVO/src/LoopClosure.h
+
+/home/phw93/dev/b/MVO/src/MapData.cpp
+MapData.h
+/home/phw93/dev/b/MVO/src/MapData.h
+
+/home/phw93/dev/b/MVO/src/PoseEstimation.cpp
+iostream
+-
+Feature.h
+/home/phw93/dev/b/MVO/src/Feature.h
+PoseEstimation.h
+/home/phw93/dev/b/MVO/src/PoseEstimation.h
+Config.h
+/home/phw93/dev/b/MVO/src/Config.h
+opencv2/core.hpp
+/home/phw93/dev/b/MVO/src/opencv2/core.hpp
+
+/home/phw93/dev/b/MVO/src/Triangulate.cpp
+Triangulate.h
+/home/phw93/dev/b/MVO/src/Triangulate.h
 
 /usr/local/include/opencv4/opencv2/calib3d.hpp
 opencv2/core.hpp

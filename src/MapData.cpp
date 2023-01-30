@@ -28,7 +28,7 @@ bool mvo::MapData::GetPnPPose(const mvo::PoseEstimation& pe)
 {
     mglobalRTMat = pe.mCombineRt.clone();  mglobalRMat = pe.mRotation.clone();  minlier = pe.minlier.clone();
     mglobalrvec = pe.mrvec;  mglobaltvec = pe.mtvec;  mglobalTranslation = pe.mtranslation;
-
+    // std::cout << "minlier: " << minlier << std::endl;
     // std::cout << "mglobalRTMat: " << mglobalRTMat <<std::endl;
     // std::cout << "pe.mCombineRT: " << pe.mCombineRt <<std::endl;
     return true;
@@ -58,6 +58,7 @@ bool mvo::MapData::Get3DPoints(const mvo::Triangulate& tr)
     if(mpoint3D.size() != tr.mworldMapPointsV.size()) return false;
     // std::cout << "Get3DPoints: " << mpoint3D.size() << ", " << tr.mworldMapPointsV.size() << std::endl;
     // std::cout << "Get3Dmvdesc: " << mvdesc.size() << ", " << tr.mvdesc.size() << std::endl;
+    // std::cout << "mappoint size: " << mpoint3D.size() << std::endl;
 
     return true;
 }

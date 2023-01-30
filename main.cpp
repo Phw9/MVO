@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 	int gIdx = -1;
 	mvo::Covisibilgraph covGraph(globalMapData, focald, camXd, camYd);
 	// load the vocabulary from disk
-  	OrbVocabulary voc("image00_voc.yml.gz");
+  	OrbVocabulary voc("0630_KITTI00-22_10_4_voc.yml.gz");
 	OrbDatabase db(voc, false, 0); // false = do not use direct index
 	bool bloop = false;
 
