@@ -21,7 +21,6 @@ int main(int argc, char** argv)
 	std::deque<std::string> readImageName;
 	cv::Mat img;
 	cv::Mat img2;
-	cv::Mat img3;
 	int imageCurNum = 0;
 	int realFrame = 0;
 	float RH = 100; float SH, SF;
@@ -59,7 +58,7 @@ int main(int argc, char** argv)
 	int gIdx = -1;
 	mvo::Covisibilgraph covGraph(globalMapData, focald, camXd, camYd);
 	// load the vocabulary from disk
-  	OrbVocabulary voc("/data/image/KITTI_00_phphww_voc.yml.gz");
+  	OrbVocabulary voc("../image/KITTI_00_phphww_voc.yml.gz");
 	OrbDatabase db(voc, false, 0); // false = do not use direct index
 	cv::Ptr<cv::ORB> orb = cv::ORB::create();
 	cv::Mat orbmask;
@@ -88,8 +87,6 @@ int main(int argc, char** argv)
 									cv::ImreadModes::IMREAD_UNCHANGED);
 				img2 = cv::imread(readImageName.at(imageCurNum), 
 									cv::ImreadModes::IMREAD_UNCHANGED);
-				img3 = cv::imread(readImageName.at(imageCurNum), 
-									cv::ImreadModes::IMREAD_UNCHANGED);
 				if (img.empty())
 				{
 					std::cerr << "frame upload failed" << std::endl;
@@ -108,8 +105,6 @@ int main(int argc, char** argv)
 				img = cv::imread(readImageName.at(imageCurNum), 
 									cv::ImreadModes::IMREAD_UNCHANGED);
 				img2 = cv::imread(readImageName.at(imageCurNum), 
-									cv::ImreadModes::IMREAD_UNCHANGED);
-				img3 = cv::imread(readImageName.at(imageCurNum), 
 									cv::ImreadModes::IMREAD_UNCHANGED);
 				if (img.empty())
 				{
@@ -193,7 +188,7 @@ int main(int argc, char** argv)
 				pangolin::FinishFrame();
 				
 				cv::imshow("img", img);
-				cv::imshow("descriptor", img2);
+				cv::imshow("useful", img2);
 				if(cv::waitKey(0) == 27) break; // ESC key
 			}
 			std::cout << "======================  2-view end & start!!  ======================" << std::endl;
@@ -203,8 +198,6 @@ int main(int argc, char** argv)
 						cv::ImreadModes::IMREAD_UNCHANGED);
 		img2 = cv::imread(readImageName.at(imageCurNum), 
 						cv::ImreadModes::IMREAD_UNCHANGED);	
-		img3 = cv::imread(readImageName.at(imageCurNum), 
-									cv::ImreadModes::IMREAD_UNCHANGED);					
 		// localTrackPointsA[lTPA].mfeatures.size() < NUMOFPOINTS || 
 		// localTrackPointsB[lTPB].mfeatures.size() < NUMOFPOINTS ||
 		// (getPose.minlier.rows < NUMOFINLIER && getPose.minlier.rows != 0)
@@ -299,11 +292,6 @@ int main(int argc, char** argv)
 				{
 					std::cerr << "failed Minus local A" << std::endl;
 				}
-				// orb->detectAndCompute(img3, orbmask, orbkps, orbdesc);
-				// globaldesc.push_back(std::vector<cv::Mat>());
-				// changeStructure(orbdesc, globaldesc.back());				
-				// db.add(globaldesc.back()); db.query(globaldesc.back(), ret, 4);
-				// std::cout << "Searching for Image: " << ret << std::endl; 
 				mvo::LoopDetectCompute(img, globaldesc, db);
 
 				localPose.clear();
@@ -456,10 +444,8 @@ int main(int argc, char** argv)
 		bbb.clear(); bbb.reserve(1000);
 		if(gD>=1)
 		{
-
 			int mgidx = covGraph.mglobalgraph.at(gD-1).size() - 1;
 			int baba = covGraph.mglobalgraph.at(gD-1).at(mgidx).size();
-			std::cout << "mgidx: " << mgidx << ", baba: " << baba << std::endl;
 			for(int i = 0; i < baba; i++)
 			{
 				cv::Point2f pr;
@@ -493,7 +479,7 @@ int main(int argc, char** argv)
 		pangolinViewer.DrawPoint(globalMapData, tvecOfGT);
     	pangolin::FinishFrame();
 		cv::imshow("img", img);
-		cv::imshow("descriptor", img2);
+		cv::imshow("useful", img2);
 		char ch = cv::waitKey(30);
 		if(ch == 27) break; // ESC key
 		if(ch == 32) if(cv::waitKey(0) == 27) break;; // Spacebar key

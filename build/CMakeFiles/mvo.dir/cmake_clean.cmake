@@ -1,6 +1,5 @@
 file(REMOVE_RECURSE
   "CMakeFiles/mvo.dir/main.cpp.o"
-  "CMakeFiles/mvo.dir/main.cpp.o.d"
   "mvo"
   "mvo.pdb"
 )
