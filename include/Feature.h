@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <chrono>
 #include "eigen3/Eigen/Dense"
 
 #include "opencv2/features2d.hpp"
@@ -12,7 +13,7 @@
 
 #define DTYPE uchar
 #define ERRORSIZE 20 // 20
-#define MAXCORNER 1500 // window = 1000 ubuntu = 1100
+#define MAXCORNER 1500 // window = 1000 ubuntu = 1500
 #define QUALITYLEVEL 0.001 // 0.001
 #define MINDISTANCE 15 // window = 9 ubuntu = 15
 

@@ -15,17 +15,20 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/features2d.hpp>
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
-void testDatabase(const std::vector<std::vector<cv::Mat>> &globaldesc, std::vector<mvo::MapData> map, OrbDatabase& db);
-void wait();
+namespace mvo
+{
+    void testDatabase(const std::vector<std::vector<cv::Mat>> &globaldesc, std::vector<mvo::MapData> map, OrbDatabase& db);
+    void wait();
 // ----------------------------------------------------------------------------
-
-void LoopDetectCompute(std::vector<std::vector<cv::Mat>>& globaldesc, std::vector<mvo::MapData>& map, OrbDatabase& db);
-
-// ----------------------------------------------------------------------------
-
-void testDatabase(const std::vector<std::vector<cv::Mat>> &globaldesc, std::vector<mvo::MapData> map, OrbDatabase& db);
+    void LoopDetectCompute(const cv::Mat& img, std::vector<std::vector<cv::Mat>>& globaldesc, OrbDatabase& db);
 
 // ----------------------------------------------------------------------------
+    void VocCreation(const std::vector<std::vector<cv::Mat>>& features);
+
+// ----------------------------------------------------------------------------
+    void testDatabase(const std::vector<std::vector<cv::Mat>> &globaldesc, std::vector<mvo::MapData> map, OrbDatabase& db);
+
+    // ----------------------------------------------------------------------------
+};
+void changeStructure(const cv::Mat &plain, std::vector<cv::Mat> &out);
 

@@ -1,46 +1,31 @@
-Determining if the function sgemm_ exists failed with the following output:
-Change Dir: /home/phw93/dev/b/MVO/build/CMakeFiles/CMakeTmp
-
-Run Build Command(s):/usr/bin/make cmTC_05bb7/fast && /usr/bin/make -f CMakeFiles/cmTC_05bb7.dir/build.make CMakeFiles/cmTC_05bb7.dir/build
-make[1]: Entering directory '/home/phw93/dev/b/MVO/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_05bb7.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=sgemm_   -o CMakeFiles/cmTC_05bb7.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.16/Modules/CheckFunctionExists.c
-Linking C executable cmTC_05bb7
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_05bb7.dir/link.txt --verbose=1
-/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=sgemm_    -rdynamic CMakeFiles/cmTC_05bb7.dir/CheckFunctionExists.c.o  -o cmTC_05bb7 
-/usr/bin/ld: CMakeFiles/cmTC_05bb7.dir/CheckFunctionExists.c.o: in function `main':
-CheckFunctionExists.c:(.text+0x14): undefined reference to `sgemm_'
-collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_05bb7.dir/build.make:87: cmTC_05bb7] Error 1
-make[1]: Leaving directory '/home/phw93/dev/b/MVO/build/CMakeFiles/CMakeTmp'
-make: *** [Makefile:121: cmTC_05bb7/fast] Error 2
-
-
-
 Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
-Change Dir: /home/phw93/dev/b/MVO/build/CMakeFiles/CMakeTmp
+Change Dir: /root/MVO/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_8904b/fast && /usr/bin/make -f CMakeFiles/cmTC_8904b.dir/build.make CMakeFiles/cmTC_8904b.dir/build
-make[1]: Entering directory '/home/phw93/dev/b/MVO/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_8904b.dir/src.c.o
-/usr/bin/cc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_8904b.dir/src.c.o   -c /home/phw93/dev/b/MVO/build/CMakeFiles/CMakeTmp/src.c
-Linking C executable cmTC_8904b
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8904b.dir/link.txt --verbose=1
-/usr/bin/cc  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_8904b.dir/src.c.o  -o cmTC_8904b 
-/usr/bin/ld: CMakeFiles/cmTC_8904b.dir/src.c.o: in function `main':
-src.c:(.text+0x46): undefined reference to `pthread_create'
-/usr/bin/ld: src.c:(.text+0x52): undefined reference to `pthread_detach'
-/usr/bin/ld: src.c:(.text+0x63): undefined reference to `pthread_join'
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_e0f75/fast && /usr/bin/make  -f CMakeFiles/cmTC_e0f75.dir/build.make CMakeFiles/cmTC_e0f75.dir/build
+make[1]: Entering directory '/root/MVO/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e0f75.dir/src.c.o
+/usr/bin/cc -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_e0f75.dir/src.c.o -c /root/MVO/build/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_e0f75
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e0f75.dir/link.txt --verbose=1
+/usr/bin/cc -rdynamic CMakeFiles/cmTC_e0f75.dir/src.c.o -o cmTC_e0f75 
+CMakeFiles/cmTC_e0f75.dir/src.c.o: In function `main':
+src.c:(.text+0x3e): undefined reference to `pthread_create'
+src.c:(.text+0x4a): undefined reference to `pthread_detach'
+src.c:(.text+0x56): undefined reference to `pthread_cancel'
+src.c:(.text+0x67): undefined reference to `pthread_join'
+src.c:(.text+0x7b): undefined reference to `pthread_atfork'
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_8904b.dir/build.make:87: cmTC_8904b] Error 1
-make[1]: Leaving directory '/home/phw93/dev/b/MVO/build/CMakeFiles/CMakeTmp'
-make: *** [Makefile:121: cmTC_8904b/fast] Error 2
+CMakeFiles/cmTC_e0f75.dir/build.make:98: recipe for target 'cmTC_e0f75' failed
+make[1]: *** [cmTC_e0f75] Error 1
+make[1]: Leaving directory '/root/MVO/build/CMakeFiles/CMakeTmp'
+Makefile:127: recipe for target 'cmTC_e0f75/fast' failed
+make: *** [cmTC_e0f75/fast] Error 2
 
 
 Source file was:
 #include <pthread.h>
 
-void* test_func(void* data)
+static void* test_func(void* data)
 {
   return data;
 }
@@ -50,6 +35,7 @@ int main(void)
   pthread_t thread;
   pthread_create(&thread, NULL, test_func, NULL);
   pthread_detach(thread);
+  pthread_cancel(thread);
   pthread_join(thread, NULL);
   pthread_atfork(NULL, NULL, NULL);
   pthread_exit(NULL);
@@ -58,39 +44,22 @@ int main(void)
 }
 
 Determining if the function pthread_create exists in the pthreads failed with the following output:
-Change Dir: /home/phw93/dev/b/MVO/build/CMakeFiles/CMakeTmp
+Change Dir: /root/MVO/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_5edc0/fast && /usr/bin/make -f CMakeFiles/cmTC_5edc0.dir/build.make CMakeFiles/cmTC_5edc0.dir/build
-make[1]: Entering directory '/home/phw93/dev/b/MVO/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_5edc0.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_5edc0.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.16/Modules/CheckFunctionExists.c
-Linking C executable cmTC_5edc0
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5edc0.dir/link.txt --verbose=1
-/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_5edc0.dir/CheckFunctionExists.c.o  -o cmTC_5edc0  -lpthreads 
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_e554e/fast && /usr/bin/make  -f CMakeFiles/cmTC_e554e.dir/build.make CMakeFiles/cmTC_e554e.dir/build
+make[1]: Entering directory '/root/MVO/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e554e.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create -o CMakeFiles/cmTC_e554e.dir/CheckFunctionExists.c.o -c /usr/local/share/cmake-3.24/Modules/CheckFunctionExists.c
+Linking C executable cmTC_e554e
+/usr/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e554e.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create -rdynamic CMakeFiles/cmTC_e554e.dir/CheckFunctionExists.c.o -o cmTC_e554e  -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_5edc0.dir/build.make:87: cmTC_5edc0] Error 1
-make[1]: Leaving directory '/home/phw93/dev/b/MVO/build/CMakeFiles/CMakeTmp'
-make: *** [Makefile:121: cmTC_5edc0/fast] Error 2
-
-
-
-Determining if the function cheev_ exists failed with the following output:
-Change Dir: /home/phw93/dev/b/MVO/build/CMakeFiles/CMakeTmp
-
-Run Build Command(s):/usr/bin/make cmTC_28ec0/fast && /usr/bin/make -f CMakeFiles/cmTC_28ec0.dir/build.make CMakeFiles/cmTC_28ec0.dir/build
-make[1]: Entering directory '/home/phw93/dev/b/MVO/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_28ec0.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=cheev_   -o CMakeFiles/cmTC_28ec0.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.16/Modules/CheckFunctionExists.c
-Linking C executable cmTC_28ec0
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_28ec0.dir/link.txt --verbose=1
-/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=cheev_    -rdynamic CMakeFiles/cmTC_28ec0.dir/CheckFunctionExists.c.o  -o cmTC_28ec0  /usr/lib/x86_64-linux-gnu/libf77blas.so /usr/lib/x86_64-linux-gnu/libatlas.so 
-/usr/bin/ld: CMakeFiles/cmTC_28ec0.dir/CheckFunctionExists.c.o: in function `main':
-CheckFunctionExists.c:(.text+0x14): undefined reference to `cheev_'
-collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_28ec0.dir/build.make:89: cmTC_28ec0] Error 1
-make[1]: Leaving directory '/home/phw93/dev/b/MVO/build/CMakeFiles/CMakeTmp'
-make: *** [Makefile:121: cmTC_28ec0/fast] Error 2
+CMakeFiles/cmTC_e554e.dir/build.make:98: recipe for target 'cmTC_e554e' failed
+make[1]: *** [cmTC_e554e] Error 1
+make[1]: Leaving directory '/root/MVO/build/CMakeFiles/CMakeTmp'
+Makefile:127: recipe for target 'cmTC_e554e/fast' failed
+make: *** [cmTC_e554e/fast] Error 2
 
 
 

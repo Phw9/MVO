@@ -34,19 +34,13 @@ bool mvo::MapData::GetPnPPose(const mvo::PoseEstimation& pe)
     return true;
 }
 
-bool mvo::MapData::Get2DPoints(const mvo::Feature& ft, OrbDatabase &db, std::vector<std::vector<cv::Mat>>& globaldesc)
-{
+bool mvo::MapData::Get2DPoints(const mvo::Feature& ft)
+{   
     mpoint2D.clear();
     mpoint2D = ft.mfeatures;
     mvdesc = ft.mvdesc;
     mdesc = ft.mdesc.clone();
-    mvecdesc.resize(mdesc.rows);
-    for(int i =0; i < mdesc.rows; ++i)
-    {
-        mvecdesc[i] = mdesc.row(i);
-    }
-    db.add(mvecdesc);
-    globaldesc.push_back(mvecdesc);
+
     if(mpoint2D.size() != ft.mfeatures.size()) return false;
     return true;
 }

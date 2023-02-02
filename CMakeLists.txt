@@ -59,6 +59,8 @@ include_directories(
    ${OpenCV_INCLUDE_DIRS}
    ${OPENGL_INCLUDE_DIRS}
    ${Pangolin_INCLUDE_DIRS}
+   ${DBoW2_INCLUDE_DIRS}
+   ${g2o_INCLUDE_DIRS}
    ${CERES_INCLUDE_DIRS}
    ${PROJECT_SOURCE_DIR}
    ${PROJECT_SOURCE_DIR}/include
@@ -81,12 +83,14 @@ target_link_libraries(mine
    ${GLUT_LIBRARY}
    ${OpenCV_LIBS}
    ${OPENGL_LIBRARIES}
+   ${DBoW2_LIBRARIES}
    ${Pangolin_LIBRARIES}
    ${CERES_LIBRARIES}
-   ${PROJECT_SOURCE_DIR}/thirdparty/DBoW2/lib/libDBoW2.so
-   ${PROJECT_SOURCE_DIR}/thirdparty/g2o/lib/libg2o.so
-)
-
+   ${g2o_LIBRARIES}
+   # ${PROJECT_SOURCE_DIR}/thirdparty/DBoW2/lib/libDBoW2.so
+   # ${PROJECT_SOURCE_DIR}/thirdparty/g2o/lib/libg2o.so
+   )
+   
 add_executable(mvo
    ${PROJECT_SOURCE_DIR}/main.cpp
 )

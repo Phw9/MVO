@@ -1,36 +1,21 @@
+
+# Consider dependencies only in project.
+set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
+
 # The set of languages for which implicit dependencies are needed:
 set(CMAKE_DEPENDS_LANGUAGES
-  "CXX"
-  )
-# The set of files for implicit dependencies of each language:
-set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/phw93/dev/b/MVO/src/BundleAdjustment.cpp" "/home/phw93/dev/b/MVO/build/CMakeFiles/mine.dir/src/BundleAdjustment.cpp.o"
-  "/home/phw93/dev/b/MVO/src/Converter.cpp" "/home/phw93/dev/b/MVO/build/CMakeFiles/mine.dir/src/Converter.cpp.o"
-  "/home/phw93/dev/b/MVO/src/Feature.cpp" "/home/phw93/dev/b/MVO/build/CMakeFiles/mine.dir/src/Feature.cpp.o"
-  "/home/phw93/dev/b/MVO/src/Init.cpp" "/home/phw93/dev/b/MVO/build/CMakeFiles/mine.dir/src/Init.cpp.o"
-  "/home/phw93/dev/b/MVO/src/LoopClosure.cpp" "/home/phw93/dev/b/MVO/build/CMakeFiles/mine.dir/src/LoopClosure.cpp.o"
-  "/home/phw93/dev/b/MVO/src/MapData.cpp" "/home/phw93/dev/b/MVO/build/CMakeFiles/mine.dir/src/MapData.cpp.o"
-  "/home/phw93/dev/b/MVO/src/PoseEstimation.cpp" "/home/phw93/dev/b/MVO/build/CMakeFiles/mine.dir/src/PoseEstimation.cpp.o"
-  "/home/phw93/dev/b/MVO/src/Triangulate.cpp" "/home/phw93/dev/b/MVO/build/CMakeFiles/mine.dir/src/Triangulate.cpp.o"
-  )
-set(CMAKE_CXX_COMPILER_ID "GNU")
-
-# Preprocessor definitions for this target.
-set(CMAKE_TARGET_DEFINITIONS_CXX
-  "GFLAGS_IS_A_DLL=0"
-  "HAVE_EIGEN"
-  "HAVE_GLEW"
-  "PANGO_DEFAULT_WIN_URI=\"wayland\""
-  "_LINUX_"
-  "mine_EXPORTS"
   )
 
-# The include file search paths:
-set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "../"
-  "../include"
-  "/usr/include/eigen3"
-  "/usr/local/include/opencv4"
+# The set of dependency files which are needed:
+set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/root/MVO/src/BundleAdjustment.cpp" "CMakeFiles/mine.dir/src/BundleAdjustment.cpp.o" "gcc" "CMakeFiles/mine.dir/src/BundleAdjustment.cpp.o.d"
+  "/root/MVO/src/Converter.cpp" "CMakeFiles/mine.dir/src/Converter.cpp.o" "gcc" "CMakeFiles/mine.dir/src/Converter.cpp.o.d"
+  "/root/MVO/src/Feature.cpp" "CMakeFiles/mine.dir/src/Feature.cpp.o" "gcc" "CMakeFiles/mine.dir/src/Feature.cpp.o.d"
+  "/root/MVO/src/Init.cpp" "CMakeFiles/mine.dir/src/Init.cpp.o" "gcc" "CMakeFiles/mine.dir/src/Init.cpp.o.d"
+  "/root/MVO/src/LoopClosure.cpp" "CMakeFiles/mine.dir/src/LoopClosure.cpp.o" "gcc" "CMakeFiles/mine.dir/src/LoopClosure.cpp.o.d"
+  "/root/MVO/src/MapData.cpp" "CMakeFiles/mine.dir/src/MapData.cpp.o" "gcc" "CMakeFiles/mine.dir/src/MapData.cpp.o.d"
+  "/root/MVO/src/PoseEstimation.cpp" "CMakeFiles/mine.dir/src/PoseEstimation.cpp.o" "gcc" "CMakeFiles/mine.dir/src/PoseEstimation.cpp.o.d"
+  "/root/MVO/src/Triangulate.cpp" "CMakeFiles/mine.dir/src/Triangulate.cpp.o" "gcc" "CMakeFiles/mine.dir/src/Triangulate.cpp.o.d"
   )
 
 # Targets to which this target links.

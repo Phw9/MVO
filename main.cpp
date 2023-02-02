@@ -21,6 +21,7 @@ int main(int argc, char** argv)
 	std::deque<std::string> readImageName;
 	cv::Mat img;
 	cv::Mat img2;
+	cv::Mat img3;
 	int imageCurNum = 0;
 	int realFrame = 0;
 	float RH = 100; float SH, SF;
@@ -58,8 +59,13 @@ int main(int argc, char** argv)
 	int gIdx = -1;
 	mvo::Covisibilgraph covGraph(globalMapData, focald, camXd, camYd);
 	// load the vocabulary from disk
-  	OrbVocabulary voc("0630_KITTI00-22_10_4_voc.yml.gz");
+  	OrbVocabulary voc("/data/image/KITTI_00_phphww_voc.yml.gz");
 	OrbDatabase db(voc, false, 0); // false = do not use direct index
+	cv::Ptr<cv::ORB> orb = cv::ORB::create();
+	cv::Mat orbmask;
+    std::vector<cv::KeyPoint> orbkps;
+    cv::Mat orbdesc;
+	DBoW2::QueryResults ret;
 	bool bloop = false;
 
 	Viewer::MyVisualize pangolinViewer=Viewer::MyVisualize(WINDOWWIDTH, WINDOWHEIGHT);
@@ -82,6 +88,8 @@ int main(int argc, char** argv)
 									cv::ImreadModes::IMREAD_UNCHANGED);
 				img2 = cv::imread(readImageName.at(imageCurNum), 
 									cv::ImreadModes::IMREAD_UNCHANGED);
+				img3 = cv::imread(readImageName.at(imageCurNum), 
+									cv::ImreadModes::IMREAD_UNCHANGED);
 				if (img.empty())
 				{
 					std::cerr << "frame upload failed" << std::endl;
@@ -100,6 +108,8 @@ int main(int argc, char** argv)
 				img = cv::imread(readImageName.at(imageCurNum), 
 									cv::ImreadModes::IMREAD_UNCHANGED);
 				img2 = cv::imread(readImageName.at(imageCurNum), 
+									cv::ImreadModes::IMREAD_UNCHANGED);
+				img3 = cv::imread(readImageName.at(imageCurNum), 
 									cv::ImreadModes::IMREAD_UNCHANGED);
 				if (img.empty())
 				{
@@ -149,9 +159,9 @@ int main(int argc, char** argv)
 						std::cerr << "failed Minus local" << std::endl;
 					}
 					
-					setMapData.Get2DPoints(localTrackPointsA.at(lTPA), db, globaldesc);
-					setMapData.Get3DPoints(mapPointsA);
+					setMapData.Get2DPoints(localTrackPointsA.at(lTPA)); setMapData.Get3DPoints(mapPointsA);
 					globalMapData.emplace_back(std::move(setMapData));
+					mvo::LoopDetectCompute(img, globaldesc, db);
 
 					std::cout << "statssize: " << localTrackPointsA.at(lTPA).mstatus.size()<< std::endl;
 					std::cout << "mapPointsA.mworldMapPointsV: " << mapPointsA.mworldMapPointsV.size() << std::endl;
@@ -192,12 +202,14 @@ int main(int argc, char** argv)
 		img = cv::imread(readImageName.at(imageCurNum), 
 						cv::ImreadModes::IMREAD_UNCHANGED);
 		img2 = cv::imread(readImageName.at(imageCurNum), 
-						cv::ImreadModes::IMREAD_UNCHANGED);						
+						cv::ImreadModes::IMREAD_UNCHANGED);	
+		img3 = cv::imread(readImageName.at(imageCurNum), 
+									cv::ImreadModes::IMREAD_UNCHANGED);					
 		// localTrackPointsA[lTPA].mfeatures.size() < NUMOFPOINTS || 
 		// localTrackPointsB[lTPB].mfeatures.size() < NUMOFPOINTS ||
 		// (getPose.minlier.rows < NUMOFINLIER && getPose.minlier.rows != 0)
 		while(angularVelocity > ANGULARVELOCITY ||
-			localTrackPointsA[lTPA].mfeatures.size() < NUMOFPOINTS || 
+			localTrackPointsA[lTPA].mfeatures.size() < NUMOFPOINTS || 	
 			localTrackPointsB[lTPB].mfeatures.size() < NUMOFPOINTS ||
 			(getPose.minlier.rows < NUMOFINLIER && getPose.minlier.rows != 0) ||
 			inlierRatio < INLIERRATIO)
@@ -235,11 +247,10 @@ int main(int argc, char** argv)
 				{
 					std::cerr << "failed Minus local B" << std::endl;
 				}
+				mvo::LoopDetectCompute(img, globaldesc, db);
 
 				localPose.clear();
-				setMapData.GetPnPPose(getPose);
-				setMapData.Get2DPoints(localTrackPointsB.at(lTPB), db, globaldesc);
-				setMapData.Get3DPoints(mapPointsB);
+				setMapData.GetPnPPose(getPose); setMapData.Get2DPoints(localTrackPointsB.at(lTPB)); setMapData.Get3DPoints(mapPointsB);
 				globalMapData.emplace_back(std::move(setMapData));	// mvo::PushData(globalMapData, setMapData);
 				gD++; gIdx++;
 
@@ -288,11 +299,15 @@ int main(int argc, char** argv)
 				{
 					std::cerr << "failed Minus local A" << std::endl;
 				}
+				// orb->detectAndCompute(img3, orbmask, orbkps, orbdesc);
+				// globaldesc.push_back(std::vector<cv::Mat>());
+				// changeStructure(orbdesc, globaldesc.back());				
+				// db.add(globaldesc.back()); db.query(globaldesc.back(), ret, 4);
+				// std::cout << "Searching for Image: " << ret << std::endl; 
+				mvo::LoopDetectCompute(img, globaldesc, db);
 
 				localPose.clear();
-				setMapData.GetPnPPose(getPose);
-				setMapData.Get2DPoints(localTrackPointsA.at(lTPA), db, globaldesc);
-				setMapData.Get3DPoints(mapPointsA);
+				setMapData.GetPnPPose(getPose); setMapData.Get2DPoints(localTrackPointsA.at(lTPA)); setMapData.Get3DPoints(mapPointsA);
 				globalMapData.emplace_back(std::move(setMapData));	// mvo::PushData(globalMapData, setMapData);
 				gD++; gIdx++;
 				

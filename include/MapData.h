@@ -23,7 +23,7 @@ namespace mvo
         
         bool GetSFMPose(const mvo::StrctureFromMotion& sfm);
         bool GetPnPPose(const mvo::PoseEstimation& pe);
-        bool Get2DPoints(const mvo::Feature& feature, OrbDatabase &db, std::vector<std::vector<cv::Mat>>& globaldesc);
+        bool Get2DPoints(const mvo::Feature& feature);
         bool Get3DPoints(const mvo::Triangulate& tr);
 
         std::vector<cv::Point2f> mpoint2D;
