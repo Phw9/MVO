@@ -101,6 +101,20 @@ opencv2/highgui.hpp
 -
 opencv2/features2d.hpp
 -
+g2o/core/sparse_optimizer.h
+../include/g2o/core/sparse_optimizer.h
+g2o/core/block_solver.h
+../include/g2o/core/block_solver.h
+g2o/solvers/dense/linear_solver_dense.h
+../include/g2o/solvers/dense/linear_solver_dense.h
+g2o/core/optimization_algorithm_levenberg.h
+../include/g2o/core/optimization_algorithm_levenberg.h
+g2o/core/factory.h
+../include/g2o/core/factory.h
+g2o/types/slam3d/vertex_se3.h
+../include/g2o/types/slam3d/vertex_se3.h
+g2o/types/slam3d/edge_se3.h
+../include/g2o/types/slam3d/edge_se3.h
 
 ../include/MapData.h
 algorithm

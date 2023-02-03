@@ -10,13 +10,13 @@ void changeStructure(const cv::Mat &plain, std::vector<cv::Mat> &out)
   }
 }
 
-void mvo::wait()
+void mvo::LoopClosure::wait()
 {
     std::cout << std::endl << "Press enter to continue" << std::endl;
     getchar();
 }
 
-void mvo::LoopDetectCompute(const cv::Mat& img, std::vector<std::vector<cv::Mat>>& globaldesc, OrbDatabase& db)
+void mvo::LoopClosure::LoopDetectCompute(const cv::Mat& img, std::vector<std::vector<cv::Mat>>& globaldesc, OrbDatabase& db)
 {
     cv::Ptr<cv::ORB> orb = cv::ORB::create();
     cv::Mat mask;
@@ -31,7 +31,7 @@ void mvo::LoopDetectCompute(const cv::Mat& img, std::vector<std::vector<cv::Mat>
     std::cout << "Searching for Image: " << ret << std::endl;    
 }
 
-void mvo::testDatabase(const std::vector<std::vector<cv::Mat>> &globaldesc, std::vector<mvo::MapData> map, OrbDatabase& db)
+void mvo::LoopClosure::testDatabase(const std::vector<std::vector<cv::Mat>> &globaldesc, std::vector<mvo::MapData> map, OrbDatabase& db)
 {
     std::cout << "Database information: " << std::endl << db << std::endl;
 
@@ -40,28 +40,25 @@ void mvo::testDatabase(const std::vector<std::vector<cv::Mat>> &globaldesc, std:
 
     int a = map.size();
     DBoW2::QueryResults ret;
-    db.query(globaldesc.back(), ret, 4);
-    // for(int i = 0; i < a; i++)
-    // {
-    //   db.query(globaldesc[i], ret, 4);
+    for(int i = 0; i < a; i++)
+    {
+      db.query(globaldesc[i], ret, 4);
 
-    //   // ret[0] is always the same image in this case, because we added it to the 
-    //   // database. ret[1] is the second best match.
-
-    //   // std::cout << "Searching for Image " << i << ". " << ret << std::endl;
-    // }
+      // ret[0] is always the same image in this case, because we added it to the 
+      // database. ret[1] is the second best match.
+      std::cout << "Searching for Image " << i << ". " << ret << std::endl;
+    }
 
     std::cout << std::endl;
     std::cout << "... done!" << std::endl;
 
     // we can save the database. The created file includes the vocabulary
     // and the entries added
-    // std::cout << "Saving database..." << std::endl;
-    // db.save("KITTI_00_phphww_db.yml.gz");
+    std::cout << "Saving database..." << std::endl;
+    db.save("KITTI_00_phphww_db.yml.gz");
 }
 
-
-void mvo::VocCreation(const std::vector<std::vector<cv::Mat>>& features)
+void mvo::LoopClosure::VocCreation(const std::vector<std::vector<cv::Mat>>& features)
 {
   std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
 
@@ -72,11 +69,9 @@ void mvo::VocCreation(const std::vector<std::vector<cv::Mat>>& features)
   const DBoW2::ScoringType scoring = DBoW2::L1_NORM;
 
   OrbVocabulary voc(k, L, weight, scoring);
-  // BriefVocabulary voc(k, L, weight, scoring);
   std::cout << "Creating a small " << k << "^" << L << " vocabulary..." << std::endl;
   voc.create(features);
   std::cout << "... done!" << std::endl;
-
 
   // lets do something with this vocabulary
   std::cout << "Matching images against themselves (0 low, 1 high): " << std::endl;
@@ -103,7 +98,5 @@ void mvo::VocCreation(const std::vector<std::vector<cv::Mat>>& features)
   voc.save("KITTI_00_phphww_voc.yml.gz");
   std::chrono::duration<double> sec = std::chrono::system_clock::now() - start;
   std::cout << "Done : " << sec.count() << "secs" << std::endl;
-//   OrbDatabase db(voc, false, 0);
-//   TestDatabase(features, db);
-
 }
+

@@ -61,10 +61,6 @@ int main(int argc, char** argv)
   	OrbVocabulary voc("../image/KITTI_00_phphww_voc.yml.gz");
 	OrbDatabase db(voc, false, 0); // false = do not use direct index
 	cv::Ptr<cv::ORB> orb = cv::ORB::create();
-	cv::Mat orbmask;
-    std::vector<cv::KeyPoint> orbkps;
-    cv::Mat orbdesc;
-	DBoW2::QueryResults ret;
 	bool bloop = false;
 
 	Viewer::MyVisualize pangolinViewer=Viewer::MyVisualize(WINDOWWIDTH, WINDOWHEIGHT);
@@ -156,7 +152,7 @@ int main(int argc, char** argv)
 					
 					setMapData.Get2DPoints(localTrackPointsA.at(lTPA)); setMapData.Get3DPoints(mapPointsA);
 					globalMapData.emplace_back(std::move(setMapData));
-					mvo::LoopDetectCompute(img, globaldesc, db);
+					mvo::LoopClosure::LoopDetectCompute(img, globaldesc, db);
 
 					std::cout << "statssize: " << localTrackPointsA.at(lTPA).mstatus.size()<< std::endl;
 					std::cout << "mapPointsA.mworldMapPointsV: " << mapPointsA.mworldMapPointsV.size() << std::endl;
@@ -240,7 +236,7 @@ int main(int argc, char** argv)
 				{
 					std::cerr << "failed Minus local B" << std::endl;
 				}
-				mvo::LoopDetectCompute(img, globaldesc, db);
+				mvo::LoopClosure::LoopDetectCompute(img, globaldesc, db);
 
 				localPose.clear();
 				setMapData.GetPnPPose(getPose); setMapData.Get2DPoints(localTrackPointsB.at(lTPB)); setMapData.Get3DPoints(mapPointsB);
@@ -292,7 +288,7 @@ int main(int argc, char** argv)
 				{
 					std::cerr << "failed Minus local A" << std::endl;
 				}
-				mvo::LoopDetectCompute(img, globaldesc, db);
+				mvo::LoopClosure::LoopDetectCompute(img, globaldesc, db);
 
 				localPose.clear();
 				setMapData.GetPnPPose(getPose); setMapData.Get2DPoints(localTrackPointsA.at(lTPA)); setMapData.Get3DPoints(mapPointsA);
