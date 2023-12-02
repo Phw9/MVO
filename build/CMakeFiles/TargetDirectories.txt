@@ -1,4 +1,0 @@
-/home/phw93/MVO/build/CMakeFiles/rebuild_cache.dir
-/home/phw93/MVO/build/CMakeFiles/edit_cache.dir
-/home/phw93/MVO/build/CMakeFiles/mvo.dir
-/home/phw93/MVO/build/CMakeFiles/mine.dir
